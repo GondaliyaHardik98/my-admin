@@ -1,25 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import EmployeeDetails from "./components/EmpDetails";
+import CustomerDetails from "./components/CustomerDetails";
+import VendorMaster from "./components/VendorMaster";
+import ProductMaster from "./components/ProductMaster";
+import ChallanMaster from "./components/ChallanMaster";
+import SellMaster from "./components/SellMaster";
+import SalaryMaster from "./components/SalaryMaster";
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="min-h-screen bg-gray-100">
+        <Navbar />
+        <div className="p-5">
+          <Routes>
+            <Route path="/employee" element={<EmployeeDetails />} />
+            <Route path="/customerDetails" element={<CustomerDetails />} />
+            <Route path="/vendorMaster" element={<VendorMaster />} />
+            <Route path="/productMaster" element={<ProductMaster />} />
+            <Route path="/challanMaster" element={<ChallanMaster />} />
+            <Route path="/sellMaster" element={<SellMaster />} />
+            <Route path="/salaryMaster" element={<SalaryMaster />} />
+            {/* Add other routes here if needed */}
+          </Routes>
+        </div>
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
