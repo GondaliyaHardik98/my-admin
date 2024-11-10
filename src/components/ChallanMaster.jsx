@@ -3,8 +3,8 @@ import axios from "axios";
 
 export default function ChallanMaster() {
   const [errorMessage, setErrorMessage] = useState("");
-  const [customerId, setCustomerID] = useState("");
-  const [challanData, setChallanData] = useState("");
+  const [customerId, setCustomerID] = useState([]);
+  const [challanData, setChallanData] = useState([]);
   const [SelectedChallanId, setSelectedChallanId] = useState(null);
   const [employeeData, setEmployeeData] = useState([]);
   const [customerData, setDataCustomer] = useState([]);
@@ -12,10 +12,10 @@ export default function ChallanMaster() {
   const [formData, setFormData] = useState([
     {
       challanId: 0,
-      customerId: "",
-      productId: "",
-      engineerId: "",
-      challanPrice: "",
+      customerId: 0,
+      productId: 0,
+      engineerId: 0,
+      challanPrice: 0,
       challanDate: "",
       challanRemark: "",
     },
@@ -84,6 +84,18 @@ export default function ChallanMaster() {
       },
     ]);
   };
+  const clearRecord = () => {
+    setFormData({
+      challanId: 0,
+      customerId: 0,
+      productId: 0,
+      engineerId: 0,
+      challanPrice: 0,
+      challanDate: "",
+      challanRemark: "",
+    });
+  };
+
   const addChallan = (e) => {
     e.preventDefault();
     saveRecord();
@@ -91,14 +103,16 @@ export default function ChallanMaster() {
 
   const saveRecord = async () => {
     try {
-      const _saveData = formData.map((item) => ({
-        customerId: customerId, // Parent record - assuming the first row holds CustomerID
-        productId: item.productId,
-        engineerId: item.engineerId,
-        challanPrice: item.challanPrice,
-        challanDate: item.challanDate,
-        challanRemark: item.challanRemark,
-      }));
+      const _saveData = formData.map((item) => [
+        {
+          customerId: Number(customerId),
+          productId: Number(item.productId),
+          engineerId: Number(item.engineerId),
+          challanPrice: Number(item.challanPrice),
+          challanDate: item.challanDate,
+          challanRemark: item.challanRemark,
+        },
+      ]);
 
       console.log(_saveData, "Save Data");
 
@@ -122,30 +136,40 @@ export default function ChallanMaster() {
       }
 
       // setSuccess(true);
-      // fetchProducts();
-      // clearRecord();
+      fetchChallan();
+      clearRecord();
+      setSelectedChallanId(null);
     } catch (error) {
       console.error("Error creating challan:", error);
     }
   };
 
   const handleEdit = (challan) => {
-    setSelectedChallanId(challan.challanId); // Set the selected vendor's ID
-    setFormData({
-      customerId: challan.customerId,
-      productId: challan.productId,
-      engineerId: challan.engineerId,
-      challanPrice: challan.challanPrice,
-      challanDate: challan.challanDate,
-      challanRemark: challan.challanRemark,
-    });
+    setSelectedChallanId(challan.challanId);
+    setCustomerID(challan.customerId); // Set the selected vendor's ID
+
+    const formatDate = (dateString) => {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      return date.toISOString().split("T")[0];
+    };
+    setFormData([
+      {
+        customerId: challan.customerId,
+        productId: challan.productId,
+        engineerId: challan.engineerId,
+        challanPrice: challan.challanPrice,
+        challanDate: formatDate(challan.challanDate),
+        challanRemark: challan.challanRemark,
+      },
+    ]);
   };
   const handleDeleteProduct = async (challanId) => {
     if (window.confirm("Are you sure you want to delete this record?")) {
       try {
         console.log(challanId, "delete id");
         const response = await fetch(
-          `http://localhost:3002/api/product/${challanId}`,
+          `http://localhost:3002/api/challan/${challanId}`,
           {
             method: "DELETE",
           }
@@ -176,7 +200,7 @@ export default function ChallanMaster() {
           <label className="block font-medium">Customer ID</label>
           <select
             name="customerId"
-            value={formData.customerId}
+            value={customerId}
             onChange={handleCustomerIDChange}
             className="w-full border border-gray-300 rounded px-3 py-2"
             required
@@ -309,13 +333,13 @@ export default function ChallanMaster() {
               <th className="py-2 px-4 border-b">Remark</th>
             </tr>
           </thead>
-          {/* <tbody>
+          <tbody>
             {challanData.map((challan, index) => (
               <tr key={index} className="border-b">
                 <td className="py-2 px-4">{challan.challanId}</td>
-                <td className="py-2 px-4">{challan.customerId}</td>
-                <td className="py-2 px-4">{challan.productId}</td>
-                <td className="py-2 px-4">{challan.engineerId}</td>
+                <td className="py-2 px-4">{challan.customarName}</td>
+                <td className="py-2 px-4">{challan.productName}</td>
+                <td className="py-2 px-4">{challan.engineerName}</td>
                 <td className="py-2 px-4">{challan.challanPrice}</td>
                 <td className="py-2 px-4">{challan.challanDate}</td>
                 <td className="py-2 px-4">{challan.challanRemark}</td>
@@ -331,7 +355,7 @@ export default function ChallanMaster() {
                 </td>
               </tr>
             ))}
-          </tbody> */}
+          </tbody>
         </table>
       </div>
     </div>
