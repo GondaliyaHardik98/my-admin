@@ -18,6 +18,7 @@ export default function ChallanMaster() {
       challanPrice: 0,
       challanDate: "",
       challanRemark: "",
+      mutliValue: [],
     },
   ]);
 
@@ -64,11 +65,19 @@ export default function ChallanMaster() {
     setCustomerID(e.target.value); // Update customerID state
     console.log(customerId);
   };
-  const handleInputChange = (index, e) => {
-    const { name, value } = e.target;
-    const updatedProducts = [...formData];
-    updatedProducts[index][name] = value;
-    setFormData(updatedProducts);
+  // const handleInputChange = (index, e) => {
+  //   const { name, value } = e.target;
+  //   const updatedChallan = [...formData];
+  //   updatedChallan[index][name] = value;
+  //   setFormData(updatedChallan);
+  // };
+
+  const handleInputChange = (index, field, value) => {
+    setFormData((prevData) =>
+      prevData.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item
+      )
+    );
   };
 
   const addProductRow = () => {
@@ -117,7 +126,7 @@ export default function ChallanMaster() {
       console.log(_saveData, "Save Data");
 
       const url = SelectedChallanId
-        ? `http://localhost:3002/api/challan/${SelectedChallanId}`
+        ? `http://localhost:3002/api/challan/${customerId}`
         : "http://localhost:3002/api/challan";
       const method = SelectedChallanId ? "PUT" : "POST";
       const response = await fetch(url, {
@@ -129,7 +138,6 @@ export default function ChallanMaster() {
       });
 
       const data = await response.json();
-      console.log(_saveData, "saveData");
 
       if (!response.ok) {
         throw new Error(data.message || "Failed to create challan");
@@ -144,26 +152,64 @@ export default function ChallanMaster() {
     }
   };
 
-  const handleEdit = (challan) => {
+  const handleEdit = async (challan) => {
     setSelectedChallanId(challan.challanId);
-    setCustomerID(challan.customerId); // Set the selected vendor's ID
+    setCustomerID(challan.customerId); // Set the selected customer ID
+
+    const newcustomerId = challan.customerId;
+    console.log(newcustomerId, "newcustomerId");
+
+    const currentRecord = await fetch(
+      `http://localhost:3002/api/challan/${newcustomerId}`,
+      {
+        method: "GET",
+      }
+    );
+
+    const GetDataById = await currentRecord.json();
 
     const formatDate = (dateString) => {
       if (!dateString) return "";
       const date = new Date(dateString);
       return date.toISOString().split("T")[0];
     };
-    setFormData([
+
+    // Ensure products array exists before mapping
+    const formattedData = [
       {
-        customerId: challan.customerId,
-        productId: challan.productId,
-        engineerId: challan.engineerId,
-        challanPrice: challan.challanPrice,
-        challanDate: formatDate(challan.challanDate),
-        challanRemark: challan.challanRemark,
+        customerId: GetDataById.customerId,
+        productId: GetDataById.productId,
+        engineerId: GetDataById.engineerId,
+        challanPrice: GetDataById.challanPrice,
+        challanDate: formatDate(GetDataById.challanDate),
+        challanRemark: GetDataById.challanRemark,
       },
-    ]);
+    ];
+
+    console.log("Formatted Data for Editing:", formattedData); // Debugging log
+    setFormData(formattedData); // Set the array of product details
   };
+
+  // const handleEdit = (challan) => {
+  //   setSelectedChallanId(challan.challanId);
+  //   setCustomerID(challan.customerId); // Set the selected customerId
+
+  //   const formatDate = (dateString) => {
+  //     if (!dateString) return "";
+  //     const date = new Date(dateString);
+  //     return date.toISOString().split("T")[0];
+  //   };
+  //   setFormData([
+  //     {
+  //       customerId: challan.customerId,
+  //       productId: challan.productId,
+  //       engineerId: challan.engineerId,
+  //       challanPrice: challan.challanPrice,
+  //       challanDate: formatDate(challan.challanDate),
+  //       challanRemark: challan.challanRemark,
+  //     },
+  //   ]);
+  // };
   const handleDeleteProduct = async (challanId) => {
     if (window.confirm("Are you sure you want to delete this record?")) {
       try {
@@ -216,99 +262,110 @@ export default function ChallanMaster() {
         </div>
 
         {/* Product Rows */}
-        {formData.map((product, index) => (
-          <div
-            key={index}
-            className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end mb-4"
-          >
-            {/* Product ID */}
-            <div>
-              <label className="block font-medium">Product ID</label>
-              <select
-                name="productId"
-                value={product.productId}
-                onChange={(e) => handleInputChange(index, e)}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                required
-              >
-                <option value="">Select product</option>
-                {productData.map((pro) => (
-                  <option key={pro.productId} value={pro.productId}>
-                    {pro.productName}
-                  </option>
-                ))}
-              </select>
-            </div>
+        {Array.isArray(formData) &&
+          formData.map((product, index) => (
+            <div
+              key={index}
+              className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end mb-4"
+            >
+              {/* Product ID */}
+              <div>
+                <label className="block font-medium">Product ID</label>
+                <select
+                  name="productId"
+                  value={product.productId}
+                  onChange={(e) =>
+                    handleInputChange(index, "productId", e.target.value)
+                  }
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  required
+                >
+                  <option value="">Select product</option>
+                  {productData.map((pro) => (
+                    <option key={pro.productId} value={pro.productId}>
+                      {pro.productName}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Engineer ID */}
-            <div>
-              <label className="block font-medium">Engineer ID</label>
-              <select
-                name="engineerId"
-                value={product.engineerId}
-                onChange={(e) => handleInputChange(index, e)}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                required
-              >
-                <option value="">Select employee</option>
-                {employeeData.map((empData) => (
-                  <option key={empData.engineerId} value={empData.engineerId}>
-                    {empData.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+              {/* Engineer ID */}
+              <div>
+                <label className="block font-medium">Engineer ID</label>
+                <select
+                  name="engineerId"
+                  value={product.engineerId}
+                  onChange={(e) =>
+                    handleInputChange(index, "engineerId", e.target.value)
+                  }
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  required
+                >
+                  <option value="">Select employee</option>
+                  {employeeData.map((empData) => (
+                    <option key={empData.engineerId} value={empData.engineerId}>
+                      {empData.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Price */}
-            <div>
-              <label className="block font-medium">Price</label>
-              <input
-                type="number"
-                name="challanPrice"
-                value={product.challanPrice}
-                onChange={(e) => handleInputChange(index, e)}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                placeholder="Enter Price"
-              />
-            </div>
+              {/* Price */}
+              <div>
+                <label className="block font-medium">Price</label>
+                <input
+                  type="number"
+                  name="challanPrice"
+                  value={product.challanPrice}
+                  onChange={(e) =>
+                    handleInputChange(index, "challanPrice", e.target.value)
+                  }
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  placeholder="Enter Price"
+                />
+              </div>
 
-            {/* Date */}
-            <div>
-              <label className="block font-medium">Date</label>
-              <input
-                type="date"
-                name="challanDate"
-                value={product.challanDate}
-                onChange={(e) => handleInputChange(index, e)}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
+              {/* Date */}
+              <div>
+                <label className="block font-medium">Date</label>
+                <input
+                  type="date"
+                  name="challanDate"
+                  value={product.challanDate}
+                  onChange={(e) =>
+                    handleInputChange(index, "challanDate", e.target.value)
+                  }
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                />
+              </div>
 
-            {/* Remark */}
-            <div>
-              <label className="block font-medium">Remark</label>
-              <input
-                type="text"
-                name="challanRemark"
-                value={product.challanRemark}
-                onChange={(e) => handleInputChange(index, e)}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                placeholder="Enter Remark"
-              />
-            </div>
+              {/* Remark */}
+              <div>
+                <label className="block font-medium">Remark</label>
+                <input
+                  type="text"
+                  name="challanRemark"
+                  value={product.challanRemark}
+                  onChange={(e) =>
+                    handleInputChange(index, "challanRemark", e.target.value)
+                  }
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  placeholder="Enter Remark"
+                />
+              </div>
 
-            {/* Add Button */}
-            {index === formData.length - 1 && (
-              <button
-                type="button"
-                onClick={addProductRow}
-                className="bg-green-500 text-white py-2 px-4 rounded"
-              >
-                +
-              </button>
-            )}
-          </div>
-        ))}
+              {/* Add Button */}
+              {index === formData.length - 1 && (
+                <button
+                  type="button"
+                  onClick={addProductRow}
+                  className="bg-green-500 text-white py-2 px-4 rounded"
+                >
+                  +
+                </button>
+              )}
+            </div>
+          ))}
 
         {/* Submit Button */}
         <button
@@ -334,27 +391,28 @@ export default function ChallanMaster() {
             </tr>
           </thead>
           <tbody>
-            {challanData.map((challan, index) => (
-              <tr key={index} className="border-b">
-                <td className="py-2 px-4">{challan.challanId}</td>
-                <td className="py-2 px-4">{challan.customarName}</td>
-                <td className="py-2 px-4">{challan.productName}</td>
-                <td className="py-2 px-4">{challan.engineerName}</td>
-                <td className="py-2 px-4">{challan.challanPrice}</td>
-                <td className="py-2 px-4">{challan.challanDate}</td>
-                <td className="py-2 px-4">{challan.challanRemark}</td>
-                <td className="py-2 px-4">
-                  <button onClick={() => handleEdit(challan)}>Edit</button>
-                </td>
-                <td>
-                  <button
-                    onClick={() => handleDeleteProduct(challan.challanId)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {Array.isArray(challanData) &&
+              challanData.map((challan, index) => (
+                <tr key={index} className="border-b">
+                  <td className="py-2 px-4">{challan.challanId}</td>
+                  <td className="py-2 px-4">{challan.customarName}</td>
+                  <td className="py-2 px-4">{challan.productName}</td>
+                  <td className="py-2 px-4">{challan.engineerName}</td>
+                  <td className="py-2 px-4">{challan.challanPrice}</td>
+                  <td className="py-2 px-4">{challan.challanDate}</td>
+                  <td className="py-2 px-4">{challan.challanRemark}</td>
+                  <td className="py-2 px-4">
+                    <button onClick={() => handleEdit(challan)}>Edit</button>
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => handleDeleteProduct(challan.challanId)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
