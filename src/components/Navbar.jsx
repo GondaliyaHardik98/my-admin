@@ -41,6 +41,11 @@ const Navbar = () => {
           </a>
         </li>
         <li>
+          <a href="/amcMaster" className="text-white hover:text-gray-200">
+            AMC Data
+          </a>
+        </li>
+        <li>
           <a href="/salaryMaster" className="text-white hover:text-gray-200">
             Salary Master
           </a>

@@ -8,6 +8,7 @@ import ProductMaster from "./components/ProductMaster";
 import ChallanMaster from "./components/ChallanMaster";
 import SellMaster from "./components/SellMaster";
 import SalaryMaster from "./components/SalaryMaster";
+import AMCMaster from "./components/AMCMaster";
 
 const App = () => {
   return (
@@ -22,8 +23,8 @@ const App = () => {
             <Route path="/productMaster" element={<ProductMaster />} />
             <Route path="/challanMaster" element={<ChallanMaster />} />
             <Route path="/sellMaster" element={<SellMaster />} />
+            <Route path="/amcMaster" element={<AMCMaster />} />
             <Route path="/salaryMaster" element={<SalaryMaster />} />
-            {/* Add other routes here if needed */}
           </Routes>
         </div>
       </div>
