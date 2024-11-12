@@ -3,7 +3,7 @@ import axios from "axios";
 
 export default function ChallanMaster() {
   const [errorMessage, setErrorMessage] = useState("");
-  const [customerId, setCustomerID] = useState([]);
+  const [customerId, setCustomerID] = useState("");
   const [challanData, setChallanData] = useState([]);
   const [SelectedChallanId, setSelectedChallanId] = useState(null);
   const [employeeData, setEmployeeData] = useState([]);
@@ -11,14 +11,13 @@ export default function ChallanMaster() {
   const [productData, setProductData] = useState([]);
   const [formData, setFormData] = useState([
     {
-      challanId: 0,
-      customerId: 0,
-      productId: 0,
-      engineerId: 0,
-      challanPrice: 0,
+      challanId: "",
+      customerId: "",
+      productId: "",
+      engineerId: "",
+      challanPrice: "",
       challanDate: "",
       challanRemark: "",
-      mutliValue: [],
     },
   ]);
 
@@ -31,60 +30,58 @@ export default function ChallanMaster() {
     try {
       const getAllData = await axios.get("http://localhost:3002/api/challan");
       setChallanData(getAllData.data.data);
-      console.log(getAllData.data.data, "getAllData");
     } catch (error) {
       console.error("Error fetching products:", error);
+      setErrorMessage("Failed to fetch challan data");
     }
   };
 
   const populateData = async () => {
     try {
-      const customerData = await axios.get(
-        "http://localhost:3002/api/challanCustomer"
-      );
-      setDataCustomer(customerData.data.data);
-      console.log(customerData.data.data, "customerData");
+      const [customerRes, productRes, employeeRes] = await Promise.all([
+        axios.get("http://localhost:3002/api/challanCustomer"),
+        axios.get("http://localhost:3002/api/challanProduct"),
+        axios.get("http://localhost:3002/api/challanEmployee"),
+      ]);
 
-      const productData = await axios.get(
-        "http://localhost:3002/api/challanProduct"
-      );
-      setProductData(productData.data.data);
-      console.log(productData.data.data, "productData");
-
-      const employeeData = await axios.get(
-        "http://localhost:3002/api/challanEmployee"
-      );
-      setEmployeeData(employeeData.data.data);
-      console.log(employeeData.data.data, "employeeData");
+      setDataCustomer(customerRes.data.data);
+      setProductData(productRes.data.data);
+      setEmployeeData(employeeRes.data.data);
     } catch (error) {
-      console.error("Error fetching", error);
+      console.error("Error fetching data:", error);
+      setErrorMessage("Failed to fetch master data");
     }
   };
 
   const handleCustomerIDChange = (e) => {
-    setCustomerID(e.target.value); // Update customerID state
-    console.log(customerId);
-  };
-  // const handleInputChange = (index, e) => {
-  //   const { name, value } = e.target;
-  //   const updatedChallan = [...formData];
-  //   updatedChallan[index][name] = value;
-  //   setFormData(updatedChallan);
-  // };
+    const newCustomerId = e.target.value;
+    setCustomerID(newCustomerId);
 
-  const handleInputChange = (index, field, value) => {
     setFormData((prevData) =>
-      prevData.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      )
+      prevData.map((item) => ({
+        ...item,
+        customerId: newCustomerId,
+      }))
     );
   };
 
+  const handleInputChange = (index, field, value) => {
+    setFormData((prevData) => {
+      const newData = [...prevData];
+      newData[index] = {
+        ...newData[index],
+        [field]: value,
+      };
+      return newData;
+    });
+  };
+
   const addProductRow = () => {
-    setFormData([
-      ...formData,
+    setFormData((prevData) => [
+      ...prevData,
       {
-        customerId: "",
+        challanId: "",
+        customerId: customerId, // Use the currently selected customer
         productId: "",
         engineerId: "",
         challanPrice: "",
@@ -93,146 +90,131 @@ export default function ChallanMaster() {
       },
     ]);
   };
+
   const clearRecord = () => {
-    setFormData({
-      challanId: 0,
-      customerId: 0,
-      productId: 0,
-      engineerId: 0,
-      challanPrice: 0,
-      challanDate: "",
-      challanRemark: "",
-    });
-  };
-
-  const addChallan = (e) => {
-    e.preventDefault();
-    saveRecord();
-  };
-
-  const saveRecord = async () => {
-    try {
-      const _saveData = formData.map((item) => [
-        {
-          customerId: Number(customerId),
-          productId: Number(item.productId),
-          engineerId: Number(item.engineerId),
-          challanPrice: Number(item.challanPrice),
-          challanDate: item.challanDate,
-          challanRemark: item.challanRemark,
-        },
-      ]);
-
-      console.log(_saveData, "Save Data");
-
-      const url = SelectedChallanId
-        ? `http://localhost:3002/api/challan/${customerId}`
-        : "http://localhost:3002/api/challan";
-      const method = SelectedChallanId ? "PUT" : "POST";
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(_saveData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to create challan");
-      }
-
-      // setSuccess(true);
-      fetchChallan();
-      clearRecord();
-      setSelectedChallanId(null);
-    } catch (error) {
-      console.error("Error creating challan:", error);
-    }
+    setFormData([
+      {
+        challanId: "",
+        customerId: "",
+        productId: "",
+        engineerId: "",
+        challanPrice: "",
+        challanDate: "",
+        challanRemark: "",
+      },
+    ]);
+    setCustomerID("");
+    setSelectedChallanId(null);
+    setErrorMessage("");
   };
 
   const handleEdit = async (challan) => {
-    setSelectedChallanId(challan.challanId);
-    setCustomerID(challan.customerId); // Set the selected customer ID
+    try {
+      setSelectedChallanId(challan.challanId);
+      setCustomerID(challan.customerId);
 
-    const newcustomerId = challan.customerId;
-    console.log(newcustomerId, "newcustomerId");
+      // Fetch all challans for this customer
+      const response = await axios.get(
+        `http://localhost:3002/api/challan/${challan.customerId}`
+      );
 
-    const currentRecord = await fetch(
-      `http://localhost:3002/api/challan/${newcustomerId}`,
-      {
-        method: "GET",
+      if (response.data.success && Array.isArray(response.data.data)) {
+        const formattedData = response.data.data.map((item) => ({
+          challanId: item.challanId, // Important: Keep the challanId for updates
+          customerId: item.customerId,
+          productId: item.productId,
+          engineerId: item.engineerId,
+          challanPrice: item.challanPrice,
+          challanDate: formatDate(item.challanDate),
+          challanRemark: item.challanRemark,
+        }));
+
+        setFormData(formattedData);
       }
-    );
-
-    const GetDataById = await currentRecord.json();
-
-    const formatDate = (dateString) => {
-      if (!dateString) return "";
-      const date = new Date(dateString);
-      return date.toISOString().split("T")[0];
-    };
-
-    // Ensure products array exists before mapping
-    const formattedData = [
-      {
-        customerId: GetDataById.customerId,
-        productId: GetDataById.productId,
-        engineerId: GetDataById.engineerId,
-        challanPrice: GetDataById.challanPrice,
-        challanDate: formatDate(GetDataById.challanDate),
-        challanRemark: GetDataById.challanRemark,
-      },
-    ];
-
-    console.log("Formatted Data for Editing:", formattedData); // Debugging log
-    setFormData(formattedData); // Set the array of product details
+    } catch (error) {
+      console.error("Error fetching records:", error);
+      setErrorMessage("Failed to fetch challan details");
+    }
   };
 
-  // const handleEdit = (challan) => {
-  //   setSelectedChallanId(challan.challanId);
-  //   setCustomerID(challan.customerId); // Set the selected customerId
+  const saveRecord = async (e) => {
+    e.preventDefault();
 
-  //   const formatDate = (dateString) => {
-  //     if (!dateString) return "";
-  //     const date = new Date(dateString);
-  //     return date.toISOString().split("T")[0];
-  //   };
-  //   setFormData([
-  //     {
-  //       customerId: challan.customerId,
-  //       productId: challan.productId,
-  //       engineerId: challan.engineerId,
-  //       challanPrice: challan.challanPrice,
-  //       challanDate: formatDate(challan.challanDate),
-  //       challanRemark: challan.challanRemark,
-  //     },
-  //   ]);
-  // };
-  const handleDeleteProduct = async (challanId) => {
-    if (window.confirm("Are you sure you want to delete this record?")) {
-      try {
-        console.log(challanId, "delete id");
-        const response = await fetch(
-          `http://localhost:3002/api/challan/${challanId}`,
-          {
-            method: "DELETE",
-          }
-        );
-        const result = await response.json();
-
-        if (result.success) {
-          // fetchProducts();
-          // clearRecord();
-          alert("Record deleted successfully.");
-        } else {
-          alert("Failed to delete record.");
-        }
-      } catch (error) {
-        console.error("Error deleting record:", error);
-        alert("An error occurred.");
+    try {
+      if (!customerId) {
+        setErrorMessage("Please select a customer");
+        return;
       }
+
+      const isValid = formData.every(
+        (item) => item.productId && item.engineerId && item.challanPrice
+      );
+
+      if (!isValid) {
+        setErrorMessage("Please fill in all required fields for each entry");
+        return;
+      }
+
+      // If we're updating (SelectedChallanId exists)
+      if (SelectedChallanId) {
+        const response = await axios.put(
+          `http://localhost:3002/api/challan/${customerId}`, // Changed to use customerId
+          formData.map((item) => ({
+            ...item,
+            customerId: customerId,
+          }))
+        );
+
+        if (response.data.success) {
+          await fetchChallan();
+          clearRecord();
+        }
+      } else {
+        // Handle new challan creation
+        const response = await axios.post(
+          "http://localhost:3002/api/challan",
+          formData.map((item) => ({
+            ...item,
+            customerId: customerId,
+          }))
+        );
+
+        if (response.data.success) {
+          await fetchChallan();
+          clearRecord();
+        }
+      }
+    } catch (error) {
+      console.error("Error saving challan:", error);
+      setErrorMessage(error.message || "Failed to save challan");
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toISOString().split("T")[0];
+  };
+
+  const handleDeleteProduct = async (challanId) => {
+    if (!window.confirm("Are you sure you want to delete this record?")) {
+      return;
+    }
+
+    try {
+      const response = await axios.delete(
+        `http://localhost:3002/api/challan/${challanId}`
+      );
+
+      if (response.data.success) {
+        await fetchChallan();
+        alert("Record deleted successfully.");
+      } else {
+        throw new Error("Failed to delete record");
+      }
+    } catch (error) {
+      console.error("Error deleting record:", error);
+      alert(error.message || "An error occurred while deleting");
     }
   };
 
@@ -240,12 +222,16 @@ export default function ChallanMaster() {
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-6">Challan Master</h2>
 
-      <form className="space-y-4">
-        {/* Customer ID */}
+      {errorMessage && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {errorMessage}
+        </div>
+      )}
+
+      <form onSubmit={saveRecord} className="space-y-4">
         <div className="mb-4">
-          <label className="block font-medium">Customer ID</label>
+          <label className="block font-medium">Customer</label>
           <select
-            name="customerId"
             value={customerId}
             onChange={handleCustomerIDChange}
             className="w-full border border-gray-300 rounded px-3 py-2"
@@ -254,167 +240,173 @@ export default function ChallanMaster() {
             <option value="">Select customer</option>
             {customerData.map((customer) => (
               <option key={customer.customerId} value={customer.customerId}>
-                {" "}
                 {customer.name}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Product Rows */}
-        {Array.isArray(formData) &&
-          formData.map((product, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end mb-4"
-            >
-              {/* Product ID */}
-              <div>
-                <label className="block font-medium">Product ID</label>
-                <select
-                  name="productId"
-                  value={product.productId}
-                  onChange={(e) =>
-                    handleInputChange(index, "productId", e.target.value)
-                  }
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                  required
-                >
-                  <option value="">Select product</option>
-                  {productData.map((pro) => (
-                    <option key={pro.productId} value={pro.productId}>
-                      {pro.productName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Engineer ID */}
-              <div>
-                <label className="block font-medium">Engineer ID</label>
-                <select
-                  name="engineerId"
-                  value={product.engineerId}
-                  onChange={(e) =>
-                    handleInputChange(index, "engineerId", e.target.value)
-                  }
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                  required
-                >
-                  <option value="">Select employee</option>
-                  {employeeData.map((empData) => (
-                    <option key={empData.engineerId} value={empData.engineerId}>
-                      {empData.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Price */}
-              <div>
-                <label className="block font-medium">Price</label>
-                <input
-                  type="number"
-                  name="challanPrice"
-                  value={product.challanPrice}
-                  onChange={(e) =>
-                    handleInputChange(index, "challanPrice", e.target.value)
-                  }
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                  placeholder="Enter Price"
-                />
-              </div>
-
-              {/* Date */}
-              <div>
-                <label className="block font-medium">Date</label>
-                <input
-                  type="date"
-                  name="challanDate"
-                  value={product.challanDate}
-                  onChange={(e) =>
-                    handleInputChange(index, "challanDate", e.target.value)
-                  }
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                />
-              </div>
-
-              {/* Remark */}
-              <div>
-                <label className="block font-medium">Remark</label>
-                <input
-                  type="text"
-                  name="challanRemark"
-                  value={product.challanRemark}
-                  onChange={(e) =>
-                    handleInputChange(index, "challanRemark", e.target.value)
-                  }
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                  placeholder="Enter Remark"
-                />
-              </div>
-
-              {/* Add Button */}
-              {index === formData.length - 1 && (
-                <button
-                  type="button"
-                  onClick={addProductRow}
-                  className="bg-green-500 text-white py-2 px-4 rounded"
-                >
-                  +
-                </button>
-              )}
+        {formData.map((item, index) => (
+          <div
+            key={index}
+            className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end mb-4"
+          >
+            <div>
+              <label className="block font-medium">Product</label>
+              <select
+                value={item.productId}
+                onChange={(e) =>
+                  handleInputChange(index, "productId", e.target.value)
+                }
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+              >
+                <option value="">Select product</option>
+                {productData.map((prod) => (
+                  <option key={prod.productId} value={prod.productId}>
+                    {prod.productName}
+                  </option>
+                ))}
+              </select>
             </div>
-          ))}
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          onClick={addChallan}
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-        >
-          Submit
-        </button>
+            <div>
+              <label className="block font-medium">Engineer</label>
+              <select
+                value={item.engineerId}
+                onChange={(e) =>
+                  handleInputChange(index, "engineerId", e.target.value)
+                }
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+              >
+                <option value="">Select engineer</option>
+                {employeeData.map((emp) => (
+                  <option key={emp.engineerId} value={emp.engineerId}>
+                    {emp.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-medium">Price</label>
+              <input
+                type="number"
+                value={item.challanPrice}
+                onChange={(e) =>
+                  handleInputChange(index, "challanPrice", e.target.value)
+                }
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+                placeholder="Enter Price"
+              />
+            </div>
+
+            <div>
+              <label className="block font-medium">Date</label>
+              <input
+                type="date"
+                value={item.challanDate}
+                onChange={(e) =>
+                  handleInputChange(index, "challanDate", e.target.value)
+                }
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block font-medium">Remark</label>
+              <input
+                type="text"
+                value={item.challanRemark}
+                onChange={(e) =>
+                  handleInputChange(index, "challanRemark", e.target.value)
+                }
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                placeholder="Enter Remark"
+              />
+            </div>
+
+            {index === formData.length - 1 && (
+              <button
+                type="button"
+                onClick={addProductRow}
+                className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+              >
+                +
+              </button>
+            )}
+          </div>
+        ))}
+
+        <div className="flex gap-4">
+          <button
+            type="submit"
+            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 flex-1"
+          >
+            {SelectedChallanId ? "Update" : "Submit"}
+          </button>
+          <button
+            type="button"
+            onClick={clearRecord}
+            className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+          >
+            Clear
+          </button>
+        </div>
       </form>
-      <div className="container mx-auto mt-8 p-4 overflow-x-auto">
-        <h2 className="text-xl font-semibold mb-4">Product List</h2>
-        <table className="w-full border border-gray-300 text-left">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b">ID</th>
-              <th className="py-2 px-4 border-b">Customer</th>
-              <th className="py-2 px-4 border-b">produc</th>
-              <th className="py-2 px-4 border-b">Engineer</th>
-              <th className="py-2 px-4 border-b">Price</th>
-              <th className="py-2 px-4 border-b">Date</th>
-              <th className="py-2 px-4 border-b">Remark</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.isArray(challanData) &&
-              challanData.map((challan, index) => (
-                <tr key={index} className="border-b">
-                  <td className="py-2 px-4">{challan.challanId}</td>
-                  <td className="py-2 px-4">{challan.customarName}</td>
-                  <td className="py-2 px-4">{challan.productName}</td>
-                  <td className="py-2 px-4">{challan.engineerName}</td>
-                  <td className="py-2 px-4">{challan.challanPrice}</td>
-                  <td className="py-2 px-4">{challan.challanDate}</td>
-                  <td className="py-2 px-4">{challan.challanRemark}</td>
-                  <td className="py-2 px-4">
-                    <button onClick={() => handleEdit(challan)}>Edit</button>
+
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Challan List</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full border border-gray-300">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="py-2 px-4 border-b">ID</th>
+                <th className="py-2 px-4 border-b">Customer</th>
+                <th className="py-2 px-4 border-b">Product</th>
+                <th className="py-2 px-4 border-b">Engineer</th>
+                <th className="py-2 px-4 border-b">Price</th>
+                <th className="py-2 px-4 border-b">Date</th>
+                <th className="py-2 px-4 border-b">Remark</th>
+                <th className="py-2 px-4 border-b">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {challanData.map((challan) => (
+                <tr key={challan.challanId} className="hover:bg-gray-50">
+                  <td className="py-2 px-4 border-b">{challan.challanId}</td>
+                  <td className="py-2 px-4 border-b">{challan.customarName}</td>
+                  <td className="py-2 px-4 border-b">{challan.productName}</td>
+                  <td className="py-2 px-4 border-b">{challan.engineerName}</td>
+                  <td className="py-2 px-4 border-b">{challan.challanPrice}</td>
+                  <td className="py-2 px-4 border-b">
+                    {formatDate(challan.challanDate)}
                   </td>
-                  <td>
+                  <td className="py-2 px-4 border-b">
+                    {challan.challanRemark}
+                  </td>
+                  <td className="py-2 px-4 border-b">
+                    <button
+                      onClick={() => handleEdit(challan)}
+                      className="text-blue-500 hover:text-blue-700 mr-2"
+                    >
+                      Edit
+                    </button>
                     <button
                       onClick={() => handleDeleteProduct(challan.challanId)}
+                      className="text-red-500 hover:text-red-700"
                     >
                       Delete
                     </button>
                   </td>
                 </tr>
               ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
