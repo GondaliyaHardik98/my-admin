@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 const CustomerDetails = () => {
   const [customers, setCustomers] = useState([]);
@@ -7,6 +8,7 @@ const CustomerDetails = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [response, setResponse] = useState(null);
   const [formData, setFormData] = useState({
     id: 0,
     name: "",
@@ -64,8 +66,7 @@ const CustomerDetails = () => {
   const saveRecord = async () => {
     try {
       setLoading(true);
-      setError(null);
-      setSuccess(false);
+      setResponse(null);
 
       const _saveData = {
         name: formData.name,
@@ -88,20 +89,22 @@ const CustomerDetails = () => {
         },
         body: JSON.stringify(_saveData),
       });
-
+      setResponse({
+        success: data.success,
+        message: data.message,
+      });
       const data = await response.json();
       console.log(_saveData, "saveData");
 
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to create employee");
+      if (data.success) {
+        clearRecord();
+        fetchCustomers();
       }
-
-      setSuccess(true);
-      clearRecord();
-      fetchCustomers();
     } catch (error) {
-      setError(error.message);
-      console.error("Error creating employee:", error);
+      setResponse({
+        success: false,
+        message: "Error submitting form. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -134,11 +137,11 @@ const CustomerDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-5">
-      <h1 className="text-2xl font-bold mb-5">Customer Management</h1>
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-6">Customer Management</h2>
 
       {/* Form */}
-      <form className="bg-white p-6 rounded-lg shadow-md w-full max-w-md mb-8">
+      <form className="space-y-4">
         <div>
           <input
             type="text"
@@ -148,80 +151,107 @@ const CustomerDetails = () => {
             hidden
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+
+        {/* Name and GST No Row */}
+        <div className="grid grid-cols-4 gap-4">
           <div>
-            <label className="block text-gray-700">Name:</label>
+            <label className="block font-medium">Name</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="mt-1 p-2 w-full border border-gray-300 rounded"
+              className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
           <div>
-            <label className="block text-gray-700">GST No:</label>
+            <label className="block font-medium">GST No</label>
             <input
               type="text"
               name="gstNo"
               value={formData.gstNo}
               onChange={handleChange}
-              className="mt-1 p-2 w-full border border-gray-300 rounded"
+              className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
+          {/* Mobile No Field */}
           <div>
-            <label className="block text-gray-700">Mobile No:</label>
+            <label className="block font-medium">Mobile No</label>
             <input
               type="text"
               name="mobileNo"
               value={formData.mobileNo}
               onChange={handleChange}
-              className="mt-1 p-2 w-full border border-gray-300 rounded"
+              className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
-          <div className="col-span-2">
-            <label className="block text-gray-700">Address:</label>
-            <input
+        </div>
+
+        {/* Address and Remark Row */}
+        <div className="grid grid-cols-4 gap-4">
+          <div>
+            <label className="block font-medium">Address</label>
+            <textarea
+              rows={2}
               type="text"
               name="address"
               value={formData.address}
               onChange={handleChange}
-              className="mt-1 p-2 w-full border border-gray-300 rounded"
+              className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
-          <div className="col-span-2">
-            <label className="block text-gray-700">Remark:</label>
-            <input
+          <div>
+            <label className="block font-medium">Remark</label>
+            <textarea
+              rows={2}
               type="text"
               name="remark"
               value={formData.remark}
               onChange={handleChange}
-              className="mt-1 p-2 w-full border border-gray-300 rounded"
+              className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
         </div>
-        <div>
+
+        {/* Save and Clear Buttons */}
+        <div className="flex justify-center space-x-4 mt-4">
           <button
             type="submit"
             onClick={addCustomer}
-            className="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+            className="w-36 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
           >
             Save
           </button>
           <button
-            type="submit"
+            type="button"
             onClick={clearCustomer}
-            className="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+            className="w-32 bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
           >
             Clear
           </button>
         </div>
       </form>
+      {response && (
+        <div
+          className={`mt-4 p-4 rounded-lg flex items-center space-x-2 ${
+            response.success
+              ? "bg-green-50 text-green-700"
+              : "bg-red-50 text-red-700"
+          }`}
+        >
+          {response.success ? (
+            <CheckCircle2 className="w-5 h-5" />
+          ) : (
+            <AlertCircle className="w-5 h-5" />
+          )}
+          <span>{response.message}</span>
+        </div>
+      )}
 
       {/* Table */}
-      <div className="w-full max-w-4xl bg-white p-6 rounded-lg shadow-md">
+      <div className="container mx-auto mt-8 p-4">
         <h2 className="text-xl font-semibold mb-4">Customer List</h2>
-        <table className="min-w-full border-collapse text-center">
+        <table className="w-full border border-gray-300 text-left">
           <thead>
             <tr>
               <th className="py-2 px-4 border-b">ID</th>
@@ -242,10 +272,18 @@ const CustomerDetails = () => {
                 <td className="py-2 px-4">{customer.address}</td>
                 <td className="py-2 px-4">{customer.remark}</td>
                 <td className="py-2 px-4">
-                  <button onClick={() => handleEdit(customer)}>Edit</button>
+                  <button
+                    className="text-blue-500 hover:underline"
+                    onClick={() => handleEdit(customer)}
+                  >
+                    Edit
+                  </button>
                 </td>
                 <td className="py-2 px-4">
-                  <button onClick={() => handleCustomer(customer.customerId)}>
+                  <button
+                    className="text-red-500 hover:underline"
+                    onClick={() => handleCustomer(customer.customerId)}
+                  >
                     Delete
                   </button>
                 </td>

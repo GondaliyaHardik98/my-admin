@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function ChallanMaster() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -32,7 +33,7 @@ export default function ChallanMaster() {
       setChallanData(getAllData.data.data);
     } catch (error) {
       console.error("Error fetching products:", error);
-      setErrorMessage("Failed to fetch challan data");
+      setErrorMessage({ message: "Failed to fetch challan data" });
     }
   };
 
@@ -49,7 +50,8 @@ export default function ChallanMaster() {
       setEmployeeData(employeeRes.data.data);
     } catch (error) {
       console.error("Error fetching data:", error);
-      setErrorMessage("Failed to fetch master data");
+
+      setErrorMessage({ message: "Failed to fetch master data" });
     }
   };
 
@@ -105,7 +107,9 @@ export default function ChallanMaster() {
     ]);
     setCustomerID("");
     setSelectedChallanId(null);
-    setErrorMessage("");
+    setErrorMessage({
+      message: "",
+    });
   };
 
   const handleEdit = async (challan) => {
@@ -133,7 +137,9 @@ export default function ChallanMaster() {
       }
     } catch (error) {
       console.error("Error fetching records:", error);
-      setErrorMessage("Failed to fetch challan details");
+      setErrorMessage({
+        message: "Failed to fetch challan details",
+      });
     }
   };
 
@@ -142,7 +148,9 @@ export default function ChallanMaster() {
 
     try {
       if (!customerId) {
-        setErrorMessage("Please select a customer");
+        setErrorMessage({
+          message: "Please select a customer",
+        });
         return;
       }
 
@@ -151,10 +159,12 @@ export default function ChallanMaster() {
       );
 
       if (!isValid) {
-        setErrorMessage("Please fill in all required fields for each entry");
+        setErrorMessage({
+          message: "Please fill in all required fields for each entry",
+        });
         return;
       }
-
+      setErrorMessage(null);
       // If we're updating (SelectedChallanId exists)
       if (SelectedChallanId) {
         const response = await axios.put(
@@ -164,10 +174,14 @@ export default function ChallanMaster() {
             customerId: customerId,
           }))
         );
-
+        setErrorMessage({
+          success: response.data.success,
+          message: "Data save Successfully",
+        });
         if (response.data.success) {
           await fetchChallan();
           clearRecord();
+          //setErrorMessage("Data save Successfully");
         }
       } else {
         // Handle new challan creation
@@ -178,10 +192,14 @@ export default function ChallanMaster() {
             customerId: customerId,
           }))
         );
-
+        setErrorMessage({
+          success: response.data.success,
+          message: "Data save Successfully",
+        });
         if (response.data.success) {
           await fetchChallan();
           clearRecord();
+          //setErrorMessage("Data save Successfully");
         }
       }
     } catch (error) {
@@ -222,28 +240,25 @@ export default function ChallanMaster() {
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-6">Challan Master</h2>
 
-      {errorMessage && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {errorMessage}
-        </div>
-      )}
-
       <form onSubmit={saveRecord} className="space-y-4">
-        <div className="mb-4">
-          <label className="block font-medium">Customer</label>
-          <select
-            value={customerId}
-            onChange={handleCustomerIDChange}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-            required
-          >
-            <option value="">Select customer</option>
-            {customerData.map((customer) => (
-              <option key={customer.customerId} value={customer.customerId}>
-                {customer.name}
-              </option>
-            ))}
-          </select>
+        <div className="grid grid-cols-4 gap-4">
+          <div>
+            {" "}
+            <label className="block font-medium">Customer</label>
+            <select
+              value={customerId}
+              onChange={handleCustomerIDChange}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              required
+            >
+              <option value="">Select customer</option>
+              {customerData.map((customer) => (
+                <option key={customer.customerId} value={customer.customerId}>
+                  {customer.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {formData.map((item, index) => (
@@ -341,22 +356,38 @@ export default function ChallanMaster() {
           </div>
         ))}
 
-        <div className="flex gap-4">
+        <div className="flex justify-center gap-4 space-x-4 mt-4">
           <button
             type="submit"
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 flex-1"
+            className="w-52 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
           >
             {SelectedChallanId ? "Update" : "Submit"}
           </button>
           <button
             type="button"
             onClick={clearRecord}
-            className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+            className="w-32 bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
           >
             Clear
           </button>
         </div>
       </form>
+      {errorMessage && (
+        <div
+          className={`bg-red-50 border text-red-700 mt-4 p-4 rounded-lg flex items-center space-x-2 ${
+            errorMessage.success
+              ? "bg-green-50 text-green-700"
+              : "bg-red-50 text-red-700"
+          }`}
+        >
+          {errorMessage.success ? (
+            <CheckCircle2 className="w-5 h-5" />
+          ) : (
+            <AlertCircle className="w-5 h-5" />
+          )}
+          <span>{errorMessage.message}</span>
+        </div>
+      )}
 
       <div className="mt-8">
         <h2 className="text-xl font-semibold mb-4">Challan List</h2>

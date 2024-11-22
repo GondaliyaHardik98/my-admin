@@ -171,12 +171,6 @@ export default function EmployeeForm() {
         method: method,
         body: formDataToSend,
       });
-      // const method = isEdit ? "PUT" : "POST";
-      //   const response = await fetch("http://localhost:3002/api/employees", {
-      //     method: "POST",
-      //     body: formDataToSend,
-      //   });
-
       const data = await response.json();
 
       setResponse({
@@ -185,7 +179,6 @@ export default function EmployeeForm() {
       });
 
       if (data.success) {
-        // Clear form on success
         clearRecord();
         fetchEmployee();
       }
@@ -218,24 +211,24 @@ export default function EmployeeForm() {
 
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-6">Create New Employee</h2>
+      <h2 className="text-2xl font-bold mb-6">Create Employee</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Name Field */}
-        <div>
-          <label className="block font-medium">
-            Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            required
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
-        </div>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-4">
+          <div>
+            <label className="block font-medium">
+              Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
           <div>
             {/* Salary Field */}
             <label className="block text-sm font-medium mb-1">Salary</label>
@@ -260,9 +253,6 @@ export default function EmployeeForm() {
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
-        </div>
-        <div className="grid grid-cols-4 gap-4">
-          {/* Emergency Contact 1 */}
           <div>
             <label className="block text-sm font-medium mb-1">
               Emergency Contact 1
@@ -290,7 +280,6 @@ export default function EmployeeForm() {
             />
           </div>
         </div>
-
         <div className="grid grid-cols-4 gap-4">
           {/* Photo Upload */}
           <div>
@@ -338,13 +327,13 @@ export default function EmployeeForm() {
             </div>
           </div>
         </div>
-        <div className="flex gap-4">
+        <div className="flex justify-center gap-4 space-x-4 mt-4">
           {" "}
           {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+            className="w-52 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? "Creating..." : "Create Employee"}
           </button>
@@ -352,7 +341,7 @@ export default function EmployeeForm() {
           <button
             type="submit"
             //disabled={loading}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+            className="w-32 bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
           >
             Clear
           </button>

@@ -173,7 +173,7 @@ function ProductMaster() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Inline Fields for Product Code, Vendor, Product Name */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {/* Product Code */}
           <div>
             <label className="block font-medium">
@@ -221,10 +221,6 @@ function ProductMaster() {
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
-        </div>
-
-        {/* Additional Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Price */}
           <div>
             <label className="block text-sm font-medium mb-1">Price</label>
@@ -249,43 +245,51 @@ function ProductMaster() {
             />
           </div>
         </div>
-        {/* Description */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
-          <input
-            type="text"
-            name="productDesription"
-            value={formData.productDesription}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
-        </div>
 
-        {/* Remark */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Remark</label>
-          <input
-            type="text"
-            name="productRemark"
-            value={formData.productRemark}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
+        {/* Additional Fields */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Description
+            </label>
+            <textarea
+              rows={2}
+              type="text"
+              name="productDesription"
+              value={formData.productDesription}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+
+          {/* Remark */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Remark</label>
+            <textarea
+              rows={2}
+              type="text"
+              name="productRemark"
+              value={formData.productRemark}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-4">
+        <div className="flex justify-center gap-4 space-x-4 mt-4">
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+            className="w-52 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? "Creating..." : "Create Product"}
           </button>
           <button
             type="button"
             onClick={clearProduct}
-            className="w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors"
+            className="w-32 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors"
           >
             Clear
           </button>

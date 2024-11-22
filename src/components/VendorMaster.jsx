@@ -10,7 +10,7 @@ export default function VendorMaster() {
     vendorId: 0,
     vendorName: "",
     vendorGSTNo: "",
-    vendorMobileNo: 0,
+    vendorMobileNo: "",
     vendorAddress: "",
     vendorRemark: "",
   });
@@ -140,24 +140,24 @@ export default function VendorMaster() {
 
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-6">Create New Employee</h2>
+      <h2 className="text-2xl font-bold mb-6">Create Vendor</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Name Field */}
-        <div>
-          <label className="block font-medium">
-            Vendor Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="vendorName"
-            value={formData.vendorName}
-            onChange={handleInputChange}
-            required
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
-        </div>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-4">
+          <div>
+            <label className="block font-medium">
+              Vendor Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="vendorName"
+              value={formData.vendorName}
+              onChange={handleInputChange}
+              required
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
           <div>
             {/* Salary Field */}
             <label className="block text-sm font-medium mb-1">GSTNo</label>
@@ -183,11 +183,13 @@ export default function VendorMaster() {
             />
           </div>
         </div>
+
         <div className="grid grid-cols-4 gap-4">
           {/* Emergency Contact 1 */}
           <div>
             <label className="block text-sm font-medium mb-1">Address</label>
-            <input
+            <textarea
+              rows={2}
               type="text"
               name="vendorAddress"
               value={formData.vendorAddress}
@@ -199,7 +201,8 @@ export default function VendorMaster() {
           {/* Emergency Contact 2 */}
           <div>
             <label className="block text-sm font-medium mb-1">Remark</label>
-            <input
+            <textarea
+              rows={2}
               type="text"
               name="vendorRemark"
               value={formData.vendorRemark}
@@ -209,21 +212,20 @@ export default function VendorMaster() {
           </div>
         </div>
 
-        <div className="flex gap-4">
-          {" "}
+        <div className="flex justify-center gap-4 space-x-4 mt-4">
           {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+            className="w-56 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? "Creating..." : "Create Employee"}
+            {loading ? "Creating..." : "Create Vendor"}
           </button>
           {/* Submit Button */}
           <button
             type="submit"
             //disabled={loading}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+            className="w-32 bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
           >
             Clear
           </button>
