@@ -332,15 +332,13 @@ export default function EmployeeForm() {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={loading}
-            className="w-52 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+            className="w-36 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? "Creating..." : "Create Employee"}
+            Save
           </button>
           {/* Submit Button */}
           <button
             type="submit"
-            //disabled={loading}
             className="w-32 bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
           >
             Clear
@@ -380,6 +378,7 @@ export default function EmployeeForm() {
               <th className="py-2 px-4 border-b">Emergency Contact 2</th>
               <th className="py-2 px-4 border-b">Photo</th>
               <th className="py-2 px-4 border-b">Id Proof</th>
+              <th className="py-2 px-4 border-b">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -423,11 +422,17 @@ export default function EmployeeForm() {
                     View Document
                   </a>
                 </td>
-                <td className="py-2 px-4">
-                  <button onClick={() => handleEdit(employee)}>Edit</button>
-                </td>
-                <td className="py-2 px-4">
-                  <button onClick={() => handleDeleteEmployee(employee.id)}>
+                <td className="py-2 px-4 border-b">
+                  <button
+                    onClick={() => handleEdit(employee)}
+                    className="text-blue-500 hover:text-blue-700 mr-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteEmployee(employee.id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
                     Delete
                   </button>
                 </td>

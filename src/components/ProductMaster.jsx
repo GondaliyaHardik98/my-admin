@@ -281,10 +281,11 @@ function ProductMaster() {
         <div className="flex justify-center gap-4 space-x-4 mt-4">
           <button
             type="submit"
-            disabled={loading}
-            className="w-52 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+            // disabled={loading}
+            className="w-36 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? "Creating..." : "Create Product"}
+            Save
+            {/* {loading ? "Creating..." : "Create Product"} */}
           </button>
           <button
             type="button"
@@ -342,12 +343,17 @@ function ProductMaster() {
                 <td className="py-2 px-4">{product.productPrice}</td>
                 <td className="py-2 px-4">{product.productQuantity}</td>
                 <td className="py-2 px-4">{product.productRemark}</td>
-                <td className="py-2 px-4">
-                  <button onClick={() => handleEdit(product)}>Edit</button>
-                </td>
-                <td>
+
+                <td className="py-2 px-4 border-b">
+                  <button
+                    onClick={() => handleEdit(product)}
+                    className="text-blue-500 hover:text-blue-700 mr-2"
+                  >
+                    Edit
+                  </button>
                   <button
                     onClick={() => handleDeleteProduct(product.productId)}
+                    className="text-red-500 hover:text-red-700"
                   >
                     Delete
                   </button>

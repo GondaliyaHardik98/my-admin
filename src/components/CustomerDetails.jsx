@@ -260,6 +260,7 @@ const CustomerDetails = () => {
               <th className="py-2 px-4 border-b">Mobile No</th>
               <th className="py-2 px-4 border-b">Address</th>
               <th className="py-2 px-4 border-b">Remark</th>
+              <th className="py-2 px-4 border-b">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -271,18 +272,17 @@ const CustomerDetails = () => {
                 <td className="py-2 px-4">{customer.mobileNo}</td>
                 <td className="py-2 px-4">{customer.address}</td>
                 <td className="py-2 px-4">{customer.remark}</td>
-                <td className="py-2 px-4">
+
+                <td className="py-2 px-4 border-b">
                   <button
-                    className="text-blue-500 hover:underline"
                     onClick={() => handleEdit(customer)}
+                    className="text-blue-500 hover:text-blue-700 mr-2"
                   >
                     Edit
                   </button>
-                </td>
-                <td className="py-2 px-4">
                   <button
-                    className="text-red-500 hover:underline"
                     onClick={() => handleCustomer(customer.customerId)}
+                    className="text-red-500 hover:text-red-700"
                   >
                     Delete
                   </button>

@@ -117,13 +117,14 @@ function SalaryMaster() {
       salaryRemark: "",
     });
   };
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toISOString().split("T")[0];
+  };
   const handleEdit = (entry) => {
     setSelectedSalaryId(entry.salaryId); // Set the selected vendor's ID
-    const formatDate = (dateString) => {
-      if (!dateString) return "";
-      const date = new Date(dateString);
-      return date.toISOString().split("T")[0];
-    };
+
     setFormData({
       engineerId: entry.engineerId,
       salary: entry.salary,
@@ -268,23 +269,30 @@ function SalaryMaster() {
               <th className="py-2 px-4 border-b">Salary Date</th>
               <th className="py-2 px-4 border-b">Month</th>
               <th className="py-2 px-4 border-b">Remark</th>
+              <th className="py-2 px-4 border-b">Actions</th>
             </tr>
           </thead>
           <tbody>
             {salaryData.map((entry, index) => (
               <tr key={index} className="border-b">
                 <td className="py-2 px-4">{index + 1}</td>
-                {/* <td className="py-2 px-4">{entry.salaryId}</td> */}
                 <td className="py-2 px-4">{entry.engineerName}</td>
                 <td className="py-2 px-4">{entry.salary}</td>
-                <td className="py-2 px-4">{entry.salaryDate}</td>
+                <td className="py-2 px-4">{formatDate(entry.salaryDate)}</td>
                 <td className="py-2 px-4">{entry.salaryMonth}</td>
                 <td className="py-2 px-4">{entry.salaryRemark}</td>
-                <td className="py-2 px-4">
-                  <button onClick={() => handleEdit(entry)}>Edit</button>
-                </td>
-                <td className="py-2 px-4">
-                  <button onClick={() => handleDeleteEmployee(entry.salaryId)}>
+
+                <td className="py-2 px-4 border-b">
+                  <button
+                    onClick={() => handleEdit(entry)}
+                    className="text-blue-500 hover:text-blue-700 mr-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteEmployee(entry.salaryId)}
+                    className="text-red-500 hover:text-red-700"
+                  >
                     Delete
                   </button>
                 </td>

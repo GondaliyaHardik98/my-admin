@@ -359,9 +359,10 @@ export default function ChallanMaster() {
         <div className="flex justify-center gap-4 space-x-4 mt-4">
           <button
             type="submit"
-            className="w-52 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+            className="w-36 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
           >
-            {SelectedChallanId ? "Update" : "Submit"}
+            {/* {SelectedChallanId ? "Update" : "Submit"} */}
+            Save
           </button>
           <button
             type="button"
@@ -389,10 +390,10 @@ export default function ChallanMaster() {
         </div>
       )}
 
-      <div className="mt-8">
+      <div className="container mx-auto mt-8 p-4 overflow-x-auto">
         <h2 className="text-xl font-semibold mb-4">Challan List</h2>
         <div className="overflow-x-auto">
-          <table className="w-full border border-gray-300">
+          <table className="w-full border border-gray-300 text-left">
             <thead>
               <tr className="bg-gray-100">
                 <th className="py-2 px-4 border-b">ID</th>

@@ -71,13 +71,14 @@ const SellMaster = () => {
     e.preventDefault();
     SaveRecord();
   };
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toISOString().split("T")[0];
+  };
   const handleEdit = (entry) => {
     setSelectedSellId(entry.sellId); // Set the selected vendor's ID
-    const formatDate = (dateString) => {
-      if (!dateString) return "";
-      const date = new Date(dateString);
-      return date.toISOString().split("T")[0];
-    };
+
     setFormData({
       productId: entry.productId,
       customerId: entry.customerId,
@@ -157,7 +158,7 @@ const SellMaster = () => {
   };
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-6">SellMaster</h2>
+      <h2 className="text-2xl font-bold mb-6">Sell Master</h2>
       <form onSubmit={handleSubmit} className="space-y-4 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {/* Product ID */}
@@ -285,6 +286,7 @@ const SellMaster = () => {
               <th className="py-2 px-4 border-b">Price</th>
               <th className="py-2 px-4 border-b">Quantity</th>
               <th className="py-2 px-4 border-b">Remark</th>
+              <th className="py-2 px-4 border-b">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -293,15 +295,22 @@ const SellMaster = () => {
                 <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">{entry.productName}</td>
                 <td className="py-2 px-4">{entry.customerName}</td>
-                <td className="py-2 px-4">{entry.sellDate}</td>
+                <td className="py-2 px-4">{formatDate(entry.sellDate)}</td>
                 <td className="py-2 px-4">{entry.sellPrice}</td>
                 <td className="py-2 px-4">{entry.sellQuantity}</td>
                 <td className="py-2 px-4">{entry.sellRemark}</td>
-                <td className="py-2 px-4">
-                  <button onClick={() => handleEdit(entry)}>Edit</button>
-                </td>
-                <td>
-                  <button onClick={() => handleDeleteSell(entry.sellId)}>
+
+                <td className="py-2 px-4 border-b">
+                  <button
+                    onClick={() => handleEdit(entry)}
+                    className="text-blue-500 hover:text-blue-700 mr-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteSell(entry.sellId)}
+                    className="text-red-500 hover:text-red-700"
+                  >
                     Delete
                   </button>
                 </td>
