@@ -1,7 +1,15 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false); // State to control mobile menu visibility
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    sessionStorage.clear();
+    navigate("/login");
+    window.location.reload();
+  };
 
   return (
     <nav className="bg-blue-600 p-4">
@@ -118,6 +126,15 @@ const Navbar = () => {
               className="block px-4 py-2 text-white hover:text-gray-200"
             >
               Salary Master
+            </a>
+          </li>
+          <li>
+            <a
+              onClick={handleLogout}
+              href="/"
+              className="block px-4 py-2 text-white hover:text-gray-200"
+            >
+              Logout
             </a>
           </li>
         </ul>
