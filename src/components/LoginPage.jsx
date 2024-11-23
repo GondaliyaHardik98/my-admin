@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const LoginPage = ({ setIsLoggedIn }) => {
+const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -22,7 +22,6 @@ const LoginPage = ({ setIsLoggedIn }) => {
       sessionStorage.setItem("email", email);
 
       // Update isLoggedIn state and redirect to Employee
-      setIsLoggedIn(true);
       navigate("/employee");
     } else {
       setErrorMessage("Invalid email or password.");

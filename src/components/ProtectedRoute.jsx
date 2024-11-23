@@ -1,15 +1,14 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 const ProtectedRoute = ({ children }) => {
-  const jwtToken = sessionStorage.getItem("jwtToken");
+  const token = sessionStorage.getItem("jwtToken");
+  const location = useLocation();
 
-  if (!jwtToken) {
-    // Redirect to login if the token is not present
-    return <Navigate to="/login" />;
+  if (!token) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Allow access to the protected route
   return children;
 };
 

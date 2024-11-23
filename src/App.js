@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -16,76 +16,70 @@ import SellMaster from "./components/SellMaster";
 import SalaryMaster from "./components/SalaryMaster";
 import AMCMaster from "./components/AMCMaster";
 import LoginPage from "./components/LoginPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-// Create a wrapper component for layout
-const Layout = ({ isLoggedIn, children }) => {
+// Layout Component (just for structure, no auth logic)
+const Layout = ({ children }) => {
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
+  const token = sessionStorage.getItem("jwtToken");
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Only show Navbar if logged in AND not on login page */}
-      {isLoggedIn && !isLoginPage && <Navbar />}
+      {token && !isLoginPage && <Navbar />}
       <div className="p-5">{children}</div>
     </div>
   );
 };
 
+// Route configuration with their components
+const protectedRoutes = [
+  { path: "/employee", element: <EmployeeDetails /> },
+  { path: "/customerDetails", element: <CustomerDetails /> },
+  { path: "/vendorMaster", element: <VendorMaster /> },
+  { path: "/productMaster", element: <ProductMaster /> },
+  { path: "/challanMaster", element: <ChallanMaster /> },
+  { path: "/sellMaster", element: <SellMaster /> },
+  { path: "/amcMaster", element: <AMCMaster /> },
+  { path: "/salaryMaster", element: <SalaryMaster /> },
+];
+
 const App = () => {
-  // State to manage login status
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // Check session storage to maintain login state on page reload
-  useEffect(() => {
-    const token = sessionStorage.getItem("jwtToken");
-    if (token) {
-      setIsLoggedIn(true); // Set logged-in state if token exists
-    }
-  }, []);
-
   return (
     <Router>
-      <Layout isLoggedIn={isLoggedIn}>
+      <Layout>
         <Routes>
-          {/* Public Route for Login */}
-          <Route
-            path="/login"
-            element={
-              isLoggedIn ? (
-                <Navigate to="/employee" replace />
-              ) : (
-                <LoginPage setIsLoggedIn={setIsLoggedIn} />
-              )
-            }
-          />
+          {/* Public Route */}
+          <Route path="/login" element={<LoginPage />} />
 
-          {/* Default route: Redirect to login if not logged in */}
+          {/* Protected Routes */}
+          {protectedRoutes.map(({ path, element }) => (
+            <Route
+              key={path}
+              path={path}
+              element={<ProtectedRoute>{element}</ProtectedRoute>}
+            />
+          ))}
+
+          {/* Default route */}
           <Route
             path="/"
             element={
-              isLoggedIn ? (
+              <ProtectedRoute>
                 <Navigate to="/employee" replace />
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              </ProtectedRoute>
             }
           />
 
-          {/* Protected Routes */}
-          {isLoggedIn ? (
-            <>
-              <Route path="/employee" element={<EmployeeDetails />} />
-              <Route path="/customerDetails" element={<CustomerDetails />} />
-              <Route path="/vendorMaster" element={<VendorMaster />} />
-              <Route path="/productMaster" element={<ProductMaster />} />
-              <Route path="/challanMaster" element={<ChallanMaster />} />
-              <Route path="/sellMaster" element={<SellMaster />} />
-              <Route path="/amcMaster" element={<AMCMaster />} />
-              <Route path="/salaryMaster" element={<SalaryMaster />} />
-            </>
-          ) : (
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          )}
+          {/* Catch all route */}
+          <Route
+            path="*"
+            element={
+              <ProtectedRoute>
+                <Navigate to="/employee" replace />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Layout>
     </Router>
