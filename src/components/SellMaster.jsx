@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 const SellMaster = () => {
   const [sellData, setSellData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [response, setResponse] = useState(null);
   const [SelectedSellId, setSelectedSellId] = useState(null);
   const [customerData, setDataCustomer] = useState([]);
   const [productData, setProductData] = useState([]);
@@ -140,15 +142,18 @@ const SellMaster = () => {
       });
 
       const data = await response.json();
-      console.log(_saveData, "saveData");
-
+      setResponse({
+        success: data.success,
+        message: data.message,
+      });
+      // setSuccess(true);
+      if (data.success) {
+        fetchSell();
+        clearRecord();
+      }
       if (!response.ok) {
         throw new Error(data.message || "Failed to create sell");
       }
-
-      // setSuccess(true);
-      fetchSell();
-      clearRecord();
     } catch (error) {
       setError(error.message);
       console.error("Error creating sell:", error);
@@ -273,7 +278,23 @@ const SellMaster = () => {
           </button>
         </div>
       </form>
-
+      {/* Response Message */}
+      {response && (
+        <div
+          className={`mt-4 p-4 rounded-lg flex items-center space-x-2 ${
+            response.success
+              ? "bg-green-50 text-green-700"
+              : "bg-red-50 text-red-700"
+          }`}
+        >
+          {response.success ? (
+            <CheckCircle2 className="w-5 h-5" />
+          ) : (
+            <AlertCircle className="w-5 h-5" />
+          )}
+          <span>{response.message}</span>
+        </div>
+      )}
       {/* Responsive Data Table */}
       <div className="container mx-auto mt-8 p-4 overflow-x-auto">
         <table className="w-full border border-gray-300 text-left">

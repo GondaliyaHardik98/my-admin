@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 function SalaryMaster() {
   const [salaryData, setSalaryData] = useState([]);
@@ -257,7 +258,22 @@ function SalaryMaster() {
           </button>
         </div>
       </form>
-
+      {response && (
+        <div
+          className={`mt-4 p-4 rounded-lg flex items-center space-x-2 ${
+            response.success
+              ? "bg-green-50 text-green-700"
+              : "bg-red-50 text-red-700"
+          }`}
+        >
+          {response.success ? (
+            <CheckCircle2 className="w-5 h-5" />
+          ) : (
+            <AlertCircle className="w-5 h-5" />
+          )}
+          <span>{response.message}</span>
+        </div>
+      )}
       {/* Responsive Data Table */}
       <div className="container mx-auto mt-8 p-4 overflow-x-auto">
         <table className="w-full border border-gray-300 text-left">

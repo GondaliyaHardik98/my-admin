@@ -384,7 +384,7 @@ export default function EmployeeForm() {
           <tbody>
             {employeesData.map((employee, index) => (
               <tr key={index} className="border-b">
-                <td className="py-2 px-4">{employee.id}</td>
+                <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">{employee.name}</td>
                 <td className="py-2 px-4">{employee.salary}</td>
                 <td className="py-2 px-4">{employee.contact_details}</td>

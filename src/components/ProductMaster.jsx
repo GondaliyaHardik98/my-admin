@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Upload } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 function ProductMaster() {
   const [loading, setLoading] = useState(false);
@@ -10,15 +10,14 @@ function ProductMaster() {
   const [productData, setProductData] = useState([]);
   const [SelectedProductId, setSelectedproductId] = useState(null);
   const [products, setProducts] = useState([]); // State to store products
-  const [selectedProduct, setSelectedProduct] = useState("");
   const [formData, setFormData] = useState({
     productId: 0,
     productCode: "",
     vendorId: "",
     productName: "",
     productDesription: "",
-    productPrice: 0,
-    productQuantity: 0,
+    productPrice: "",
+    productQuantity: "",
     productRemark: "",
   });
 
@@ -198,7 +197,7 @@ function ProductMaster() {
               className="w-full border border-gray-300 rounded px-3 py-2"
               required
             >
-              <option value="">Select Product</option>
+              <option value="">Select Vendor</option>
               {products.map((product) => (
                 <option key={product.vendorId} value={product.vendorId}>
                   {product.vendorName}{" "}
@@ -247,7 +246,7 @@ function ProductMaster() {
         </div>
 
         {/* Additional Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Description */}
           <div>
             <label className="block text-sm font-medium mb-1">
@@ -335,7 +334,7 @@ function ProductMaster() {
           <tbody>
             {productData.map((product, index) => (
               <tr key={index} className="border-b">
-                <td className="py-2 px-4">{product.productId}</td>
+                <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">{product.productCode}</td>
                 <td className="py-2 px-4">{product.vendorName}</td>
                 <td className="py-2 px-4">{product.productName}</td>

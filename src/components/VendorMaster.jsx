@@ -116,7 +116,7 @@ export default function VendorMaster() {
       if (data.success) {
         // Clear form on success
         clearRecord();
-        //fetchEmployee();
+        fetchVendor();
       }
     } catch (error) {
       setResponse({
@@ -263,22 +263,29 @@ export default function VendorMaster() {
               <th className="py-2 px-4 border-b">Mobile No</th>
               <th className="py-2 px-4 border-b">Addtess</th>
               <th className="py-2 px-4 border-b">Remark</th>
+              <th className="py-2 px-4 border-b">Actions</th>
             </tr>
           </thead>
           <tbody>
             {vendorData.map((vendor, index) => (
               <tr key={index} className="border-b">
-                <td className="py-2 px-4">{vendor.vendorId}</td>
+                <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">{vendor.vendorName}</td>
                 <td className="py-2 px-4">{vendor.vendorGSTNo}</td>
                 <td className="py-2 px-4">{vendor.vendorMobileNo}</td>
                 <td className="py-2 px-4">{vendor.vendorAddress}</td>
                 <td className="py-2 px-4">{vendor.vendorRemark}</td>
-                <td className="py-2 px-4">
-                  <button onClick={() => handleEdit(vendor)}>Edit</button>
-                </td>
-                <td className="py-2 px-4">
-                  <button onClick={() => handleDeleteEmployee(vendor.vendorId)}>
+                <td className="py-2 px-4 border-b">
+                  <button
+                    onClick={() => handleEdit(vendor)}
+                    className="text-blue-500 hover:text-blue-700 mr-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteEmployee(vendor.vendorId)}
+                    className="text-red-500 hover:text-red-700"
+                  >
                     Delete
                   </button>
                 </td>

@@ -3,7 +3,7 @@ import axios from "axios";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function ChallanMaster() {
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState(null);
   const [customerId, setCustomerID] = useState("");
   const [challanData, setChallanData] = useState([]);
   const [SelectedChallanId, setSelectedChallanId] = useState(null);
@@ -165,42 +165,45 @@ export default function ChallanMaster() {
         return;
       }
       setErrorMessage(null);
+
+      let response;
       // If we're updating (SelectedChallanId exists)
       if (SelectedChallanId) {
-        const response = await axios.put(
+        response = await axios.put(
           `http://localhost:3002/api/challan/${customerId}`, // Changed to use customerId
           formData.map((item) => ({
             ...item,
             customerId: customerId,
           }))
         );
-        setErrorMessage({
-          success: response.data.success,
-          message: "Data save Successfully",
-        });
-        if (response.data.success) {
-          await fetchChallan();
-          clearRecord();
-          //setErrorMessage("Data save Successfully");
-        }
+        // setErrorMessage({
+        //   success: response.data.success,
+        //   message: "Data save Successfully",
+        // });
+        // if (response.data.success) {
+        //   await fetchChallan();
+        //   clearRecord();
+        //   //setErrorMessage("Data save Successfully");
+        // }
       } else {
         // Handle new challan creation
-        const response = await axios.post(
+        response = await axios.post(
           "http://localhost:3002/api/challan",
           formData.map((item) => ({
             ...item,
             customerId: customerId,
           }))
         );
-        setErrorMessage({
-          success: response.data.success,
-          message: "Data save Successfully",
-        });
-        if (response.data.success) {
-          await fetchChallan();
-          clearRecord();
-          //setErrorMessage("Data save Successfully");
-        }
+      }
+
+      setErrorMessage({
+        success: response.data.success,
+        message: "Data save Successfully",
+      });
+      if (response.data.success) {
+        await fetchChallan();
+        clearRecord();
+        //setErrorMessage("Data save Successfully");
       }
     } catch (error) {
       console.error("Error saving challan:", error);
@@ -375,7 +378,7 @@ export default function ChallanMaster() {
       </form>
       {errorMessage && (
         <div
-          className={`bg-red-50 border text-red-700 mt-4 p-4 rounded-lg flex items-center space-x-2 ${
+          className={`bg-red-50 border mt-4 p-4 rounded-lg flex items-center space-x-2 ${
             errorMessage.success
               ? "bg-green-50 text-green-700"
               : "bg-red-50 text-red-700"
@@ -407,9 +410,9 @@ export default function ChallanMaster() {
               </tr>
             </thead>
             <tbody>
-              {challanData.map((challan) => (
-                <tr key={challan.challanId} className="hover:bg-gray-50">
-                  <td className="py-2 px-4 border-b">{challan.challanId}</td>
+              {challanData.map((challan, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="py-2 px-4 border-b">{index + 1}</td>
                   <td className="py-2 px-4 border-b">{challan.customarName}</td>
                   <td className="py-2 px-4 border-b">{challan.productName}</td>
                   <td className="py-2 px-4 border-b">{challan.engineerName}</td>

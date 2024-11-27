@@ -89,12 +89,14 @@ const CustomerDetails = () => {
         },
         body: JSON.stringify(_saveData),
       });
+
+      const data = await response.json();
+      console.log(_saveData, "saveData");
+
       setResponse({
         success: data.success,
         message: data.message,
       });
-      const data = await response.json();
-      console.log(_saveData, "saveData");
 
       if (data.success) {
         clearRecord();
@@ -109,9 +111,10 @@ const CustomerDetails = () => {
       setLoading(false);
     }
   };
-  const handleCustomer = async (id) => {
+  const handleCustomer = async (customer) => {
     if (window.confirm("Are you sure you want to delete this record?")) {
       try {
+        const id = customer.customerId;
         console.log(id, "delete id");
         const response = await fetch(
           `http://localhost:3002/api/customer/${id}`,
@@ -266,7 +269,7 @@ const CustomerDetails = () => {
           <tbody>
             {customers.map((customer, index) => (
               <tr key={index} className="border-b">
-                <td className="py-2 px-4">{customer.customerId}</td>
+                <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">{customer.name}</td>
                 <td className="py-2 px-4">{customer.gstNo}</td>
                 <td className="py-2 px-4">{customer.mobileNo}</td>
@@ -281,7 +284,7 @@ const CustomerDetails = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleCustomer(customer.customerId)}
+                    onClick={() => handleCustomer(customer)}
                     className="text-red-500 hover:text-red-700"
                   >
                     Delete
