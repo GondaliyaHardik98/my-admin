@@ -10,6 +10,7 @@ export default function ChallanMaster() {
   const [employeeData, setEmployeeData] = useState([]);
   const [customerData, setDataCustomer] = useState([]);
   const [productData, setProductData] = useState([]);
+  const [response, setResponse] = useState(null);
   const [formData, setFormData] = useState([
     {
       challanId: "",
@@ -145,7 +146,7 @@ export default function ChallanMaster() {
 
   const saveRecord = async (e) => {
     e.preventDefault();
-
+    setResponse(null);
     try {
       if (!customerId) {
         setErrorMessage({
@@ -153,7 +154,7 @@ export default function ChallanMaster() {
         });
         return;
       }
-
+      console.log("1");
       const isValid = formData.every(
         (item) => item.productId && item.engineerId && item.challanPrice
       );
@@ -165,7 +166,6 @@ export default function ChallanMaster() {
         return;
       }
       setErrorMessage(null);
-
       let response;
       // If we're updating (SelectedChallanId exists)
       if (SelectedChallanId) {
@@ -176,15 +176,6 @@ export default function ChallanMaster() {
             customerId: customerId,
           }))
         );
-        // setErrorMessage({
-        //   success: response.data.success,
-        //   message: "Data save Successfully",
-        // });
-        // if (response.data.success) {
-        //   await fetchChallan();
-        //   clearRecord();
-        //   //setErrorMessage("Data save Successfully");
-        // }
       } else {
         // Handle new challan creation
         response = await axios.post(
@@ -196,18 +187,23 @@ export default function ChallanMaster() {
         );
       }
 
-      setErrorMessage({
+      setResponse({
         success: response.data.success,
-        message: "Data save Successfully",
+        message: response.data.success
+          ? "Data saved successfully."
+          : "Failed to save data.",
       });
+
       if (response.data.success) {
         await fetchChallan();
         clearRecord();
         //setErrorMessage("Data save Successfully");
       }
     } catch (error) {
-      console.error("Error saving challan:", error);
-      setErrorMessage(error.message || "Failed to save challan");
+      setResponse({
+        success: false,
+        message: "Error submitting form. Please try again.",
+      });
     }
   };
 
@@ -376,20 +372,20 @@ export default function ChallanMaster() {
           </button>
         </div>
       </form>
-      {errorMessage && (
+      {response && (
         <div
-          className={`bg-red-50 border mt-4 p-4 rounded-lg flex items-center space-x-2 ${
-            errorMessage.success
+          className={`mt-4 p-4 rounded-lg flex items-center space-x-2 ${
+            response.success
               ? "bg-green-50 text-green-700"
               : "bg-red-50 text-red-700"
           }`}
         >
-          {errorMessage.success ? (
+          {response.success ? (
             <CheckCircle2 className="w-5 h-5" />
           ) : (
             <AlertCircle className="w-5 h-5" />
           )}
-          <span>{errorMessage.message}</span>
+          <span>{response.message}</span>
         </div>
       )}
 

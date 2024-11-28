@@ -79,7 +79,6 @@ function SalaryMaster() {
 
       const response = await fetch(apiUrl, {
         method: method,
-        //body: _saveData,
         headers: {
           "Content-Type": "application/json",
         },
