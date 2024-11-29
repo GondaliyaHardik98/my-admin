@@ -15,7 +15,7 @@ const Navbar = () => {
     <nav className="bg-blue-600 p-4">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo / Brand */}
-        <div className="text-white text-lg font-bold">MyApp</div>
+        <div className="text-white text-lg font-bold">Bharat Technology</div>
 
         {/* Hamburger Menu for Mobile */}
         <div className="lg:hidden">

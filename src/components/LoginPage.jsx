@@ -8,8 +8,8 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   // Static credentials and JWT token
-  const validEmail = process.env.REACT_APP_LOGIN_EMAIL || "admin@example.com";
-  const validPassword = process.env.REACT_APP_LOGIN_PASSWORD || "password123";
+  const validEmail = process.env.REACT_APP_LOGIN_EMAIL;
+  const validPassword = process.env.REACT_APP_LOGIN_PASSWORD;
   const staticJwtToken =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE4NTA1NjAwLCJleHAiOjE3NTAwNDE2MDB9.abc123";
 

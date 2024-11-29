@@ -409,7 +409,7 @@ export default function ChallanMaster() {
               {challanData.map((challan, index) => (
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="py-2 px-4 border-b">{index + 1}</td>
-                  <td className="py-2 px-4 border-b">{challan.customarName}</td>
+                  <td className="py-2 px-4 border-b">{challan.customerName}</td>
                   <td className="py-2 px-4 border-b">{challan.productName}</td>
                   <td className="py-2 px-4 border-b">{challan.engineerName}</td>
                   <td className="py-2 px-4 border-b">{challan.challanPrice}</td>
