@@ -69,7 +69,7 @@ const Navbar = () => {
               href="/employee"
               className="block px-4 py-2 text-white hover:text-gray-200"
             >
-              Employee
+              Engineer
             </a>
           </li>
           <li>
@@ -77,7 +77,7 @@ const Navbar = () => {
               href="/customerDetails"
               className="block px-4 py-2 text-white hover:text-gray-200"
             >
-              CustomerDetails
+              Customers
             </a>
           </li>
           <li>
@@ -85,7 +85,7 @@ const Navbar = () => {
               href="/vendorMaster"
               className="block px-4 py-2 text-white hover:text-gray-200"
             >
-              Vendor Master
+              Vendors
             </a>
           </li>
           <li>
@@ -93,7 +93,7 @@ const Navbar = () => {
               href="/productMaster"
               className="block px-4 py-2 text-white hover:text-gray-200"
             >
-              Product Master
+              Products
             </a>
           </li>
           <li>
@@ -101,7 +101,7 @@ const Navbar = () => {
               href="/challanMaster"
               className="block px-4 py-2 text-white hover:text-gray-200"
             >
-              Challan Master
+              Challan
             </a>
           </li>
           <li>
@@ -109,7 +109,7 @@ const Navbar = () => {
               href="/sellMaster"
               className="block px-4 py-2 text-white hover:text-gray-200"
             >
-              Sell Master
+              Sell
             </a>
           </li>
           <li>
