@@ -5,6 +5,7 @@ import { AlertCircle, CheckCircle2 } from "lucide-react";
 export default function ChallanMaster() {
   const [errorMessage, setErrorMessage] = useState(null);
   const [customerId, setCustomerID] = useState("");
+  const [engineerId, setEngineerID] = useState("");
   const [challanData, setChallanData] = useState([]);
   const [SelectedChallanId, setSelectedChallanId] = useState(null);
   const [employeeData, setEmployeeData] = useState([]);
@@ -68,6 +69,18 @@ export default function ChallanMaster() {
     );
   };
 
+  const handleEngineerIDChange = (e) => {
+    const newEngineerId = e.target.value;
+    setEngineerID(newEngineerId);
+
+    setFormData((prevData) =>
+      prevData.map((item) => ({
+        ...item,
+        engineerIdId: newEngineerId,
+      }))
+    );
+  };
+
   const handleInputChange = (index, field, value) => {
     setFormData((prevData) => {
       const newData = [...prevData];
@@ -76,6 +89,14 @@ export default function ChallanMaster() {
         [field]: value,
       };
       return newData;
+    });
+  };
+
+  const handleDateChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
     });
   };
 
@@ -258,6 +279,54 @@ export default function ChallanMaster() {
               ))}
             </select>
           </div>
+
+          <div>
+              <label className="block font-medium">Select Engineer</label>
+              <select
+                value={engineerId}
+                onChange={handleCustomerIDChange                }
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+              >
+                <option value="">Select engineer</option>
+                {employeeData.map((emp) => (
+                  <option key={emp.engineerId} value={emp.engineerId}>
+                    {emp.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-medium">Date</label>
+              <input
+                type="date"
+                value={formData.challanDate}
+                onChange={handleDateChange}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block font-medium">Select Payment</label>
+              <select
+                value={engineerId}
+                onChange={handleCustomerIDChange                }
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+              >
+                <option value="">Select Payment Status</option>
+               
+                  <option key="0" value="Pending">
+                    Pending
+                  </option>
+                  <option key="1" value="Cash">
+                    Cash
+                  </option>
+               
+              </select>
+            </div>
         </div>
 
         {formData.map((item, index) => (
@@ -284,24 +353,7 @@ export default function ChallanMaster() {
               </select>
             </div>
 
-            <div>
-              <label className="block font-medium">Engineer</label>
-              <select
-                value={item.engineerId}
-                onChange={(e) =>
-                  handleInputChange(index, "engineerId", e.target.value)
-                }
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                required
-              >
-                <option value="">Select engineer</option>
-                {employeeData.map((emp) => (
-                  <option key={emp.engineerId} value={emp.engineerId}>
-                    {emp.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            
 
             <div>
               <label className="block font-medium">Price</label>
@@ -317,18 +369,7 @@ export default function ChallanMaster() {
               />
             </div>
 
-            <div>
-              <label className="block font-medium">Date</label>
-              <input
-                type="date"
-                value={item.challanDate}
-                onChange={(e) =>
-                  handleInputChange(index, "challanDate", e.target.value)
-                }
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                required
-              />
-            </div>
+           
 
             <div>
               <label className="block font-medium">Remark</label>
@@ -409,7 +450,7 @@ export default function ChallanMaster() {
               {challanData.map((challan, index) => (
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="py-2 px-4 border-b">{index + 1}</td>
-                  <td className="py-2 px-4 border-b">{challan.customerName}</td>
+                  <td className="py-2 px-4 border-b">{challan.customarName}</td>
                   <td className="py-2 px-4 border-b">{challan.productName}</td>
                   <td className="py-2 px-4 border-b">{challan.engineerName}</td>
                   <td className="py-2 px-4 border-b">{challan.challanPrice}</td>

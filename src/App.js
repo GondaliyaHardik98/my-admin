@@ -11,6 +11,7 @@ import EmployeeDetails from "./components/EmpDetails";
 import CustomerDetails from "./components/CustomerDetails";
 import VendorMaster from "./components/VendorMaster";
 import ProductMaster from "./components/ProductMaster";
+import ProductMachineMaster from "./components/ProductMachineMaster";
 import ChallanMaster from "./components/ChallanMaster";
 import SellMaster from "./components/SellMaster";
 import SalaryMaster from "./components/SalaryMaster";
@@ -38,6 +39,7 @@ const protectedRoutes = [
   { path: "/customerDetails", element: <CustomerDetails /> },
   { path: "/vendorMaster", element: <VendorMaster /> },
   { path: "/productMaster", element: <ProductMaster /> },
+  { path: "/productMachineMaster", element: <ProductMachineMaster /> },
   { path: "/challanMaster", element: <ChallanMaster /> },
   { path: "/sellMaster", element: <SellMaster /> },
   { path: "/amcMaster", element: <AMCMaster /> },

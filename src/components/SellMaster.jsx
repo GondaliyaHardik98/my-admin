@@ -11,6 +11,7 @@ const SellMaster = () => {
   const [SelectedSellId, setSelectedSellId] = useState(null);
   const [customerData, setDataCustomer] = useState([]);
   const [productData, setProductData] = useState([]);
+  const [productMachineData, setProductMachineData] = useState([]);
   const [formData, setFormData] = useState({
     sellId: 0,
     productId: "",
@@ -46,7 +47,13 @@ const SellMaster = () => {
         "http://localhost:3002/api/challanProduct"
       );
       setProductData(productData.data.data);
-      console.log(productData.data.data, "productData");
+
+      const productMachineData = await axios.get(
+        "http://localhost:3002/api/productMachineAll"
+      );
+      console.log({productMachineData});
+      setProductMachineData(productMachineData.data.data);
+     // console.log(productData.data.data, "productData");
     } catch (error) {
       console.error("Error fetching", error);
     }
@@ -177,10 +184,10 @@ const SellMaster = () => {
               required
             >
               <option value="">Select product</option>
-              {productData.map((product) => (
+              {productMachineData.map((product) => (
                 <option key={product.productId} value={product.productId}>
                   {" "}
-                  {product.productName}
+                  {product.productMachineCode}
                 </option>
               ))}
             </select>

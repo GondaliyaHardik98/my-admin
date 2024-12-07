@@ -98,6 +98,14 @@ const Navbar = () => {
           </li>
           <li>
             <a
+              href="/productMachineMaster"
+              className="block px-4 py-2 text-white hover:text-gray-200"
+            >
+              Machines
+            </a>
+          </li>
+          <li>
+            <a
               href="/challanMaster"
               className="block px-4 py-2 text-white hover:text-gray-200"
             >
