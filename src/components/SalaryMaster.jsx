@@ -24,7 +24,9 @@ function SalaryMaster() {
 
   const fetchSalary = async () => {
     try {
-      const getAllData = await axios.get("http://localhost:3002/api/salary");
+      const getAllData = await axios.get(
+        `${process.env.REACT_APP_API_URL}/salary`
+      );
       setSalaryData(getAllData.data.data);
       console.log(getAllData.data.data, "getAllData");
     } catch (error) {
@@ -35,7 +37,7 @@ function SalaryMaster() {
   const populateData = async () => {
     try {
       const employeeData = await axios.get(
-        "http://localhost:3002/api/challanEmployee"
+        `${process.env.REACT_APP_API_URL}/challanEmployee`
       );
       setEmployeeData(employeeData.data.data);
       console.log(employeeData.data.data, "employeeData");
@@ -73,8 +75,8 @@ function SalaryMaster() {
       const isEdit = !!SelectedSalaryId;
 
       const apiUrl = isEdit
-        ? `http://localhost:3002/api/salary/${SelectedSalaryId}` // Edit endpoint with ID
-        : "http://localhost:3002/api/salary"; // Create endpoint
+        ? `${process.env.REACT_APP_API_URL}/salary/${SelectedSalaryId}` // Edit endpoint with ID
+        : `${process.env.REACT_APP_API_URL}/salary`; // Create endpoint
       const method = isEdit ? "PUT" : "POST";
 
       const response = await fetch(apiUrl, {
@@ -137,9 +139,12 @@ function SalaryMaster() {
     if (window.confirm("Are you sure you want to delete this record?")) {
       try {
         console.log(id, "delete id");
-        const response = await fetch(`http://localhost:3002/api/salary/${id}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/salary/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
         const result = await response.json();
 
         if (result.success) {

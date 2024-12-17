@@ -14,7 +14,9 @@ export default function AMCMaster() {
 
   const fetchAMCData = async () => {
     try {
-      const getAllData = await axios.get("http://localhost:3002/api/amcdata");
+      const getAllData = await axios.get(
+        `${process.env.REACT_APP_API_URL}/amcdata`
+      );
       setAmcData(getAllData.data.data);
       console.log(getAllData.data.data, "getAllData");
     } catch (error) {

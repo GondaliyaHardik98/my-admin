@@ -28,7 +28,9 @@ const SellMaster = () => {
   }, []);
   const fetchSell = async () => {
     try {
-      const getAllData = await axios.get("http://localhost:3002/api/sell");
+      const getAllData = await axios.get(
+        `${process.env.REACT_APP_API_URL}/sell`
+      );
       setSellData(getAllData.data.data);
       console.log(getAllData.data.data, "getAllData");
     } catch (error) {
@@ -38,22 +40,22 @@ const SellMaster = () => {
   const populateData = async () => {
     try {
       const customerData = await axios.get(
-        "http://localhost:3002/api/challanCustomer"
+        `${process.env.REACT_APP_API_URL}/challanCustomer`
       );
       setDataCustomer(customerData.data.data);
       console.log(customerData.data.data, "customerData");
 
       const productData = await axios.get(
-        "http://localhost:3002/api/challanProduct"
+        `${process.env.REACT_APP_API_URL}/challanProduct`
       );
       setProductData(productData.data.data);
 
       const productMachineData = await axios.get(
-        "http://localhost:3002/api/productMachineAll"
+        `${process.env.REACT_APP_API_URL}/productMachineAll`
       );
-      console.log({productMachineData});
+      console.log({ productMachineData });
       setProductMachineData(productMachineData.data.data);
-     // console.log(productData.data.data, "productData");
+      // console.log(productData.data.data, "productData");
     } catch (error) {
       console.error("Error fetching", error);
     }
@@ -101,9 +103,12 @@ const SellMaster = () => {
     if (window.confirm("Are you sure you want to delete this record?")) {
       try {
         console.log(id, "delete id");
-        const response = await fetch(`http://localhost:3002/api/sell/${id}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/sell/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
         const result = await response.json();
 
         if (result.success) {
@@ -135,8 +140,8 @@ const SellMaster = () => {
       };
       console.log(_saveData, "SaveData");
       const url = SelectedSellId
-        ? `http://localhost:3002/api/sell/${SelectedSellId}`
-        : "http://localhost:3002/api/sell";
+        ? `${process.env.REACT_APP_API_URL}/sell/${SelectedSellId}`
+        : `${process.env.REACT_APP_API_URL}/sell`;
       const method = SelectedSellId ? "PUT" : "POST";
 
       console.log(SelectedSellId, "SelectedProductId");

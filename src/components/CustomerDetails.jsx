@@ -38,7 +38,9 @@ const CustomerDetails = () => {
   };
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get("http://localhost:3002/api/customer"); // Replace with your actual API URL
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/customer`
+      ); // Replace with your actual API URL
       setCustomers(response.data.data);
     } catch (error) {
       console.error("Error fetching customer data:", error);
@@ -77,8 +79,8 @@ const CustomerDetails = () => {
       };
 
       const url = selectedCustomerId
-        ? `http://localhost:3002/api/customer/${selectedCustomerId}`
-        : "http://localhost:3002/api/customer";
+        ? `${process.env.REACT_APP_API_URL}/customer/${selectedCustomerId}`
+        : `${process.env.REACT_APP_API_URL}/customer`;
       const method = selectedCustomerId ? "PUT" : "POST";
 
       console.log(selectedCustomerId, "checkid");
@@ -117,7 +119,7 @@ const CustomerDetails = () => {
         const id = customer.customerId;
         console.log(id, "delete id");
         const response = await fetch(
-          `http://localhost:3002/api/customer/${id}`,
+          `${process.env.REACT_APP_API_URL}/customer/${id}`,
           {
             method: "DELETE",
           }

@@ -29,7 +29,9 @@ function ProductMaster() {
 
   const fetchVendor = async () => {
     try {
-      const response = await axios.get("http://localhost:3002/api/product"); // Replace with your API URL
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/product`
+      ); // Replace with your API URL
       //const data = await response.json();
       setProducts(response.data.data);
       console.log(response.data.data, "data");
@@ -40,7 +42,7 @@ function ProductMaster() {
   const fetchProducts = async () => {
     try {
       const getAllData = await axios.get(
-        "http://localhost:3002/api/productAll"
+        `${process.env.REACT_APP_API_URL}/productAll`
       );
       setProductData(getAllData.data.data);
     } catch (error) {
@@ -76,8 +78,8 @@ function ProductMaster() {
       };
       console.log(_saveData, "SaveData");
       const url = SelectedProductId
-        ? `http://localhost:3002/api/product/${SelectedProductId}`
-        : "http://localhost:3002/api/product";
+        ? `${process.env.REACT_APP_API_URL}/product/${SelectedProductId}`
+        : `${process.env.REACT_APP_API_URL}/product`;
       const method = SelectedProductId ? "PUT" : "POST";
 
       console.log(SelectedProductId, "SelectedProductId");
@@ -130,7 +132,7 @@ function ProductMaster() {
       try {
         console.log(productId, "delete id");
         const response = await fetch(
-          `http://localhost:3002/api/product/${productId}`,
+          `${process.env.REACT_APP_API_URL}/product/${productId}`,
           {
             method: "DELETE",
           }

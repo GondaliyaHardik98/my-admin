@@ -44,9 +44,12 @@ export default function VendorMaster() {
     if (window.confirm("Are you sure you want to delete this record?")) {
       try {
         console.log(id, "delete id");
-        const response = await fetch(`http://localhost:3002/api/vendor/${id}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/vendor/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
         const result = await response.json();
 
         if (result.success) {
@@ -70,7 +73,9 @@ export default function VendorMaster() {
   };
   const fetchVendor = async () => {
     try {
-      const response = await axios.get("http://localhost:3002/api/vendor"); // Replace with your actual API URL
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/vendor`
+      ); // Replace with your actual API URL
       setVendor(response.data.data);
       console.log(response.data, "vendordata");
     } catch (error) {
@@ -93,8 +98,8 @@ export default function VendorMaster() {
       const isEdit = !!SelectedVendorId;
 
       const apiUrl = isEdit
-        ? `http://localhost:3002/api/vendor/${SelectedVendorId}` // Edit endpoint with ID
-        : "http://localhost:3002/api/vendor"; // Create endpoint
+        ? `${process.env.REACT_APP_API_URL}/vendor/${SelectedVendorId}` // Edit endpoint with ID
+        : `${process.env.REACT_APP_API_URL}/vendor`; // Create endpoint
       const method = isEdit ? "PUT" : "POST";
 
       const response = await fetch(apiUrl, {

@@ -103,7 +103,7 @@ export default function EmployeeForm() {
       try {
         console.log(id, "delete id");
         const response = await fetch(
-          `http://localhost:3002/api/employees/${id}`,
+          `${process.env.REACT_APP_API_URL}/employees/${id}`,
           {
             method: "DELETE",
           }
@@ -131,7 +131,9 @@ export default function EmployeeForm() {
   };
   const fetchEmployee = async () => {
     try {
-      const response = await axios.get("http://localhost:3002/api/employees"); // Replace with your actual API URL
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/employees`
+      ); // Replace with your actual API URL
       setEmployee(response.data.data);
       //setEmployee(Array.isArray(response.data.data) ? response.data.data : []);
       console.log(response.data);
@@ -163,8 +165,8 @@ export default function EmployeeForm() {
       const isEdit = !!selectedEmployeeId;
 
       const apiUrl = isEdit
-        ? `http://localhost:3002/api/employees/${selectedEmployeeId}` // Edit endpoint with ID
-        : "http://localhost:3002/api/employees"; // Create endpoint
+        ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}` // Edit endpoint with ID
+        : `${process.env.REACT_APP_API_URL}/employees`; // Create endpoint
       const method = isEdit ? "PUT" : "POST";
 
       const response = await fetch(apiUrl, {

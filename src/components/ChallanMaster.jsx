@@ -31,7 +31,9 @@ export default function ChallanMaster() {
 
   const fetchChallan = async () => {
     try {
-      const getAllData = await axios.get("http://localhost:3002/api/challan");
+      const getAllData = await axios.get(
+        `${process.env.REACT_APP_API_URL}/challan`
+      );
       setChallanData(getAllData.data.data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -42,9 +44,9 @@ export default function ChallanMaster() {
   const populateData = async () => {
     try {
       const [customerRes, productRes, employeeRes] = await Promise.all([
-        axios.get("http://localhost:3002/api/challanCustomer"),
-        axios.get("http://localhost:3002/api/challanProduct"),
-        axios.get("http://localhost:3002/api/challanEmployee"),
+        axios.get(`${process.env.REACT_APP_API_URL}/challanCustomer`),
+        axios.get(`${process.env.REACT_APP_API_URL}/challanProduct`),
+        axios.get(`${process.env.REACT_APP_API_URL}/challanEmployee`),
       ]);
 
       setDataCustomer(customerRes.data.data);
@@ -141,7 +143,7 @@ export default function ChallanMaster() {
 
       // Fetch all challans for this customer
       const response = await axios.get(
-        `http://localhost:3002/api/challan/${challan.customerId}`
+        `${process.env.REACT_APP_API_URL}/challan/${challan.customerId}`
       );
 
       if (response.data.success && Array.isArray(response.data.data)) {
@@ -191,7 +193,7 @@ export default function ChallanMaster() {
       // If we're updating (SelectedChallanId exists)
       if (SelectedChallanId) {
         response = await axios.put(
-          `http://localhost:3002/api/challan/${customerId}`, // Changed to use customerId
+          `${process.env.REACT_APP_API_URL}/challan/${customerId}`, // Changed to use customerId
           formData.map((item) => ({
             ...item,
             customerId: customerId,
@@ -200,7 +202,7 @@ export default function ChallanMaster() {
       } else {
         // Handle new challan creation
         response = await axios.post(
-          "http://localhost:3002/api/challan",
+          `${process.env.REACT_APP_API_URL}/challan`,
           formData.map((item) => ({
             ...item,
             customerId: customerId,
@@ -241,7 +243,7 @@ export default function ChallanMaster() {
 
     try {
       const response = await axios.delete(
-        `http://localhost:3002/api/challan/${challanId}`
+        `${process.env.REACT_APP_API_URL}/challan/${challanId}`
       );
 
       if (response.data.success) {
@@ -281,52 +283,51 @@ export default function ChallanMaster() {
           </div>
 
           <div>
-              <label className="block font-medium">Select Engineer</label>
-              <select
-                value={engineerId}
-                onChange={handleCustomerIDChange                }
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                required
-              >
-                <option value="">Select engineer</option>
-                {employeeData.map((emp) => (
-                  <option key={emp.engineerId} value={emp.engineerId}>
-                    {emp.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <label className="block font-medium">Select Engineer</label>
+            <select
+              value={engineerId}
+              onChange={handleCustomerIDChange}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              required
+            >
+              <option value="">Select engineer</option>
+              {employeeData.map((emp) => (
+                <option key={emp.engineerId} value={emp.engineerId}>
+                  {emp.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            <div>
-              <label className="block font-medium">Date</label>
-              <input
-                type="date"
-                value={formData.challanDate}
-                onChange={handleDateChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                required
-              />
-            </div>
+          <div>
+            <label className="block font-medium">Date</label>
+            <input
+              type="date"
+              value={formData.challanDate}
+              onChange={handleDateChange}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              required
+            />
+          </div>
 
-            <div>
-              <label className="block font-medium">Select Payment</label>
-              <select
-                value={engineerId}
-                onChange={handleCustomerIDChange                }
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                required
-              >
-                <option value="">Select Payment Status</option>
-               
-                  <option key="0" value="Pending">
-                    Pending
-                  </option>
-                  <option key="1" value="Cash">
-                    Cash
-                  </option>
-               
-              </select>
-            </div>
+          <div>
+            <label className="block font-medium">Select Payment</label>
+            <select
+              value={engineerId}
+              onChange={handleCustomerIDChange}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              required
+            >
+              <option value="">Select Payment Status</option>
+
+              <option key="0" value="Pending">
+                Pending
+              </option>
+              <option key="1" value="Cash">
+                Cash
+              </option>
+            </select>
+          </div>
         </div>
 
         {formData.map((item, index) => (
@@ -353,8 +354,6 @@ export default function ChallanMaster() {
               </select>
             </div>
 
-            
-
             <div>
               <label className="block font-medium">Price</label>
               <input
@@ -368,8 +367,6 @@ export default function ChallanMaster() {
                 placeholder="Enter Price"
               />
             </div>
-
-           
 
             <div>
               <label className="block font-medium">Remark</label>

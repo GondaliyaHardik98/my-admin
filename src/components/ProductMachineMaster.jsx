@@ -29,7 +29,9 @@ function ProductMachineMaster() {
 
   const fetchVendor = async () => {
     try {
-      const response = await axios.get("http://localhost:3002/api/productMachine"); // Replace with your API URL
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/productMachine`
+      ); // Replace with your API URL
       //const data = await response.json();
       setProducts(response.data.data);
       console.log(response.data.data, "data");
@@ -40,7 +42,7 @@ function ProductMachineMaster() {
   const fetchProducts = async () => {
     try {
       const getAllData = await axios.get(
-        "http://localhost:3002/api/productMachineAll"
+        `${process.env.REACT_APP_API_URL}/productMachineAll`
       );
       setProductData(getAllData.data.data);
     } catch (error) {
@@ -67,12 +69,12 @@ function ProductMachineMaster() {
 
       const _saveData = {
         productMachineCode: formData.productMachineCode,
-        vendorId: formData.vendorId
+        vendorId: formData.vendorId,
       };
       console.log(_saveData, "SaveData");
       const url = SelectedProductId
-        ? `http://localhost:3002/api/productMachine/${SelectedProductId}`
-        : "http://localhost:3002/api/productMachine";
+        ? `${process.env.REACT_APP_API_URL}/productMachine/${SelectedProductId}`
+        : `${process.env.REACT_APP_API_URL}/productMachine`;
       const method = SelectedProductId ? "PUT" : "POST";
 
       console.log(SelectedProductId, "SelectedProductId");
@@ -113,7 +115,7 @@ function ProductMachineMaster() {
     setSelectedproductId(product.productId); // Set the selected vendor's ID
     setFormData({
       productMachineCode: product.productMachineCode,
-      vendorId: product.vendorId
+      vendorId: product.vendorId,
     });
   };
   const handleDeleteProduct = async (productId) => {
@@ -121,7 +123,7 @@ function ProductMachineMaster() {
       try {
         console.log(productId, "delete id");
         const response = await fetch(
-          `http://localhost:3002/api/productMachine/${productId}`,
+          `${process.env.REACT_APP_API_URL}/productMachine/${productId}`,
           {
             method: "DELETE",
           }
@@ -148,7 +150,7 @@ function ProductMachineMaster() {
     setFormData({
       productId: 0,
       productMachineCode: "",
-      vendorId: ""
+      vendorId: "",
     });
   };
 
@@ -250,7 +252,6 @@ function ProductMachineMaster() {
                 <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">{product.productMachineCode}</td>
                 <td className="py-2 px-4">{product.vendorName}</td>
-              
 
                 <td className="py-2 px-4 border-b">
                   <button
