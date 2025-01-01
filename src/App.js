@@ -18,6 +18,7 @@ import SalaryMaster from "./components/SalaryMaster";
 import AMCMaster from "./components/AMCMaster";
 import LoginPage from "./components/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Layout Component (just for structure, no auth logic)
 const Layout = ({ children }) => {
