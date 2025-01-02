@@ -83,14 +83,36 @@ export default function ChallanMaster() {
     e.preventDefault();
     setResponse(null);
     try {
-      if (isEditMode) {
-        await axios.put(
-          `${process.env.REACT_APP_API_URL}/challan/${editChallanId}`,
-          formData
-        );
-      } else {
-        await axios.post(`${process.env.REACT_APP_API_URL}/challan`, formData);
-      }
+      // if (isEditMode) {
+      //   await axios.put(
+      //     `${process.env.REACT_APP_API_URL}/challan/${editChallanId}`,
+      //     formData
+      //   );
+      // } else {
+      //   await axios.post(`${process.env.REACT_APP_API_URL}/challan`, formData);
+      // }
+
+      const url = editChallanId
+      ? `${process.env.REACT_APP_API_URL}/challan/${editChallanId}`
+      : `${process.env.REACT_APP_API_URL}/challan`;
+      const method = editChallanId ? "PUT" : "POST";
+      
+      console.log(editChallanId, "checkid");
+      console.log("Method: ", method);
+      console.log("URL: ", url);
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      console.log(formData, "saveData");
+
+
       setResponse({
         success: true,
         message: isEditMode
