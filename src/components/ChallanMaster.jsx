@@ -81,8 +81,8 @@ export default function ChallanMaster() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setResponse(null);
     try {
+      setResponse(null);
       // if (isEditMode) {
       //   await axios.put(
       //     `${process.env.REACT_APP_API_URL}/challan/${editChallanId}`,
@@ -91,6 +91,17 @@ export default function ChallanMaster() {
       // } else {
       //   await axios.post(`${process.env.REACT_APP_API_URL}/challan`, formData);
       // }
+
+      const _saveData = {
+        customerId: formData.customerId,
+        engineerId: formData.engineerId,
+        challanDate: formData.challanDate,
+        paymentType: formData.paymentType,
+        products: formData.products
+      };
+
+      console.log(_saveData, "saveData");
+
 
       const url = editChallanId
       ? `${process.env.REACT_APP_API_URL}/challan/${editChallanId}`
@@ -106,21 +117,22 @@ export default function ChallanMaster() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(_saveData),
       });
 
       const data = await response.json();
-      console.log(formData, "saveData");
+      console.log("Response: " + data);
+    
 
 
       setResponse({
-        success: true,
-        message: isEditMode
-          ? "Challan updated successfully."
-          : "Challan created successfully.",
+        success: data.success,
+        message: data.message,
       });
-      fetchChallanData();
-      clearForm();
+      if (data.success) {
+        clearForm();
+        fetchChallanData();
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
       setResponse({
