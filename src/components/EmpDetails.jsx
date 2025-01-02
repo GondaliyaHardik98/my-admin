@@ -70,6 +70,7 @@ export default function EmployeeForm() {
         : `${process.env.REACT_APP_API_URL}/employees`;
       const method = selectedEmployeeId ? "put" : "post";
 
+      console.log("URL: " + url);
       const res = await axios({
         url,
         method,
