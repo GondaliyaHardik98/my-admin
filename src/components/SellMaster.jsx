@@ -32,7 +32,7 @@ export default function SellMaster() {
     try {
       const [customerRes, productRes] = await Promise.all([
         axios.get(`${process.env.REACT_APP_API_URL}/customer`),
-        axios.get(`${process.env.REACT_APP_API_URL}/product`),
+        axios.get(`${process.env.REACT_APP_API_URL}/productAll`),
       ]);
       setCustomers(customerRes.data.data || []);
       setProducts(productRes.data.data || []);
@@ -52,7 +52,9 @@ export default function SellMaster() {
 
   const fetchInstallmentHistory = async (sellId) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/sell/installments/${sellId}`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/sell/installments/${sellId}`
+      );
       setInstallmentHistory(response.data.data || []);
       setSelectedSellId(sellId);
       setShowModal(true);
@@ -63,47 +65,50 @@ export default function SellMaster() {
 
   const handlePrintInvoice = (sell) => {
     try {
-      
       const doc = new jsPDF();
       const logoUrl = "%PUBLIC_URL%/logo192.png"; // Replace with actual logo URL or base64 string
-      
+
       console.log("Print invoice");
       // Add Logo
       //doc.addImage(logoUrl, "PNG", 10, 10, 50, 20);
-      
+
       // Title
       doc.setFontSize(16);
       doc.text("Sell Invoice", 105, 40, { align: "center" });
-      
+
       // Invoice Details
       doc.setFontSize(12);
       doc.text(`Invoice ID: ${sell.sellId}`, 20, 60);
-      doc.text(`Sell Date: ${new Date(sell.sellDate).toLocaleDateString()}`, 20, 70);
+      doc.text(
+        `Sell Date: ${new Date(sell.sellDate).toLocaleDateString()}`,
+        20,
+        70
+      );
       doc.text(`Customer: ${sell.customerName}`, 20, 80);
-      
+
       // Table for Products
       const tableColumn = ["Product Name", "Price"];
       const tableRows = [[sell.productName, `${sell.price} Rs.`]];
-      
-      doc.autoTable({
-      startY: 90,
-      head: [tableColumn],
-      body: tableRows,
-    });
 
-    // Footer Details
-    const finalY = doc.lastAutoTable.finalY + 10;
-    doc.text(`Total Price: ${sell.price} Rs.`, 20, finalY);
-    doc.text(`Paid Amount: ${sell.totalPaid} Rs.`, 20, finalY + 10);
-    doc.text(`Balance Amount: ${sell.balance} Rs.`, 20, finalY + 20);
-    
-    // Save PDF to Preview
-    const pdfOutput = doc.output("blob");
-    setPreviewPDF(URL.createObjectURL(pdfOutput));
-  }  catch (error) {
-    console.error("Error generating PDF:", error);
-    setResponse({ success: false, message: "Failed to generate PDF." });
-  }
+      doc.autoTable({
+        startY: 90,
+        head: [tableColumn],
+        body: tableRows,
+      });
+
+      // Footer Details
+      const finalY = doc.lastAutoTable.finalY + 10;
+      doc.text(`Total Price: ${sell.price} Rs.`, 20, finalY);
+      doc.text(`Paid Amount: ${sell.totalPaid} Rs.`, 20, finalY + 10);
+      doc.text(`Balance Amount: ${sell.balance} Rs.`, 20, finalY + 20);
+
+      // Save PDF to Preview
+      const pdfOutput = doc.output("blob");
+      setPreviewPDF(URL.createObjectURL(pdfOutput));
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      setResponse({ success: false, message: "Failed to generate PDF." });
+    }
   };
 
   const handleDownloadPDF = () => {
@@ -122,16 +127,25 @@ export default function SellMaster() {
   const handleAddInstallment = async (sellId) => {
     const installment = installmentData[sellId];
     if (!installment || !installment.amountPaid || !installment.paymentDate) {
-      setResponse({ success: false, message: "Please fill all installment details." });
+      setResponse({
+        success: false,
+        message: "Please fill all installment details.",
+      });
       return;
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/sell/installment`, {
-        sellId,
-        ...installment,
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/sell/installment`,
+        {
+          sellId,
+          ...installment,
+        }
+      );
+      setResponse({
+        success: response.data.success,
+        message: response.data.message,
       });
-      setResponse({ success: response.data.success, message: response.data.message });
       if (response.data.success) {
         fetchSellData();
         setInstallmentData((prev) => ({ ...prev, [sellId]: {} })); // Clear installment input for this sellId
@@ -153,8 +167,14 @@ export default function SellMaster() {
     e.preventDefault();
     setResponse(null);
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/sell`, formData);
-      setResponse({ success: response.data.success, message: response.data.message });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/sell`,
+        formData
+      );
+      setResponse({
+        success: response.data.success,
+        message: response.data.message,
+      });
       if (response.data.success) {
         fetchSellData();
         clearForm();
@@ -281,7 +301,9 @@ export default function SellMaster() {
               <tr key={sell.sellId} className="hover:bg-gray-50">
                 <td className="py-2 px-4 border-b">{sell.customerName}</td>
                 <td className="py-2 px-4 border-b">{sell.productName}</td>
-                <td className="py-2 px-4 border-b">{new Date(sell.sellDate).toLocaleDateString()}</td>
+                <td className="py-2 px-4 border-b">
+                  {new Date(sell.sellDate).toLocaleDateString()}
+                </td>
                 <td className="py-2 px-4 border-b">{sell.price}</td>
                 <td className="py-2 px-4 border-b">{sell.totalPaid}</td>
                 <td className="py-2 px-4 border-b">{sell.balance}</td>
@@ -299,7 +321,11 @@ export default function SellMaster() {
                         placeholder="Amount Paid"
                         value={installmentData[sell.sellId]?.amountPaid || ""}
                         onChange={(e) =>
-                          handleInstallmentInputChange(sell.sellId, "amountPaid", e.target.value)
+                          handleInstallmentInputChange(
+                            sell.sellId,
+                            "amountPaid",
+                            e.target.value
+                          )
                         }
                         className="w-full border border-gray-300 rounded px-3 py-2"
                       />
@@ -308,7 +334,11 @@ export default function SellMaster() {
                         placeholder="Payment Date"
                         value={installmentData[sell.sellId]?.paymentDate || ""}
                         onChange={(e) =>
-                          handleInstallmentInputChange(sell.sellId, "paymentDate", e.target.value)
+                          handleInstallmentInputChange(
+                            sell.sellId,
+                            "paymentDate",
+                            e.target.value
+                          )
                         }
                         className="w-full border border-gray-300 rounded px-3 py-2"
                       />
@@ -316,7 +346,11 @@ export default function SellMaster() {
                         placeholder="Remark"
                         value={installmentData[sell.sellId]?.remark || ""}
                         onChange={(e) =>
-                          handleInstallmentInputChange(sell.sellId, "remark", e.target.value)
+                          handleInstallmentInputChange(
+                            sell.sellId,
+                            "remark",
+                            e.target.value
+                          )
                         }
                         className="w-full border border-gray-300 rounded px-3 py-2"
                       />
@@ -336,7 +370,6 @@ export default function SellMaster() {
                   >
                     Print Invoice
                   </button>
-                 
                 </td>
               </tr>
             ))}
@@ -370,7 +403,7 @@ export default function SellMaster() {
             </div>
           </div>
         </div>
-     )}
+      )}
       {showModal && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white rounded shadow-lg p-6 w-2/3">
@@ -386,7 +419,9 @@ export default function SellMaster() {
               <tbody>
                 {installmentHistory.map((inst) => (
                   <tr key={inst.id}>
-                    <td className="py-2 px-4 border-b">{new Date(inst.paymentDate).toLocaleDateString()}</td>
+                    <td className="py-2 px-4 border-b">
+                      {new Date(inst.paymentDate).toLocaleDateString()}
+                    </td>
                     <td className="py-2 px-4 border-b">{inst.amountPaid}</td>
                     <td className="py-2 px-4 border-b">{inst.remark}</td>
                   </tr>
@@ -407,10 +442,16 @@ export default function SellMaster() {
       {response && (
         <div
           className={`mt-4 p-4 rounded ${
-            response.success ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+            response.success
+              ? "bg-green-50 text-green-700"
+              : "bg-red-50 text-red-700"
           }`}
         >
-          {response.success ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+          {response.success ? (
+            <CheckCircle2 className="w-5 h-5" />
+          ) : (
+            <AlertCircle className="w-5 h-5" />
+          )}
           <span>{response.message}</span>
         </div>
       )}
