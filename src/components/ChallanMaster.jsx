@@ -97,7 +97,7 @@ export default function ChallanMaster() {
         engineerId: formData.engineerId,
         challanDate: formData.challanDate,
         paymentType: formData.paymentType,
-        products: formData.products
+        products: formData.products.map((p) => [p.productId, p.price, p.remark])
       };
 
       console.log(_saveData, "saveData");
