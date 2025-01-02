@@ -86,7 +86,7 @@ const CustomerDetails = () => {
       console.log(selectedCustomerId, "checkid");
       console.log("URL: ", url);
       const response = await fetch(url, {
-        method,
+        method: method,
         headers: {
           "Content-Type": "application/json",
         },
