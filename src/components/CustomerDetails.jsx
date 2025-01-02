@@ -84,6 +84,7 @@ const CustomerDetails = () => {
       const method = selectedCustomerId ? "PUT" : "POST";
 
       console.log(selectedCustomerId, "checkid");
+      console.log("URL: ", url);
       const response = await fetch(url, {
         method,
         headers: {
