@@ -63,14 +63,15 @@ export default function EmployeeForm() {
     Object.entries(formData).forEach(([key, value]) => {
       data.append(key, value);
     });
+    
+    const url = selectedEmployeeId
+      ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}`
+      : `${process.env.REACT_APP_API_URL}/employees`;
+    const method = selectedEmployeeId ? "put" : "post";
 
+    console.log("URL: " + url);
     try {
-      const url = selectedEmployeeId
-        ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}`
-        : `${process.env.REACT_APP_API_URL}/employees`;
-      const method = selectedEmployeeId ? "put" : "post";
-
-      console.log("URL: " + url);
+      
       const res = await axios({
         url,
         method,
