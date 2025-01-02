@@ -184,7 +184,7 @@ const CustomerDetails = () => {
           <div>
             <label className="block font-medium">Mobile No</label>
             <input
-              type="text"
+              type="number"
               name="mobileNo"
               value={formData.mobileNo}
               onChange={handleChange}
