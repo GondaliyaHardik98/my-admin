@@ -30,7 +30,7 @@ export default function ChallanMaster() {
     try {
       const [customerRes, engineerRes, productRes] = await Promise.all([
         axios.get(`${process.env.REACT_APP_API_URL}/customer`),
-        axios.get(`${process.env.REACT_APP_API_URL}/employee`),
+        axios.get(`${process.env.REACT_APP_API_URL}/employees`),
         axios.get(`${process.env.REACT_APP_API_URL}/productAll`),
       ]);
       setCustomers(customerRes.data.data || []);
@@ -43,7 +43,9 @@ export default function ChallanMaster() {
 
   const fetchChallanData = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/challan`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/challan`
+      );
       setChallanData(response.data.data || []);
     } catch (error) {
       console.error("Error fetching challan data:", error);
@@ -82,16 +84,27 @@ export default function ChallanMaster() {
     setResponse(null);
     try {
       if (isEditMode) {
-        await axios.put(`${process.env.REACT_APP_API_URL}/challan/${editChallanId}`, formData);
+        await axios.put(
+          `${process.env.REACT_APP_API_URL}/challan/${editChallanId}`,
+          formData
+        );
       } else {
         await axios.post(`${process.env.REACT_APP_API_URL}/challan`, formData);
       }
-      setResponse({ success: true, message: isEditMode ? "Challan updated successfully." : "Challan created successfully." });
+      setResponse({
+        success: true,
+        message: isEditMode
+          ? "Challan updated successfully."
+          : "Challan created successfully.",
+      });
       fetchChallanData();
       clearForm();
     } catch (error) {
       console.error("Error submitting form:", error);
-      setResponse({ success: false, message: "Error saving challan. Please try again." });
+      setResponse({
+        success: false,
+        message: "Error saving challan. Please try again.",
+      });
     }
   };
 
@@ -101,7 +114,7 @@ export default function ChallanMaster() {
       const logoUrl = "https://example.com/logo.png"; // Replace with your actual logo URL or base64 string
 
       // Add Logo
-     // doc.addImage(logoUrl, "PNG", 10, 10, 50, 20);
+      // doc.addImage(logoUrl, "PNG", 10, 10, 50, 20);
 
       // Title
       doc.setFontSize(16);
@@ -161,11 +174,12 @@ export default function ChallanMaster() {
     setEditChallanId(null);
   };
 
-    const handleEdit = (challan) => {
-      
-        const date = new Date(challan.date);
-        const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-      
+  const handleEdit = (challan) => {
+    const date = new Date(challan.date);
+    const formattedDate = `${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
     setIsEditMode(true);
     setEditChallanId(challan.challanId);
     setFormData({
@@ -184,7 +198,9 @@ export default function ChallanMaster() {
   const handleDelete = async (challanId) => {
     if (window.confirm("Are you sure you want to delete this challan?")) {
       try {
-        await axios.delete(`${process.env.REACT_APP_API_URL}/challan/${challanId}`);
+        await axios.delete(
+          `${process.env.REACT_APP_API_URL}/challan/${challanId}`
+        );
         fetchChallanData();
       } catch (error) {
         console.error("Error deleting challan:", error);
@@ -268,7 +284,9 @@ export default function ChallanMaster() {
               <label className="block font-medium">Product</label>
               <select
                 value={product.productId}
-                onChange={(e) => handleProductChange(index, "productId", e.target.value)}
+                onChange={(e) =>
+                  handleProductChange(index, "productId", e.target.value)
+                }
                 className="w-full border border-gray-300 rounded px-3 py-2"
                 required
               >
@@ -285,7 +303,9 @@ export default function ChallanMaster() {
               <input
                 type="number"
                 value={product.price}
-                onChange={(e) => handleProductChange(index, "price", e.target.value)}
+                onChange={(e) =>
+                  handleProductChange(index, "price", e.target.value)
+                }
                 className="w-full border border-gray-300 rounded px-3 py-2"
                 required
               />
@@ -295,7 +315,9 @@ export default function ChallanMaster() {
               <input
                 type="text"
                 value={product.remark}
-                onChange={(e) => handleProductChange(index, "remark", e.target.value)}
+                onChange={(e) =>
+                  handleProductChange(index, "remark", e.target.value)
+                }
                 className="w-full border border-gray-300 rounded px-3 py-2"
               />
             </div>
@@ -340,10 +362,16 @@ export default function ChallanMaster() {
       {response && (
         <div
           className={`mt-4 p-4 rounded ${
-            response.success ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+            response.success
+              ? "bg-green-50 text-green-700"
+              : "bg-red-50 text-red-700"
           }`}
         >
-          {response.success ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+          {response.success ? (
+            <CheckCircle2 className="w-5 h-5" />
+          ) : (
+            <AlertCircle className="w-5 h-5" />
+          )}
           <span>{response.message}</span>
         </div>
       )}
@@ -370,7 +398,9 @@ export default function ChallanMaster() {
                 <td className="py-2 px-4 border-b">{challan.challanId}</td>
                 <td className="py-2 px-4 border-b">{challan.customerName}</td>
                 <td className="py-2 px-4 border-b">{challan.engineerName}</td>
-                <td className="py-2 px-4 border-b">{formatDate(challan.date)}</td>
+                <td className="py-2 px-4 border-b">
+                  {formatDate(challan.date)}
+                </td>
                 <td className="py-2 px-4 border-b">{challan.paymentType}</td>
                 <td className="py-2 px-4 border-b">
                   {challan.products.map((p) => (
@@ -394,59 +424,56 @@ export default function ChallanMaster() {
                   </button>
                 </td>
                 <td className="py-2 px-4 border-b">
-                <button
-                  onClick={() => handlePrintInvoice(challan)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                >
-                  Print Challan
-                </button>
-              </td>
+                  <button
+                    onClick={() => handlePrintInvoice(challan)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  >
+                    Print Challan
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-         {/* PDF Preview Modal */}
-      {previewPDF && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded shadow-lg w-3/4">
-            <h2 className="text-xl font-bold mb-4">Invoice Preview</h2>
-            <iframe
-              src={previewPDF}
-              className="w-full h-96"
-              title="PDF Preview"
-              frameBorder="0"
-            />
-            <div className="flex justify-end mt-4">
-              <button
-                onClick={() => setPreviewPDF(null)}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2"
-              >
-                Close
-              </button>
-              <button
-                onClick={handleDownloadPDF}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                Download
-              </button>
+        {/* PDF Preview Modal */}
+        {previewPDF && (
+          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+            <div className="bg-white p-6 rounded shadow-lg w-3/4">
+              <h2 className="text-xl font-bold mb-4">Invoice Preview</h2>
+              <iframe
+                src={previewPDF}
+                className="w-full h-96"
+                title="PDF Preview"
+                frameBorder="0"
+              />
+              <div className="flex justify-end mt-4">
+                <button
+                  onClick={() => setPreviewPDF(null)}
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={handleDownloadPDF}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Download
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
-      </div>
-      
+    </div>
   );
-    
-    
 }
 
 const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
