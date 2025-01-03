@@ -71,8 +71,8 @@ export default function EmployeeForm() {
       contact_details: formData.contact_details,
       emergency_contact_1: formData.emergency_contact_1,
       emergency_contact_2: formData.emergency_contact_2,
-      photo: null,
-      id_proof: null,
+      photo: formData.photo,
+      id_proof: formData.id_proof,
     };
     
 
@@ -101,7 +101,11 @@ export default function EmployeeForm() {
         body: JSON.stringify(_saveData),
       });
 
-      setResponse({ success: true, message: res.data.message });
+      const result = await response.json();
+
+      console.log("Result: ", result);
+
+      setResponse({ success: result.success, message: result.message });
       fetchEmployees();
       clearForm();
     } catch (error) {
