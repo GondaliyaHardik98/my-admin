@@ -9,8 +9,8 @@ export default function EmployeeForm() {
     contact_details: "",
     emergency_contact_1: "",
     emergency_contact_2: "",
-    photo: null,
-    id_proof: null,
+    photo: "",
+    id_proof: "",
   });
   const [response, setResponse] = useState(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
@@ -59,6 +59,7 @@ export default function EmployeeForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Submit data: " + formData);
     // const data = new FormData();
     // Object.entries(formData).forEach(([key, value]) => {
     //   data.append(key, value);
