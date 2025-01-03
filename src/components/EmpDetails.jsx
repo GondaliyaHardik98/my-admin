@@ -60,58 +60,40 @@ export default function EmployeeForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Submit data: " + formData);
-    // const data = new FormData();
-    // Object.entries(formData).forEach(([key, value]) => {
-    //   data.append(key, value);
-    // });
-
-    const _saveData = {
-
-      name: formData.name,
-      salary: formData.salary,
-      contact_details: formData.contact_details,
-      emergency_contact_1: formData.emergency_contact_1,
-      emergency_contact_2: formData.emergency_contact_2,
-      photo: formData.photo,
-      id_proof: formData.id_proof,
-    };
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("salary", formData.salary);
+    data.append("contact_details", formData.contact_details);
+    data.append("emergency_contact_1", formData.emergency_contact_1);
+    data.append("emergency_contact_2", formData.emergency_contact_2);
+    if (formData.photo) {
+        data.append("photo", formData.photo);
+    }
+    if (formData.id_proof) {
+        data.append("id_proof", formData.id_proof);
+    }
     
 
-    console.log("_saveData: ", _saveData);
+    
 
     const url = selectedEmployeeId
-      ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}`
-      : `${process.env.REACT_APP_API_URL}/employees`;
-    const method = selectedEmployeeId ? "put" : "post";
+    ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}`
+    : `${process.env.REACT_APP_API_URL}/employees`;
+    const method = selectedEmployeeId ? "PUT" : "POST";
 
-    console.log("URL: " + url);
     try {
-      
-      // const res = await axios({
-      //   url,
-      //   method,
-      //   data,
-      // });
-
-      const res = await fetch(url, {
-        method: method,
-        //body: _saveData,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(_saveData),
-      });
-
-      const result = await response.json();
-
-      console.log("Result: ", result);
-
-      setResponse({ success: result.success, message: result.message });
-      fetchEmployees();
-      clearForm();
+        const res = await fetch(url, {
+            method,
+            body: data,
+        });
+        const result = await res.json();
+        console.log("Result: ", result);
+        setResponse({ success: result.success, message: result.message });
+        fetchEmployees();
+        clearForm();
     } catch (error) {
-      console.error("Error submitting form:", error);
-      setResponse({ success: false, message: "Failed to save employee." });
+        console.error("Error submitting form:", error);
+        setResponse({ success: false, message: "Failed to save employee." });
     }
   };
 
