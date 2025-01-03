@@ -59,11 +59,25 @@ export default function EmployeeForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      data.append(key, value);
-    });
+    // const data = new FormData();
+    // Object.entries(formData).forEach(([key, value]) => {
+    //   data.append(key, value);
+    // });
+
+    const _saveData = {
+
+      name: formData.name,
+      salary: formData.salary,
+      contact_details: formData.contact_details,
+      emergency_contact_1: formData.emergency_contact_1,
+      emergency_contact_2: formData.emergency_contact_2,
+      photo: null,
+      id_proof: null,
+    };
     
+
+    console.log("_saveData: ", _saveData);
+
     const url = selectedEmployeeId
       ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}`
       : `${process.env.REACT_APP_API_URL}/employees`;
@@ -72,10 +86,19 @@ export default function EmployeeForm() {
     console.log("URL: " + url);
     try {
       
-      const res = await axios({
-        url,
-        method,
-        data,
+      // const res = await axios({
+      //   url,
+      //   method,
+      //   data,
+      // });
+
+      const res = await fetch(url, {
+        method: method,
+        //body: _saveData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(_saveData),
       });
 
       setResponse({ success: true, message: res.data.message });
