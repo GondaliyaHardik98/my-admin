@@ -173,6 +173,8 @@ export default function ChallanMaster() {
       // Add Logo
       // doc.addImage(logoUrl, "PNG", 10, 10, 50, 20);
 
+      
+
       // Title
       doc.setFontSize(16);
       doc.text("Challan Invoice", 105, 40, { align: "center" });

@@ -27,29 +27,52 @@ export default function AMCRecord() {
   };
 
   const handlePrintAMCInvoice = (amc) => {
+
     const doc = new jsPDF();
-  
-    // Add the custom font (if needed)
-    // doc.addFileToVFS("CustomFont.ttf", customFont);
-    // doc.addFont("CustomFont.ttf", "CustomFont", "normal");
-    // doc.setFont("CustomFont");
-  
-    // Add a logo
-    const logoUrl = "https://example.com/logo.png"; // Replace with your actual logo URL
-    //doc.addImage(logoUrl, "PNG", 10, 10, 50, 20);
-  
-    // Title
-    doc.setFontSize(16);
-    doc.text("AMC Record Invoice", 105, 40, { align: "center" });
-  
-    // AMC Details
+
+    // Set title and header
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("CONTRACT PAPER", 105, 20, null, null, "center");
+
     doc.setFontSize(12);
-    doc.text(`AMC ID: ${amc.amcId}`, 20, 60);
-    doc.text(`Sell Date: ${formatDate(amc.sellDate)}`, 20, 70);
-    doc.text(`Maintenance Start Date: ${formatDate(amc.maintenanceStartDate)}`, 20, 80);
-    doc.text(`Maintenance End Date: ${formatDate(amc.maintenanceEndDate) || "N/A"}`, 20, 90);
-    doc.text(`Customer: ${amc.customerName}`, 20, 100);
-    doc.text(`Product: ${amc.productName}`, 20, 110);
+    doc.text(`TO. ${amc.customerName} `, 20, 40);
+    doc.text("DATE:          /      /20", 160, 40);
+
+    doc.text("Contact No:-", 20, 50);
+    doc.text("No:- BT/128", 160, 50);
+
+    doc.text("M/C No:-09", 20, 60);
+
+    // Draw table
+    doc.autoTable({
+      startY: 70,
+      head: [["NO", "DESCRIPTION", "QTY", "RATE", "MONTH", "AMOUNT"]],
+      body: [
+        ["01", `${amc.productName}`, "CHARGE FOR SCANNING MACHINE", "01", "28000", "3", "6999"],
+      ],
+      theme: "grid",
+      headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], halign: "center" },
+      bodyStyles: { textColor: [0, 0, 0], fontSize: 10 },
+    });
+
+    // Add additional text
+    doc.text("TOTAL 6999", 160, doc.lastAutoTable.finalY + 10);
+
+    doc.text(`AMC PERIOD FROM DATE:  ${formatDate(amc.maintenanceStartDate)}  TO  ${formatDate(amc.maintenanceEndDate)}`, 20, doc.lastAutoTable.finalY + 20);
+
+    doc.setFontSize(10);
+    doc.text("CONDITION", 20, doc.lastAutoTable.finalY + 30);
+    doc.text("1: THIS CONTRACT PAPER IS ONLY FOR MACHINE MAINTENANCE.", 20, doc.lastAutoTable.finalY + 40);
+    doc.text("2: ENGINEER IS NOT RESPONSIBLE FOR DAMAGE ANY PART OF MACHINE DURING REPAIRING.", 20, doc.lastAutoTable.finalY + 50);
+    doc.text("NOTE:- SUNDAY WE PROVIDE HALF-DAY SERVICE", 20, doc.lastAutoTable.finalY + 60);
+    doc.text(": SUNDAY WE ACCEPT ONLY M/C SHUT DOWN COMPLAINT", 20, doc.lastAutoTable.finalY + 70);
+
+    // Footer
+    doc.setFont("Helvetica", "normal");
+    doc.setTextColor(255,0,0);
+    doc.text("CUSTOMER SIGN & STAMP", 20, 280);
+    doc.text("FOR, Bharat Technology", 160, 280, null, null, "right");
   
     // Save PDF to Preview
     const pdfOutput = doc.output("blob");
