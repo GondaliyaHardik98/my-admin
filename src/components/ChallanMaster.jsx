@@ -34,6 +34,7 @@ export default function ChallanMaster() {
         axios.get(`${process.env.REACT_APP_API_URL}/productAll`),
       ]);
       setCustomers(customerRes.data.data || []);
+      console.log("Fetched Engineers:", engineerRes.data.data);
       setEngineers(engineerRes.data.data || []);
       setProducts(productRes.data.data || []);
     } catch (error) {
@@ -298,7 +299,7 @@ export default function ChallanMaster() {
             >
               <option value="">Select Engineer</option>
               {engineers.map((engineer) => (
-                <option key={engineer.engineerId} value={engineer.engineerId}>
+                <option key={engineer.id} value={engineer.id}>
                   {engineer.name}
                 </option>
               ))}
