@@ -71,15 +71,17 @@ export default function EmployeeForm() {
     data.append("emergency_contact_1", formData.emergency_contact_1);
     data.append("emergency_contact_2", formData.emergency_contact_2);
     if (formData.photo) {
-        data.append("photo", formData.photo.name);
+        data.append("photo", formData.photo);
     }
     if (formData.id_proof) {
-        data.append("id_proof", formData.id_proof.name);
+        data.append("id_proof", formData.id_proof);
     }
     
+
+    console.log("Submitting data:");
     for (let [key, value] of data.entries()) {
       console.log(`${key}: ${value}`);
-  }
+    }
 
     
 
@@ -98,9 +100,11 @@ export default function EmployeeForm() {
         });
         const result = await res.json();
         console.log("Result: ", result);
-        setResponse({ success: result.success, message: result.message });
+      setResponse({ success: result.success, message: result.message });
+      if (result.success) {
         fetchEmployees();
         clearForm();
+      }
     } catch (error) {
         console.error("Error submitting form:", error);
         setResponse({ success: false, message: "Failed to save employee." });
