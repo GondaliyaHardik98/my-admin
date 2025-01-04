@@ -42,6 +42,7 @@ export default function EmployeeForm() {
       ...prev,
       [name]: files[0],
     }));
+    console.log("Name of file: " + files[0]);
   };
 
   const handleEdit = (employee) => {
@@ -73,13 +74,16 @@ export default function EmployeeForm() {
         data.append("id_proof", formData.id_proof);
     }
     
-
+    console.log("Data submit: ", data);
     
 
     const url = selectedEmployeeId
     ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}`
     : `${process.env.REACT_APP_API_URL}/employees`;
     const method = selectedEmployeeId ? "PUT" : "POST";
+
+
+    console.log("URL: ", url);
 
     try {
         const res = await fetch(url, {
