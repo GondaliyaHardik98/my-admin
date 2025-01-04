@@ -42,7 +42,7 @@ export default function EmployeeForm() {
       ...prev,
       [name]: files[0],
     }));
-    console.log("Name of file: " + files[0]);
+    console.log(name, " Name of file: " + files[0].name);
   };
 
   const handleEdit = (employee) => {
@@ -74,7 +74,7 @@ export default function EmployeeForm() {
         data.append("id_proof", formData.id_proof);
     }
     
-    console.log("Data submit: ", data);
+    console.log("Data submit: ", JSON.stringify(data));
     
 
     const url = selectedEmployeeId
@@ -88,7 +88,7 @@ export default function EmployeeForm() {
     try {
         const res = await fetch(url, {
             method,
-            body: data,
+            body: JSON.stringify(data),
         });
         const result = await res.json();
         console.log("Result: ", result);
