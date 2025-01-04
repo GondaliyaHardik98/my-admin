@@ -98,6 +98,8 @@ export default function EmployeeForm() {
             method,
             body: data,
         });
+      
+      console.log("Res: ", res);
         const result = await res.json();
         console.log("Result: ", result);
       setResponse({ success: result.success, message: result.message });
