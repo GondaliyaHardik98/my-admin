@@ -61,9 +61,16 @@ export default function ChallanMaster() {
   };
 
   const handleProductChange = (index, field, value) => {
-    const updatedProducts = [...formData.products];
-    updatedProducts[index][field] = value;
-    setFormData((prev) => ({ ...prev, products: updatedProducts }));
+    const updatedProducts = [...formData.products]; // Clone the products array
+    updatedProducts[index] = {
+      ...updatedProducts[index],
+      [field]: value, // Update the specific field
+    };
+  
+    setFormData((prev) => ({
+      ...prev,
+      products: updatedProducts, // Update the form data with the modified products array
+    }));
   };
 
   const addProductRow = () => {
@@ -92,15 +99,30 @@ export default function ChallanMaster() {
       //   await axios.post(`${process.env.REACT_APP_API_URL}/challan`, formData);
       // }
 
+      console.log("Products before submit:", formData.products);
+
+
+      const formattedProducts = formData.products.map((p) => ({
+        productId: p[0], // Replace with the correct index mapping
+        price: p[1],
+        remark: p[2],
+      }));
+
       const _saveData = {
         customerId: formData.customerId,
         engineerId: formData.engineerId,
         challanDate: formData.challanDate,
         paymentType: formData.paymentType,
-        products: formData.products.map((p) => [p.productId, p.price, p.remark])
+        products: formData.products.map((p) => ({
+          productId: p.productId,
+          price: p.price,
+          remark: p.remark,
+        })), // Ensure the mapping is correct
       };
 
       console.log(_saveData, "saveData");
+      console.log(_saveData.products, "Products sent to backend");
+
 
 
       const url = editChallanId
