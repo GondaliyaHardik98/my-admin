@@ -10,8 +10,8 @@ export default function ChallanMaster() {
   const [products, setProducts] = useState([]);
   const [challanData, setChallanData] = useState([]);
   const [formData, setFormData] = useState({
-    customerId: "",
-    engineerId: "",
+    customerId: 0,
+    engineerId: 0,
     challanDate: "",
     paymentType: "",
     products: [{ productId: "", price: "", remark: "" }],
@@ -220,8 +220,8 @@ export default function ChallanMaster() {
 
   const clearForm = () => {
     setFormData({
-      customerId: "",
-      engineerId: "",
+      customerId: 0,
+      engineerId: 0,
       challanDate: "",
       paymentType: "",
       products: [{ productId: "", price: "", remark: "" }],
