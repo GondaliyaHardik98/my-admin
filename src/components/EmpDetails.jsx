@@ -68,13 +68,16 @@ export default function EmployeeForm() {
     data.append("emergency_contact_1", formData.emergency_contact_1);
     data.append("emergency_contact_2", formData.emergency_contact_2);
     if (formData.photo) {
-        data.append("photo", formData.photo);
+        data.append("photo", formData.photo.name);
     }
     if (formData.id_proof) {
-        data.append("id_proof", formData.id_proof);
+        data.append("id_proof", formData.id_proof.name);
     }
     
-    console.log("Data submit: ", JSON.stringify(data));
+    for (let [key, value] of data.entries()) {
+      console.log(`${key}: ${value}`);
+  }
+
     
 
     const url = selectedEmployeeId
@@ -88,7 +91,7 @@ export default function EmployeeForm() {
     try {
         const res = await fetch(url, {
             method,
-            body: JSON.stringify(data),
+            body: data,
         });
         const result = await res.json();
         console.log("Result: ", result);
