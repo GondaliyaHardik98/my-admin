@@ -107,6 +107,7 @@ export default function EmployeeForm() {
       }
     } catch (error) {
         console.error("Error submitting form:", error);
+        console.error("Error message:", error.message);
         setResponse({ success: false, message: "Failed to save employee." });
     }
   };
