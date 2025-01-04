@@ -38,11 +38,14 @@ export default function EmployeeForm() {
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: files[0],
-    }));
-    console.log(name, " Name of file: " + files[0].name);
+    setFormData((prev) => {
+        const updatedFormData = {
+            ...prev,
+            [name]: files[0], // Update the specific file field (photo or id_proof)
+        };
+        console.log(name, " Name of file: " + files[0].name);
+        return updatedFormData;
+    });
   };
 
   const handleEdit = (employee) => {
