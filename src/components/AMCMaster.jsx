@@ -47,7 +47,7 @@ export default function AMCRecord() {
     // Draw table
     doc.autoTable({
       startY: 70,
-      head: [["NO", "DESCRIPTION", "QTY", "RATE", "MONTH", "AMOUNT"]],
+      head: [["NO", "Product name",  "DESCRIPTION", "QTY", "RATE", "MONTH", "AMOUNT"]],
       body: [
         ["01", `${amc.productName}`, "CHARGE FOR SCANNING MACHINE", "01", "28000", "3", "6999"],
       ],
