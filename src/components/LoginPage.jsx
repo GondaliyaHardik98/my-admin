@@ -1,78 +1,84 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
-const LoginPage = () => {
+function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
-  // Static credentials and JWT token
-  const validEmail = process.env.REACT_APP_LOGIN_EMAIL;
-  const validPassword = process.env.REACT_APP_LOGIN_PASSWORD;
-  const staticJwtToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE4NTA1NjAwLCJleHAiOjE3NTAwNDE2MDB9.abc123";
-
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError(null);
 
-    if (email === validEmail && password === validPassword) {
-      // Store JWT and email in session storage
-      sessionStorage.setItem("jwtToken", staticJwtToken);
-      sessionStorage.setItem("email", email);
+    try {
+      // Make a request to login API
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}auth/login`, {
+        email,
+        password,
+      });
 
-      // Update isLoggedIn state and redirect to Employee
-      navigate("/employee");
-    } else {
-      setErrorMessage("Invalid email or password.");
+      const { token } = response.data;
+      console.log("date: " , response.data);
+      sessionStorage.setItem("jwtToken", token); // Save token
+
+      // Decode the token to get roles
+      const decoded = jwtDecode(token); // Correctly imported function
+      console.log("Decoded token:", decoded); // Log the decoded token
+
+      const userRoles = decoded.roles;
+
+      console.log("userRoles: ", userRoles);
+
+      // Redirect based on roles
+      if (userRoles.includes("Sales Admin")) {
+        window.location.href = "/sellMaster";
+      } else if (userRoles.includes("Super Admin")) {
+        window.location.href = "/employee";
+      } else {
+        setError("Access Denied. No valid role assigned.");
+      }
+    } catch (err) {
+      console.error("Error logging in:", err);
+      setError("Invalid email or password.");
+     
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="w-full max-w-md p-6 bg-white border border-gray-300 shadow-md rounded">
-        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
-        {errorMessage && (
-          <p className="text-red-500 text-center">{errorMessage}</p>
-        )}
-        <form onSubmit={handleLogin}>
-          <div className="mb-4">
-            <label htmlFor="email" className="block font-medium mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="password" className="block font-medium mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded"
-              autoComplete="current-password"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-          >
-            Login
-          </button>
-        </form>
-      </div>
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4">Login</h2>
+      {error && <p className="text-red-500">{error}</p>}
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div>
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+            required
+          />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Login
+        </button>
+      </form>
     </div>
   );
-};
+}
 
 export default LoginPage;

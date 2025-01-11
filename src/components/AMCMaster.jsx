@@ -36,6 +36,7 @@ export default function AMCRecord() {
     doc.text("CONTRACT PAPER", 105, 20, null, null, "center");
 
     doc.setFontSize(12);
+    const date = new Date();
     doc.text(`TO. ${amc.customerName} `, 20, 40);
     doc.text("DATE:          /      /20", 160, 40);
 
@@ -49,7 +50,7 @@ export default function AMCRecord() {
       startY: 70,
       head: [["NO", "Product name",  "DESCRIPTION", "QTY", "RATE", "MONTH", "AMOUNT"]],
       body: [
-        ["01", `${amc.productName}`, "CHARGE FOR SCANNING MACHINE", "01", "28000", "3", "6999"],
+        ["01", `${amc.productName}`, "ANNUAL MAINTENANCE CONTRACT \n CHARGE FOR SCANING MACHINE", "01", "28000", "3", "6999"],
       ],
       theme: "grid",
       headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], halign: "center" },
