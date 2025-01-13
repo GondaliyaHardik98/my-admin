@@ -197,15 +197,15 @@ export default function AMCRecord() {
   };
 
   // Populate form for editing
-  const handleEdit = (amc) => {
+  const handleEdit = (amc, recordId) => {
     setFormData({
-      sellId: amc.sellId, // Selected sell record
-      amcPrice: amc.amcPrice, // AMC price
-      customerId: amc.customerId, // Customer ID for dropdown
-      productId: amc.productId, // Product ID for dropdown
-      maintenanceStartDate: amc.maintenanceStartDate, // Maintenance start date
-      maintenanceEndDate: amc.maintenanceEndDate, // Maintenance end date
-      amcProductName: amc.amcProductName, // AMC Product name
+      recordId: recordId || "", // Selected sell record
+      amcPrice: amc.amcPrice || "", // AMC price
+      customerId: amc.customerId || "", // Customer ID for dropdown
+      productId: amc.productId || "", // Product ID for dropdown
+      maintenanceStartDate: amc.maintenanceStartDate || "", // Maintenance start date
+      maintenanceEndDate: amc.maintenanceEndDate || "", // Maintenance end date
+      amcProductName: amc.amcProductName || "", // AMC Product name
     });
     setSelectedAmcId(amc.amcId); // Set selected AMC record ID for editing
   }

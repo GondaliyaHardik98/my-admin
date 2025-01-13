@@ -55,7 +55,7 @@ const Navbar = () => {
             </li>
 
             {/* Super Admin and Admin Links */}
-            {(roles.includes("Super Admin") || roles.includes("Admin")) && (
+            {(roles.includes("Super Admin")) && (
               <>
                 <li className="nav-item">
                   <button className="nav-link btn" onClick={() => navigate("/customerDetails")}>Customer Management</button>
