@@ -89,7 +89,7 @@ export default function AMCRecord() {
         [
           "01",
           `${amc.productName}`,
-          "ANNUAL MAINTENANCE CONTRACT \n CHARGE FOR SCANING MACHINE",
+          `${amc.amcProductName}`,
           "01",
           "28000",
           "3",
@@ -115,7 +115,7 @@ export default function AMCRecord() {
     });
 
     // Add additional text
-    doc.text("TOTAL 6999", 160, doc.lastAutoTable.finalY + 10);
+    doc.text(`TOTAL ${amc.amcPrice}`, 160, doc.lastAutoTable.finalY + 10);
 
     doc.text(`AMC PERIOD FROM DATE:  ${formatDate(amc.maintenanceStartDate)}  TO  ${formatDate(amc.maintenanceEndDate)}`, 20, doc.lastAutoTable.finalY + 20);
 
@@ -288,6 +288,7 @@ export default function AMCRecord() {
             <th className="py-2 px-4 border-b">Sell Date</th>
             <th className="py-2 px-4 border-b">AMC Price</th>
             <th className="py-2 px-4 border-b">Actions</th>
+            <th className="py-2 px-4 border-b">Print</th>
           </tr>
         </thead>
         <tbody>
@@ -303,6 +304,11 @@ export default function AMCRecord() {
               <td className="py-2 px-4 border-b">
                 <button onClick={() => handleEdit(amc)} className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2">
                   Edit
+                </button>
+              </td>
+              <td>
+                <button onClick={() => handlePrintAMCInvoice(amc)} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-2">
+                  Print
                 </button>
               </td>
             </tr>))
