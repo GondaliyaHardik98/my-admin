@@ -3,6 +3,7 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
 
 export default function SellMaster() {
   const [customers, setCustomers] = useState([]);
@@ -20,19 +21,34 @@ export default function SellMaster() {
   const [selectedSellId, setSelectedSellId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [response, setResponse] = useState(null);
-
   const [previewPDF, setPreviewPDF] = useState(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   useEffect(() => {
     fetchDropdownData();
     fetchSellData();
+    checkRole();
   }, []);
+
+  const checkRole = () => {
+    const token = sessionStorage.getItem("jwtToken");
+    if (token) {
+      const decoded = jwtDecode(token);
+      const roles = decoded.roles || [];
+      setIsSuperAdmin(roles.includes("Super Admin"));
+    }
+  };
 
   const fetchDropdownData = async () => {
     try {
+      const token = sessionStorage.getItem("jwtToken");
       const [customerRes, productRes] = await Promise.all([
-        axios.get(`${process.env.REACT_APP_API_URL}/customer`),
-        axios.get(`${process.env.REACT_APP_API_URL}/productAll`),
+        axios.get(`${process.env.REACT_APP_API_URL}/customer`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${process.env.REACT_APP_API_URL}/productAll`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
       ]);
       setCustomers(customerRes.data.data || []);
       setProducts(productRes.data.data || []);
@@ -43,7 +59,10 @@ export default function SellMaster() {
 
   const fetchSellData = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/sell`);
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/sell`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setSellData(response.data.data || []);
     } catch (error) {
       console.error("Error fetching sell records:", error);
@@ -52,8 +71,12 @@ export default function SellMaster() {
 
   const fetchInstallmentHistory = async (sellId) => {
     try {
+      const token = sessionStorage.getItem("jwtToken");
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/sell/installments/${sellId}`
+        `${process.env.REACT_APP_API_URL}/sell/installments/${sellId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
       setInstallmentHistory(response.data.data || []);
       setSelectedSellId(sellId);
@@ -135,11 +158,15 @@ export default function SellMaster() {
     }
 
     try {
+      const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/sell/installment`,
         {
           sellId,
           ...installment,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setResponse({
@@ -163,14 +190,45 @@ export default function SellMaster() {
     }));
   };
 
+
+  const handleEdit = (sellId, customerId, productId, sellDate) => {
+    setFormData({
+      customerId,
+      productId,
+      sellDate: new Date(sellDate).toISOString().split("T")[0], // Convert to yyyy-mm-dd format
+      price: "", // Keep price blank for Sell Admin
+      remark: "",
+    });
+    setSelectedSellId(sellId); // Track which sell record is being edited
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setResponse(null);
+  
+    const data = {
+      customerId: formData.customerId,
+      productId: formData.productId,
+      sellDate: formData.sellDate,
+    };
+  
+    if (isSuperAdmin) {
+      data.price = formData.price;
+    }
+  
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/sell`,
-        formData
-      );
+      const token = sessionStorage.getItem("jwtToken");
+      const url = selectedSellId
+        ? `${process.env.REACT_APP_API_URL}/sell/${selectedSellId}`
+        : `${process.env.REACT_APP_API_URL}/sell`;
+      const method = selectedSellId ? "PUT" : "POST";
+  
+      const response = await axios({
+        method,
+        url,
+        data,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
       setResponse({
         success: response.data.success,
         message: response.data.message,
@@ -181,9 +239,10 @@ export default function SellMaster() {
       }
     } catch (error) {
       console.error("Error submitting sell form:", error);
-      setResponse({ success: false, message: "Error creating sell record." });
+      setResponse({ success: false, message: "Error updating sell record." });
     }
   };
+  
 
   const clearForm = () => {
     setFormData({
@@ -193,6 +252,8 @@ export default function SellMaster() {
       price: "",
       remark: "",
     });
+
+    setSelectedSellId(null);
   };
 
   return (
@@ -245,17 +306,18 @@ export default function SellMaster() {
               required
             />
           </div>
-          <div>
-            <label className="block font-medium">Price</label>
-            <input
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
-              required
-            />
-          </div>
+          {isSuperAdmin && (
+            <div>
+              <label className="block font-medium">Price</label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              />
+            </div>
+          )}
         </div>
         <div>
           <label className="block font-medium">Remark</label>
@@ -290,9 +352,9 @@ export default function SellMaster() {
               <th className="py-2 px-4 border-b">Customer</th>
               <th className="py-2 px-4 border-b">Product</th>
               <th className="py-2 px-4 border-b">Sell Date</th>
-              <th className="py-2 px-4 border-b">Price</th>
-              <th className="py-2 px-4 border-b">Paid</th>
-              <th className="py-2 px-4 border-b">Remaining</th>
+              {isSuperAdmin && <th className="py-2 px-4 border-b">Price</th>}
+              {isSuperAdmin && <th className="py-2 px-4 border-b">Paid</th>}
+              {isSuperAdmin && <th className="py-2 px-4 border-b">Remaining</th>}
               <th className="py-2 px-4 border-b">Actions</th>
             </tr>
           </thead>
@@ -304,10 +366,10 @@ export default function SellMaster() {
                 <td className="py-2 px-4 border-b">
                   {new Date(sell.sellDate).toLocaleDateString()}
                 </td>
-                <td className="py-2 px-4 border-b">{sell.price}</td>
-                <td className="py-2 px-4 border-b">{sell.totalPaid}</td>
-                <td className="py-2 px-4 border-b">{sell.balance}</td>
-                <td className="py-2 px-4 border-b">
+                {isSuperAdmin && <td className="py-2 px-4 border-b">{sell.price}</td>}
+                {isSuperAdmin && <td className="py-2 px-4 border-b">{sell.totalPaid}</td>}
+                {isSuperAdmin && <td className="py-2 px-4 border-b">{sell.balance}</td>}
+                {isSuperAdmin && <td className="py-2 px-4 border-b">
                   <div className="space-y-2">
                     <button
                       onClick={() => fetchInstallmentHistory(sell.sellId)}
@@ -362,14 +424,24 @@ export default function SellMaster() {
                       </button>
                     </div>
                   </div>
-                </td>
-                <td className="py-2 px-4 border-b">
+                </td>}
+                {isSuperAdmin && <td className="py-2 px-4 border-b">
                   <button
                     onClick={() => handlePrintInvoice(sell)}
                     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                   >
                     Print Invoice
                   </button>
+                </td>}
+                <td>
+                <button
+            onClick={() =>
+              handleEdit(sell.sellId, sell.customerId, sell.productId, sell.sellDate)
+            }
+            className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full"
+          >
+            Edit Details
+          </button>
                 </td>
               </tr>
             ))}
@@ -404,26 +476,28 @@ export default function SellMaster() {
           </div>
         </div>
       )}
-      {showModal && (
+          {showModal && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white rounded shadow-lg p-6 w-2/3">
+          <div className="bg-white p-6 rounded shadow-lg w-3/4">
             <h2 className="text-xl font-bold mb-4">Installment History</h2>
             <table className="w-full border border-gray-300 text-left">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="py-2 px-4 border-b">Date</th>
-                  <th className="py-2 px-4 border-b">Amount</th>
+                  <th className="py-2 px-4 border-b">Payment Date</th>
+                  <th className="py-2 px-4 border-b">Amount Paid</th>
                   <th className="py-2 px-4 border-b">Remark</th>
                 </tr>
               </thead>
               <tbody>
-                {installmentHistory.map((inst) => (
-                  <tr key={inst.id}>
+                {installmentHistory.map((installment, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
                     <td className="py-2 px-4 border-b">
-                      {new Date(inst.paymentDate).toLocaleDateString()}
+                      {new Date(installment.paymentDate).toLocaleDateString()}
                     </td>
-                    <td className="py-2 px-4 border-b">{inst.amountPaid}</td>
-                    <td className="py-2 px-4 border-b">{inst.remark}</td>
+                    <td className="py-2 px-4 border-b">
+                      {installment.amountPaid} Rs.
+                    </td>
+                    <td className="py-2 px-4 border-b">{installment.remark}</td>
                   </tr>
                 ))}
               </tbody>
@@ -439,22 +513,7 @@ export default function SellMaster() {
           </div>
         </div>
       )}
-      {response && (
-        <div
-          className={`mt-4 p-4 rounded ${
-            response.success
-              ? "bg-green-50 text-green-700"
-              : "bg-red-50 text-red-700"
-          }`}
-        >
-          {response.success ? (
-            <CheckCircle2 className="w-5 h-5" />
-          ) : (
-            <AlertCircle className="w-5 h-5" />
-          )}
-          <span>{response.message}</span>
-        </div>
-      )}
     </div>
   );
 }
+

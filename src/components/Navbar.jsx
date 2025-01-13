@@ -70,19 +70,37 @@ const Navbar = () => {
                   <button className="nav-link btn" onClick={() => navigate("/vendorMaster")}>Vendor Management</button>
                 </li>
                 <li className="nav-item">
+                <button className="nav-link btn" onClick={() => navigate("/challan")}>Challans</button>
+                </li>
+                <li className="nav-item">
                 <button className="nav-link btn" onClick={() => navigate("/sellMaster")}>Sales</button>
                 </li>
                 <li className="nav-item">
-                <button className="nav-link btn" onClick={() => navigate("/challan")}>Challans</button>
+                <button className="nav-link btn" onClick={() => navigate("/amcMaster")}>AMC</button>
               </li>
               </>
             )}
 
             {/* Sales Admin Links */}
             {roles.includes("Sales Admin") && (
+              <>
+                 <li className="nav-item">
+                  <button className="nav-link btn" onClick={() => navigate("/customerDetails")}>Customer Management</button>
+                </li>
+                <li className="nav-item">
+                  <button className="nav-link btn" onClick={() => navigate("/employee")}>Employee Management</button>
+                </li>
               <li className="nav-item">
                 <button className="nav-link btn" onClick={() => navigate("/sellMaster")}>Sales</button>
               </li>
+                
+              <li className="nav-item">
+                <button className="nav-link btn" onClick={() => navigate("/amcMaster")}>AMC</button>
+              </li>
+              
+              </>
+              
+              
             )}
 
             {/* Challan Admin Links */}
