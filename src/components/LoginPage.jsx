@@ -35,7 +35,11 @@ function LoginPage() {
         window.location.href = "/sellMaster";
       } else if (userRoles.includes("Super Admin")) {
         window.location.href = "/employee";
-      } else {
+      }
+      else if (userRoles.includes("Challan Admin")) {
+        window.location.href = "/challanMaster";
+      }
+      else {
         setError("Access Denied. No valid role assigned.");
       }
     } catch (err) {

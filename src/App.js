@@ -18,9 +18,10 @@ import SalaryMaster from "./components/SalaryMaster";
 import AMCMaster from "./components/AMCMaster";
 import LoginPage from "./components/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
-// Layout Component (just for structure, no auth logic)
+// Layout Component (handles navbar visibility)
 const Layout = ({ children }) => {
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
@@ -28,6 +29,7 @@ const Layout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      {/* Show Navbar only if token exists and not on the login page */}
       {token && !isLoginPage && <Navbar />}
       <div className="p-5">{children}</div>
     </div>
@@ -64,7 +66,7 @@ const App = () => {
             />
           ))}
 
-          {/* Default route */}
+          {/* Default route for authenticated users */}
           <Route
             path="/"
             element={
@@ -74,7 +76,7 @@ const App = () => {
             }
           />
 
-          {/* Catch all route */}
+          {/* Catch-all route */}
           <Route
             path="*"
             element={

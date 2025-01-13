@@ -21,7 +21,12 @@ export default function EmployeeForm() {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/employees`);
+      const token = sessionStorage.getItem("jwtToken"); // Retrieve token from sessionStorage
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/employees`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Add Authorization header
+        },
+      });
       setEmployees(res.data.data || []);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -39,12 +44,12 @@ export default function EmployeeForm() {
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     setFormData((prev) => {
-        const updatedFormData = {
-            ...prev,
-            [name]: files[0], // Update the specific file field (photo or id_proof)
-        };
-        console.log(name, " Name of file: " + files[0].name);
-        return updatedFormData;
+      const updatedFormData = {
+        ...prev,
+        [name]: files[0], // Update the specific file field (photo or id_proof)
+      };
+      console.log(name, " Name of file: " + files[0].name);
+      return updatedFormData;
     });
   };
 
@@ -71,46 +76,46 @@ export default function EmployeeForm() {
     data.append("emergency_contact_1", formData.emergency_contact_1);
     data.append("emergency_contact_2", formData.emergency_contact_2);
     if (formData.photo) {
-        data.append("photo", formData.photo);
+      data.append("photo", formData.photo);
     }
     if (formData.id_proof) {
-        data.append("id_proof", formData.id_proof);
+      data.append("id_proof", formData.id_proof);
     }
-    
 
     console.log("Submitting data:");
     for (let [key, value] of data.entries()) {
       console.log(`${key}: ${value}`);
     }
 
-    
-
     const url = selectedEmployeeId
-    ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}`
-    : `${process.env.REACT_APP_API_URL}/employees`;
+      ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}`
+      : `${process.env.REACT_APP_API_URL}/employees`;
     const method = selectedEmployeeId ? "PUT" : "POST";
-
 
     console.log("URL: ", url);
 
     try {
-        const res = await fetch(url, {
-            method,
-            body: data,
-        });
-      
+      const token = sessionStorage.getItem("jwtToken"); // Retrieve token from sessionStorage
+      const res = await fetch(url, {
+        method,
+        body: data,
+        headers: {
+          Authorization: `Bearer ${token}`, // Add Authorization header
+        },
+      });
+
       console.log("Res: ", res);
-        const result = await res.json();
-        console.log("Result: ", result);
+      const result = await res.json();
+      console.log("Result: ", result);
       setResponse({ success: result.success, message: result.message });
       if (result.success) {
         fetchEmployees();
         clearForm();
       }
     } catch (error) {
-        console.error("Error submitting form:", error);
-        console.error("Error message:", error.message);
-        setResponse({ success: false, message: "Failed to save employee." });
+      console.error("Error submitting form:", error);
+      console.error("Error message:", error.message);
+      setResponse({ success: false, message: "Failed to save employee." });
     }
   };
 
