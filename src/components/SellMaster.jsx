@@ -225,7 +225,7 @@ export default function SellMaster() {
       const response = await axios({
         method,
         url,
-        data,
+        data: data,
         headers: { Authorization: `Bearer ${token}` },
       });
   
