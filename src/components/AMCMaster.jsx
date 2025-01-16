@@ -55,16 +55,29 @@ export default function AMCRecord() {
   };
 
   const calculateMonths = (s, e) => {
-     // Extract the date portion (YYYY-MM-DD) from the input strings
-  const startDate = new Date(s.split(" ")[0]);
-  const endDate = new Date(e.split(" ")[0]);
 
-  // Calculate the year and month difference
-  const yearsDiff = endDate.getFullYear() - startDate.getFullYear();
-  const monthsDiff = endDate.getMonth() - startDate.getMonth();
+      // Parse the input dates into proper Date objects
+    const startDate = new Date(s);
+    const endDate = new Date(e);
 
-  // Total months
-  return yearsDiff * 12 + monthsDiff + 1; // +1 to include the starting month
+    console.log("Parsed StartDate:", startDate);
+    console.log("Parsed EndDate:", endDate);
+
+    // Ensure startDate is before endDate
+    if (startDate > endDate) {
+      console.error("Error: Start date is after End date.");
+      return 0; // Return 0 or handle the error appropriately
+    }
+
+    // Calculate the year and month difference
+    const yearsDiff = endDate.getFullYear() - startDate.getFullYear();
+    const monthsDiff = endDate.getMonth() - startDate.getMonth();
+
+    // Calculate the total months difference
+    const totalMonths = yearsDiff * 12 + monthsDiff;
+
+    console.log("Total Months:", totalMonths + 1); // Include the starting month
+    return totalMonths + 1; // Add 1 to include the starting month
   };
 
   const handlePrintAMCInvoice = amc => {
