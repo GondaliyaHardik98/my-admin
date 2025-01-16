@@ -87,9 +87,7 @@ const Navbar = () => {
                  <li className="nav-item">
                   <button className="nav-link btn" onClick={() => navigate("/customerDetails")}>Customer Management</button>
                 </li>
-                <li className="nav-item">
-                  <button className="nav-link btn" onClick={() => navigate("/employee")}>Employee Management</button>
-                </li>
+                
               <li className="nav-item">
                 <button className="nav-link btn" onClick={() => navigate("/sellMaster")}>Sales</button>
               </li>
