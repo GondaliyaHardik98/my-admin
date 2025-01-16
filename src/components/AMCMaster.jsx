@@ -22,6 +22,7 @@ export default function AMCRecord() {
 
   useEffect(() => {
     fetchAMCRecords();
+    fetchSellRecords();
   }, []);
 
   const fetchAMCRecords = async () => {
@@ -142,40 +143,82 @@ export default function AMCRecord() {
   };
 
   const handleInputChange = e => {
-    const {name, value} = e.target;
-    setFormData(prev => ({
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    console.log("Submitting form data:", formData); // Debugging line
+    console.log("Submitting form data:", formData);
   
     const token = sessionStorage.getItem("jwtToken");
+    const url = selectedAmcId
+      ? `${process.env.REACT_APP_API_URL}/amc/${selectedAmcId}` // Update API endpoint
+      : `${process.env.REACT_APP_API_URL}/amc`; // Create API endpoint
   
+    const method = selectedAmcId ? "put" : "post";
+    console.log("Method: " + method);
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/amc`,
-        formData,
-        {
+     
+      if (selectedAmcId) {
+        const response = await axios({
+          method,
+          url,
+          data: {
+            amcId: selectedAmcId,
+            amcProductName: formData.amcProductName,
+            maintenanceStartDate: formData.maintenanceStartDate,
+            maintenanceEndDate: formData.maintenanceEndDate,
+            amcPrice: formData.amcPrice,
+          },
           headers: { Authorization: `Bearer ${token}` },
+        });
+        setResponse({
+          success: response.data.success,
+          message: response.data.message,
+        });
+        if (response.data.success) {
+          fetchAMCRecords(); // Refresh AMC records
+          clearForm(); // Clear the form
         }
-      );
-  
-      setResponse({
-        success: response.data.success,
-        message: response.data.message,
-      });
-      if (response.data.success) {
-        fetchAMCRecords();
-        clearForm();
+      } else {
+        const response = await axios({
+          method,
+          url,
+          data: {
+            sellId: formData.sellId,
+            amcProductName: formData.amcProductName,
+            maintenanceStartDate: formData.maintenanceStartDate,
+            maintenanceEndDate: formData.maintenanceEndDate,
+            amcPrice: formData.amcPrice,
+          },
+          headers: { Authorization: `Bearer ${token}` },
+         });
+        
+         setResponse({
+          success: response.data.success,
+          message: response.data.message,
+         });
+         if (response.data.success) {
+          fetchAMCRecords(); // Refresh AMC records
+          clearForm(); // Clear the form
+        }
       }
+    
+  
+    
+  
+     
     } catch (error) {
-      console.error("Error creating AMC record:", error);
-      setResponse({ success: false, message: "Error creating AMC record." });
+      console.error("Error submitting AMC form:", error);
+      setResponse({
+        success: false,
+        message: "Error creating or updating AMC record.",
+      });
     }
   };
   
@@ -198,13 +241,18 @@ export default function AMCRecord() {
 
   // Populate form for editing
   const handleEdit = (amc, recordId) => {
+
+    const formatDate = (date) => {
+      return date ? new Date(date).toISOString().split("T")[0] : ""; // Convert to YYYY-MM-DD format
+    };
     setFormData({
-      recordId: recordId || "", // Selected sell record
+      sellId: amc.sellId || "", // Selected sell record
       amcPrice: amc.amcPrice || "", // AMC price
       customerId: amc.customerId || "", // Customer ID for dropdown
       productId: amc.productId || "", // Product ID for dropdown
-      maintenanceStartDate: amc.maintenanceStartDate || "", // Maintenance start date
-      maintenanceEndDate: amc.maintenanceEndDate || "", // Maintenance end date
+      maintenanceStartDate: formatDate(amc.maintenanceStartDate), // Format the start date
+      maintenanceEndDate: formatDate(amc.maintenanceEndDate), // Format the end date
+  
       amcProductName: amc.amcProductName || "", // AMC Product name
     });
     setSelectedAmcId(amc.amcId); // Set selected AMC record ID for editing
@@ -212,7 +260,15 @@ export default function AMCRecord() {
 
   // Clear form
   const clearForm = () => {
-    setFormData({sellId: "", amcPrice: ""});
+    setFormData({
+      sellId: "",
+      amcPrice: "",
+      customerId: "",
+      productId: "",
+      maintenanceStartDate: "",
+      maintenanceEndDate: "",
+      amcProductName: "",
+    });
     setSelectedAmcId(null);
   };
 
@@ -225,21 +281,13 @@ export default function AMCRecord() {
         {/* Existing Dropdown for Sell/AMC Record */}
         <div>
           <label className="block font-medium">Select Record</label>
-          <select name="recordId" value={formData.recordId} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-3 py-2" required="required">
+          <select name="sellId" value={formData.sellId} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-3 py-2" required="required">
             <option value="">Select Sell or AMC Record</option>
             {
-              sellRecords.map(sell => (<option key={`sell-${sell.sellId || Math.random()}`} value={`sell-${sell.sellId}`}>
+              sellRecords.map(sell => (<option key={`sell-${sell.sellId || Math.random()}`} value={`${sell.sellId}`}>
                 Sell: {sell.customerName}
                 - {sell.productName}
                 ( {new Date(sell.sellDate).toLocaleDateString()})
-              </option>))
-            }
-            {
-              amcRecords.map(amc => (<option key={`amc-${amc.amcId || Math.random()}`} value={`amc-${amc.id}`}>
-                AMC: {amc.customerName}
-                - {amc.productName}
-                (Start:{" "}
-                {new Date(amc.maintenanceStartDate).toLocaleDateString()})
               </option>))
             }
           </select>

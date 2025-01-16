@@ -13,7 +13,7 @@ function LoginPage() {
 
     try {
       // Make a request to login API
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}auth/login`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
         email,
         password,
       });
