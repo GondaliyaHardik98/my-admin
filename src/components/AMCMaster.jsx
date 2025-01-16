@@ -124,7 +124,7 @@ export default function AMCRecord() {
           "01",
           `${amc.amcPrice}`,
           `${totalMonths}`,
-          `${amc.amcPrice * totalMonths}`
+          `${((amc.amcPrice/12) * totalMonths).toFixed(2)}`
         ]
       ],
       theme: "grid",
@@ -146,7 +146,7 @@ export default function AMCRecord() {
     });
 
     // Add additional text
-    doc.text(`TOTAL ${amc.amcPrice * totalMonths}`, 160, doc.lastAutoTable.finalY + 10);
+    doc.text(`TOTAL ${((amc.amcPrice/12) * totalMonths).toFixed(2)}`, 160, doc.lastAutoTable.finalY + 10);
 
     doc.text(`AMC PERIOD FROM DATE:  ${formatDate(amc.maintenanceStartDate)}  TO  ${formatDate(amc.maintenanceEndDate)}`, 20, doc.lastAutoTable.finalY + 20);
 
