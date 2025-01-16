@@ -68,9 +68,9 @@ export default function AMCRecord() {
     doc.text("DATE:          /      /20", 160, 40);
 
     doc.text("Contact No:-", 20, 50);
-    doc.text("No:- BT/128", 160, 50);
+    doc.text(`No:- BT/${amc.amcId}`, 160, 50);
 
-    doc.text("M/C No:-09", 20, 60);
+    doc.text(`M/C No:- ${amc.productId}`, 20, 60);
 
     // Draw table
     doc.autoTable({
