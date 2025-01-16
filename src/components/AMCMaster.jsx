@@ -54,8 +54,25 @@ export default function AMCRecord() {
     }
   };
 
+  const calculateMonths = (s, e) => {
+     // Extract the date portion (YYYY-MM-DD) from the input strings
+  const startDate = new Date(s.split(" ")[0]);
+  const endDate = new Date(e.split(" ")[0]);
+
+  // Calculate the year and month difference
+  const yearsDiff = endDate.getFullYear() - startDate.getFullYear();
+  const monthsDiff = endDate.getMonth() - startDate.getMonth();
+
+  // Total months
+  return yearsDiff * 12 + monthsDiff + 1; // +1 to include the starting month
+  };
+
   const handlePrintAMCInvoice = amc => {
     const doc = new jsPDF();
+
+   
+    const totalMonths = calculateMonths(amc.maintenanceStartDate, amc.maintenanceEndDate);
+
 
     // Set title and header
     doc.setFont("Helvetica", "bold");
@@ -90,11 +107,11 @@ export default function AMCRecord() {
         [
           "01",
           `${amc.productName}`,
-          `${amc.amcProductName}`,
+          "ANNUAL MAINTENANCE CONTRACT\nCHARGE FOR SCANING MACHINE",
           "01",
-          "28000",
-          "3",
-          "6999"
+          `${amc.amcPrice}`,
+          `${totalMonths}`,
+          `${amc.amcPrice * totalMonths}`
         ]
       ],
       theme: "grid",
@@ -116,7 +133,7 @@ export default function AMCRecord() {
     });
 
     // Add additional text
-    doc.text(`TOTAL ${amc.amcPrice}`, 160, doc.lastAutoTable.finalY + 10);
+    doc.text(`TOTAL ${amc.amcPrice * totalMonths}`, 160, doc.lastAutoTable.finalY + 10);
 
     doc.text(`AMC PERIOD FROM DATE:  ${formatDate(amc.maintenanceStartDate)}  TO  ${formatDate(amc.maintenanceEndDate)}`, 20, doc.lastAutoTable.finalY + 20);
 
