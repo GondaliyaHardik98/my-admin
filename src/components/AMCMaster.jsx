@@ -87,7 +87,7 @@ export default function AMCRecord() {
     const productCode = response.data.data[0].productCode;
     console.log("response: productCode: ", productCode);
 
-
+    const todayDate = new Date().toLocaleDateString()
    
     const totalMonths = calculateMonths(amc.maintenanceStartDate, amc.maintenanceEndDate);
 
@@ -100,7 +100,7 @@ export default function AMCRecord() {
     doc.setFontSize(12);
     const date = new Date();
     doc.text(`TO. ${amc.customerName} `, 20, 40);
-    doc.text("DATE:          /      /20", 160, 40);
+    doc.text(`DATE: ${todayDate}` , 160, 40);
 
     doc.text("Contact No:-", 20, 50);
     doc.text(`No:- BT/${amc.amcId}`, 160, 50);
@@ -369,6 +369,7 @@ export default function AMCRecord() {
             <th className="py-2 px-4 border-b">Product</th>
             <th className="py-2 px-4 border-b">AMC Name</th>
             <th className="py-2 px-4 border-b">Sell Date</th>
+            <th className="py-2 px-4 border-b">AMC Start Date</th>
             <th className="py-2 px-4 border-b">AMC Price</th>
             <th className="py-2 px-4 border-b">Actions</th>
             <th className="py-2 px-4 border-b">Print</th>
@@ -384,6 +385,7 @@ export default function AMCRecord() {
                 {new Date(amc.sellDate).toLocaleDateString()}
               </td>
               <td className="py-2 px-4 border-b">₹ {amc.amcPrice || 0}</td>
+              <td className="py-2 px-4 border-b"> {new Date(amc.maintenanceStartDate).toLocaleDateString()}</td>
               <td className="py-2 px-4 border-b">
                 <button onClick={() => handleEdit(amc)} className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2">
                   Edit
