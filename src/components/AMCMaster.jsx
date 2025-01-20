@@ -80,8 +80,13 @@ export default function AMCRecord() {
     return totalMonths + 1; // Add 1 to include the starting month
   };
 
-  const handlePrintAMCInvoice = amc => {
+  const handlePrintAMCInvoice = async (amc) => {
     const doc = new jsPDF();
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/amc/product-code/${amc.amcId}`);
+    console.log("response: ", response);
+    const productCode = response.data.data[0].productCode;
+    console.log("response: productCode: ", productCode);
+
 
    
     const totalMonths = calculateMonths(amc.maintenanceStartDate, amc.maintenanceEndDate);
@@ -100,7 +105,7 @@ export default function AMCRecord() {
     doc.text("Contact No:-", 20, 50);
     doc.text(`No:- BT/${amc.amcId}`, 160, 50);
 
-    doc.text(`M/C No:- ${amc.productId}`, 20, 60);
+    doc.text(`M/C No:- ${productCode}`, 20, 60);
 
     // Draw table
     doc.autoTable({
