@@ -3,6 +3,8 @@ import axios from "axios";
 import {CheckCircle2, AlertCircle} from "lucide-react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import Select from "react-select";
+
 
 export default function AMCRecord() {
   const [amcRecords, setAmcData] = useState([]);
@@ -35,6 +37,7 @@ export default function AMCRecord() {
       });
       console.log("AMC Records:", response.data.data);  
       setAmcData(response.data.data || []);
+      
     } catch (error) {
       console.error("Error fetching AMC records:", error);
     }
@@ -48,7 +51,14 @@ export default function AMCRecord() {
           Authorization: `Bearer ${token}`
         }
       });
-      setSellRecords(response.data.data || []);
+
+      const productOptions = response.data.data.map((sell) => ({
+        value: sell.sellId,
+        label: `${sell.customerName} - ${sell.productName}( ${new Date(sell.sellDate).toLocaleDateString()})`
+      }));
+      setSellRecords(productOptions);
+
+     
     } catch (error) {
       console.error("Error fetching sell records:", error);
     }
@@ -316,16 +326,12 @@ export default function AMCRecord() {
         {/* Existing Dropdown for Sell/AMC Record */}
         <div>
           <label className="block font-medium">Select Record</label>
-          <select name="sellId" value={formData.sellId} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-3 py-2" required="required">
-            <option value="">Select Sell or AMC Record</option>
-            {
-              sellRecords.map(sell => (<option key={`sell-${sell.sellId || Math.random()}`} value={`${sell.sellId}`}>
-                Sell: {sell.customerName}
-                - {sell.productName}
-                ( {new Date(sell.sellDate).toLocaleDateString()})
-              </option>))
-            }
-          </select>
+          <Select name="sellId"
+            value={formData.sellId}
+            onChange={handleInputChange}
+            className="w-full border border-gray-300 rounded px-3 py-2" required="required" options={sellRecords} />
+          
+          
         </div>
         <div>
           <label className="block font-medium">AMC Product Name</label>
@@ -365,6 +371,7 @@ export default function AMCRecord() {
       <table className="w-full border border-gray-300 text-left">
         <thead className="bg-gray-100">
           <tr>
+            <th className="py-2 px-4 border-b">No</th>
             <th className="py-2 px-4 border-b">Customer</th>
             <th className="py-2 px-4 border-b">Product</th>
             <th className="py-2 px-4 border-b">AMC Name</th>
@@ -377,7 +384,9 @@ export default function AMCRecord() {
         </thead>
         <tbody>
           {
-            amcRecords.map(amc => (<tr key={amc.amcId} className="hover:bg-gray-50">
+            amcRecords.map((amc, index)  =>
+            (<tr key={amc.amcId} className="hover:bg-gray-50">
+              <td className="py-2 px-4 border-b">{ index + 1 }</td>
               <td className="py-2 px-4 border-b">{amc.customerName}</td>
               <td className="py-2 px-4 border-b">{amc.productName}</td>
               <td className="py-2 px-4 border-b">{amc.amcProductName}</td>

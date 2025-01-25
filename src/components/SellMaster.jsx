@@ -4,6 +4,8 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
+import Select from "react-select";
+
 
 export default function SellMaster() {
   const [customers, setCustomers] = useState([]);
@@ -50,8 +52,18 @@ export default function SellMaster() {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
-      setCustomers(customerRes.data.data || []);
-      setProducts(productRes.data.data || []);
+      const customerOptions = customerRes.data.data.map((customer) => ({
+        value: customer.customerId,
+        label: customer.name,
+      }));
+      setCustomers(customerOptions);
+      const productOptions = productRes.data.data.map((product) => ({
+        value: product.productId,
+        label: product.productName,
+      }));
+      setProducts(productOptions);
+      //setCustomers(customerRes.data.data || []);
+      //setProducts(productRes.data.data || []);
     } catch (error) {
       console.error("Error fetching dropdown data:", error);
     }
@@ -263,37 +275,36 @@ export default function SellMaster() {
         <div className="grid grid-cols-4 gap-4">
           <div>
             <label className="block font-medium">Customer</label>
-            <select
+            <Select
               name="customerId"
               value={formData.customerId}
+              options={customers}
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded px-3 py-2"
               required
-            >
-              <option value="">Select Customer</option>
+              placeholder="Select a customer..."
+              isClearable
+           />
+              {/* <option value="">Select Customer</option>
               {customers.map((customer) => (
                 <option key={customer.customerId} value={customer.customerId}>
                   {customer.name}
                 </option>
-              ))}
-            </select>
+              ))} */}
+            
           </div>
           <div>
             <label className="block font-medium">Product</label>
-            <select
+            <Select
               name="productId"
               value={formData.productId}
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded px-3 py-2"
               required
-            >
-              <option value="">Select Product</option>
-              {products.map((product) => (
-                <option key={product.productId} value={product.productId}>
-                  {product.productName}
-                </option>
-              ))}
-            </select>
+              options={products}
+              isClearable
+            />
+             
           </div>
           <div>
             <label className="block font-medium">Sell Date</label>
@@ -349,6 +360,7 @@ export default function SellMaster() {
         <table className="w-full border border-gray-300 text-left">
           <thead className="bg-gray-100">
             <tr>
+              <th className="py-2 px-4 border-b">No</th>
               <th className="py-2 px-4 border-b">Customer</th>
               <th className="py-2 px-4 border-b">Product</th>
               <th className="py-2 px-4 border-b">Sell Date</th>
@@ -359,8 +371,9 @@ export default function SellMaster() {
             </tr>
           </thead>
           <tbody>
-            {sellData.map((sell) => (
+            {sellData.map((sell, index) => (
               <tr key={sell.sellId} className="hover:bg-gray-50">
+                 <td className="py-2 px-4 border-b">{index + 1}</td>
                 <td className="py-2 px-4 border-b">{sell.customerName}</td>
                 <td className="py-2 px-4 border-b">{sell.productName}</td>
                 <td className="py-2 px-4 border-b">
