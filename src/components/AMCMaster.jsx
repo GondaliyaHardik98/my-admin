@@ -165,12 +165,16 @@ export default function AMCRecord() {
 
     doc.text(`AMC PERIOD FROM DATE:  ${formatDate(amc.maintenanceStartDate)}  TO  ${formatDate(amc.maintenanceEndDate)}`, 20, doc.lastAutoTable.finalY + 20);
 
+    doc.setFontSize(20);
+    //doc.text("CONTRACT PAPER", 105, 20, null, null, "center");
+    doc.text("CONDITION", 80, doc.lastAutoTable.finalY + 40, null, null, "center");
     doc.setFontSize(10);
-    doc.text("CONDITION", 20, doc.lastAutoTable.finalY + 30);
-    doc.text("1: THIS CONTRACT PAPER IS ONLY FOR MACHINE MAINTENANCE.", 20, doc.lastAutoTable.finalY + 40);
-    doc.text("2: ENGINEER IS NOT RESPONSIBLE FOR DAMAGE ANY PART OF MACHINE DURING REPAIRING.", 20, doc.lastAutoTable.finalY + 50);
-    doc.text("NOTE:- SUNDAY WE PROVIDE HALF-DAY SERVICE", 20, doc.lastAutoTable.finalY + 60);
-    doc.text(": SUNDAY WE ACCEPT ONLY M/C SHUT DOWN COMPLAINT", 20, doc.lastAutoTable.finalY + 70);
+
+    
+    doc.text("1: THIS CONTRACT PAPER IS ONLY FOR MACHINE MAINTENANCE.", 20, doc.lastAutoTable.finalY + 50);
+    doc.text("2: ENGINEER IS NOT RESPONSIBLE FOR DAMAGE ANY PART OF MACHINE DURING REPAIRING.", 20, doc.lastAutoTable.finalY + 60);
+    doc.text("NOTE:- SUNDAY WE PROVIDE HALF-DAY SERVICE", 20, doc.lastAutoTable.finalY + 70);
+    doc.text(": SUNDAY WE ACCEPT ONLY M/C SHUT DOWN COMPLAINT", 20, doc.lastAutoTable.finalY + 80);
 
     // Footer
     doc.setFont("Helvetica", "normal");
@@ -267,6 +271,12 @@ export default function AMCRecord() {
     }
   };
   
+
+  const handleDropDownChange = (selectedOption, action) => {
+    const { name } = action; // Extract 'name' from action
+    const value = selectedOption ? selectedOption.value : ""; // Get value from selected option
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
   
 
   const handleUpdate = async () => {
@@ -327,8 +337,15 @@ export default function AMCRecord() {
         <div>
           <label className="block font-medium">Select Record</label>
           <Select name="sellId"
-            value={formData.sellId}
-            onChange={handleInputChange}
+             value={
+              formData.sellId
+                ? sellRecords.find((sellRecord) => sellRecord.value === formData.sellId)
+                : null
+            }
+            onChange={(selectedOption) =>
+              handleDropDownChange(selectedOption, { name: "sellId" })
+            }
+           
             className="w-full border border-gray-300 rounded px-3 py-2" required="required" options={sellRecords} />
           
           

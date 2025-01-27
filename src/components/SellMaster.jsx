@@ -159,6 +159,12 @@ export default function SellMaster() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleDropDownChange = (selectedOption, action) => {
+    const { name } = action; // Extract 'name' from action
+    const value = selectedOption ? selectedOption.value : ""; // Get value from selected option
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleAddInstallment = async (sellId) => {
     const installment = installmentData[sellId];
     if (!installment || !installment.amountPaid || !installment.paymentDate) {
@@ -277,9 +283,15 @@ export default function SellMaster() {
             <label className="block font-medium">Customer</label>
             <Select
               name="customerId"
-              value={formData.customerId}
+              value={
+                formData.customerId
+                  ? customers.find((customer) => customer.value === formData.customerId)
+                  : null
+              }
               options={customers}
-              onChange={handleInputChange}
+              onChange={(selectedOption) =>
+                handleDropDownChange(selectedOption, { name: "customerId" })
+              }
               className="w-full border border-gray-300 rounded px-3 py-2"
               required
               placeholder="Select a customer..."
@@ -297,10 +309,17 @@ export default function SellMaster() {
             <label className="block font-medium">Product</label>
             <Select
               name="productId"
-              value={formData.productId}
-              onChange={handleInputChange}
+              value={
+                formData.productId
+                  ? products.find((product) => product.value === formData.productId)
+                  : null
+              }
+              onChange={(selectedOption) =>
+                handleDropDownChange(selectedOption, { name: "productId" })
+              }
               className="w-full border border-gray-300 rounded px-3 py-2"
               required
+              placeholder="Select a Product..."
               options={products}
               isClearable
             />
