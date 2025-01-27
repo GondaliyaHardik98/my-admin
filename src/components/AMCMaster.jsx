@@ -110,7 +110,7 @@ export default function AMCRecord() {
     doc.setFontSize(12);
     const date = new Date();
     doc.text(`TO. ${amc.customerName} `, 20, 40);
-    doc.text(`DATE: ${todayDate}` , 160, 40);
+    doc.text(`DATE: ${formatDate(new Date())}` , 160, 40);
 
     doc.text("Contact No:-", 20, 50);
     doc.text(`No:- BT/${amc.amcId}`, 160, 50);
@@ -415,9 +415,9 @@ export default function AMCRecord() {
 
 const formatDate = dateString => {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-GB", {
+  return date.toLocaleDateString("en-IN", {
     day: "2-digit",
-    month: "short",
+    month: "2-digit",
     year: "numeric"
   });
 };
