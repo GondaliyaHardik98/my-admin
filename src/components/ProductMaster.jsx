@@ -34,11 +34,12 @@ function ProductMaster() {
   const fetchVendor = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/product`
+        `${process.env.REACT_APP_API_URL}/productAll`
       ); // Replace with your API URL
       //const data = await response.json();
+     
       setProducts(response.data.data);
-      console.log(response.data.data, "data");
+      console.log("data", response.data.data);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
