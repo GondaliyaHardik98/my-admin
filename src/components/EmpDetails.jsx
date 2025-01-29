@@ -3,6 +3,8 @@ import axios from "axios";
 
 export default function EmployeeForm() {
   const [employees, setEmployees] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [formData, setFormData] = useState({
     name: "",
     salary: "",
@@ -132,6 +134,15 @@ export default function EmployeeForm() {
     setSelectedEmployeeId(null);
   };
 
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Filter records based on search query (by Employee Name or Mobile Number)
+  const filteredRecords = employees.filter(
+    (employee) =>
+      employee.name.toLowerCase().includes(searchQuery.toLowerCase())  );
+
   return (
     <div className="container mx-auto  p-4">
       <h2 className="text-center mb-4">Employee Management</h2>
@@ -239,6 +250,14 @@ export default function EmployeeForm() {
         </div>
       )}
 
+<input
+       type="text"
+       placeholder="Search by name..."
+       value={searchQuery}
+       onChange={handleSearch}
+       className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+     />
+
       <div className="mt-5">
         <h3 className="mb-4">Employee List</h3>
         <table className="table table-hover table-bordered">
@@ -256,7 +275,8 @@ export default function EmployeeForm() {
             </tr>
           </thead>
           <tbody>
-            {employees.map((employee, index) => (
+          {filteredRecords.length > 0 ? (
+              filteredRecords.map((employee, index) => (
               <tr key={employee.id}>
                 <td>{index + 1}</td>
                 <td>
@@ -308,7 +328,9 @@ export default function EmployeeForm() {
                   </button>
                 </td>
               </tr>
-            ))}
+              ))
+            ) : (<tr><td colSpan="9" className="text-center">No records found</td></tr>)}
+            
           </tbody>
         </table>
       </div>

@@ -17,6 +17,10 @@ const CustomerDetails = () => {
     address: "",
     remark: "",
   });
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+
   useEffect(() => {
     fetchCustomers();
   }, []);
@@ -115,6 +119,7 @@ const CustomerDetails = () => {
       setLoading(false);
     }
   };
+
   const handleCustomer = async (customer) => {
     if (window.confirm("Are you sure you want to delete this record?")) {
       try {
@@ -143,56 +148,69 @@ const CustomerDetails = () => {
     }
   };
 
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Filtered records based on search query (by Customer Name or Mobile Number)
+  const filteredRecords = customers.filter(
+    (customer) =>
+      customer.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-6">Customer Management</h2>
 
       {/* Form */}
-      <form className="space-y-4">
-        <div>
-          <input
-            type="text"
-            name="id"
-            value={formData.id}
-            onChange={handleChange}
-            hidden
-          />
-        </div>
+      <form className="space-y-4 mb-8">
+        
+          <div>
+            <input
+              type="text"
+              name="id"
+              value={formData.id}
+              onChange={handleChange}
+              hidden
+            />
+          </div>
 
-        {/* Name and GST No Row */}
-        <div className="grid grid-cols-4 gap-4">
-          <div>
-            <label className="block font-medium">Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block font-medium">GST No</label>
-            <input
-              type="text"
-              name="gstNo"
-              value={formData.gstNo}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
-            />
-          </div>
-          {/* Mobile No Field */}
-          <div>
-            <label className="block font-medium">Mobile No</label>
-            <input
-              type="number"
-              name="mobileNo"
-              value={formData.mobileNo}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
-            />
-          </div>
-        </div>
+          {/* Name and GST No Row */}
+          <div className="grid grid-cols-4 gap-4">
+            <div>
+              <label className="block font-medium">Name</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block font-medium">GST No</label>
+              <input
+                type="text"
+                name="gstNo"
+                value={formData.gstNo}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              />
+            </div>
+            {/* Mobile No Field */}
+            <div>
+              <label className="block font-medium">Mobile No</label>
+              <input
+                type="number"
+                name="mobileNo"
+                value={formData.mobileNo}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              />
+            </div>
+            </div>
+        
 
         {/* Address and Remark Row */}
         <div className="grid grid-cols-4 gap-4">
@@ -238,6 +256,15 @@ const CustomerDetails = () => {
           </button>
         </div>
       </form>
+
+      <input
+        type="text"
+        placeholder="Search by Customer Name or Mobile Number..."
+        value={searchQuery}
+        onChange={handleSearch}
+        className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+      />
+
       {response && (
         <div
           className={`mt-4 p-4 rounded-lg flex items-center space-x-2 ${
@@ -271,7 +298,8 @@ const CustomerDetails = () => {
             </tr>
           </thead>
           <tbody>
-            {customers.map((customer, index) => (
+          {filteredRecords.length > 0 ? (
+              filteredRecords.map((customer, index) => (
               <tr key={index} className="border-b">
                 <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">{customer.name}</td>
@@ -295,7 +323,14 @@ const CustomerDetails = () => {
                   </button>
                 </td>
               </tr>
-            ))}
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="py-2 px-4 text-center">
+                  No records found.
+                </td>
+              </tr>
+          )}
           </tbody>
         </table>
       </div>

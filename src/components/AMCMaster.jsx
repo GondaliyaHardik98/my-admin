@@ -22,6 +22,9 @@ export default function AMCRecord() {
     amcProductName: "", // AMC Product Name
   });
 
+ 
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     fetchAMCRecords();
     fetchSellRecords();
@@ -526,6 +529,21 @@ export default function AMCRecord() {
     setSelectedAmcId(null);
   };
 
+  const handleSearch = (event) => {
+    //console.log("Search Query:", event.target.value);
+    setSearchQuery(event.target.value);
+  };
+
+  // Filtered records based on search query
+  const filteredRecords = amcRecords.filter((amc) =>
+    amc.customerName.toLowerCase().includes(searchQuery.toLowerCase())
+    // Object.values(amc).some(
+    //   (value) =>
+    //     typeof value === "string" &&
+    //     value.toLowerCase().includes(searchQuery.toLowerCase())
+    // )
+  );
+
   return (<div className="container mx-auto p-4">
     <h2 className="text-2xl font-bold mb-6">AMC Master</h2>
 
@@ -581,8 +599,18 @@ export default function AMCRecord() {
       </div>
     </form>
 
+    <input
+        type="text"
+        placeholder="Search AMC Records..."
+        value={searchQuery}
+        onChange={handleSearch}
+        className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+    />
+    
+   
+
     {/* AMC Table */}
-    <h2 className="text-xl font-bold mt-8">AMC Records</h2>
+    
     <div className="overflow-x-auto">
       <table className="w-full border border-gray-300 text-left">
         <thead className="bg-gray-100">
@@ -592,16 +620,17 @@ export default function AMCRecord() {
             <th className="py-2 px-4 border-b">Product</th>
             <th className="py-2 px-4 border-b">AMC Name</th>
             <th className="py-2 px-4 border-b">Sell Date</th>
-            <th className="py-2 px-4 border-b">AMC Start Date</th>
             <th className="py-2 px-4 border-b">AMC Price</th>
+            <th className="py-2 px-4 border-b">AMC Start Date</th>
             <th className="py-2 px-4 border-b">Actions</th>
             <th className="py-2 px-4 border-b">Print</th>
           </tr>
         </thead>
         <tbody>
           {
-            amcRecords.map((amc, index)  =>
-            (<tr key={amc.amcId} className="hover:bg-gray-50">
+             filteredRecords.length > 0 ? (
+              filteredRecords.map((amc, index) => (
+            <tr key={amc.amcId} className="hover:bg-gray-50">
               <td className="py-2 px-4 border-b">{ index + 1 }</td>
               <td className="py-2 px-4 border-b">{amc.customerName}</td>
               <td className="py-2 px-4 border-b">{amc.productName}</td>
@@ -621,7 +650,12 @@ export default function AMCRecord() {
                   Print
                 </button>
               </td>
-            </tr>))
+                </tr>))
+            ): (
+              <tr>
+                <td colSpan="9" className="py-2 px-4 border-b text-center">No records found.</td>
+              </tr>
+            )
           }
         </tbody>
       </table>

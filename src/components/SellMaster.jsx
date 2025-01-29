@@ -11,6 +11,8 @@ export default function SellMaster() {
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [sellData, setSellData] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [formData, setFormData] = useState({
     customerId: "",
     productId: "",
@@ -274,6 +276,21 @@ export default function SellMaster() {
     setSelectedSellId(null);
   };
 
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Filtered records based on search query
+  const filteredRecords = sellData.filter((sell) =>
+    sell.customerName.toLowerCase().includes(searchQuery.toLowerCase())
+
+    // Object.values(sell).some(
+    //   (value) =>
+    //     typeof value === "string" &&
+    //     value.toLowerCase().includes(searchQuery.toLowerCase())
+    // )
+  );
+
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-6">Sell Master</h2>
@@ -374,6 +391,16 @@ export default function SellMaster() {
           </button>
         </div>
       </form>
+
+      
+      {/* Search Box */}
+      <input
+              type="text"
+              placeholder="Search Sell Records..."
+              value={searchQuery}
+              onChange={handleSearch}
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+            />
       <h2 className="text-xl font-bold mt-8">Sell Records</h2>
       <div className="overflow-x-auto">
         <table className="w-full border border-gray-300 text-left">
@@ -390,7 +417,8 @@ export default function SellMaster() {
             </tr>
           </thead>
           <tbody>
-            {sellData.map((sell, index) => (
+          {filteredRecords.length > 0 ? (
+              filteredRecords.map((sell, index) => (
               <tr key={sell.sellId} className="hover:bg-gray-50">
                  <td className="py-2 px-4 border-b">{index + 1}</td>
                 <td className="py-2 px-4 border-b">{sell.customerName}</td>
@@ -476,7 +504,15 @@ export default function SellMaster() {
           </button>
                 </td>
               </tr>
-            ))}
+              ))
+            ) :
+              (
+                <tr>
+                  <td colSpan={7} className="py-2 px-4 border-b text-center">
+                    No records found.
+                  </td>
+                </tr>
+          )}
           </tbody>
         </table>
       </div>

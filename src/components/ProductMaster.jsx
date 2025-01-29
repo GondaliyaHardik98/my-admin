@@ -13,6 +13,7 @@ function ProductMaster() {
   const [productData, setProductData] = useState([]);
   const [SelectedProductId, setSelectedproductId] = useState(null);
   const [products, setProducts] = useState([]); // State to store products
+  const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     productId: 0,
     productCode: "",
@@ -42,6 +43,8 @@ function ProductMaster() {
       console.error("Error fetching products:", error);
     }
   };
+
+
   const fetchProducts = async () => {
     try {
       const getAllData = await axios.get(
@@ -52,6 +55,7 @@ function ProductMaster() {
       console.error("Error fetching products:", error);
     }
   };
+
   const handleProductChange = (e) => {
     setFormData({
       ...formData,
@@ -111,6 +115,7 @@ function ProductMaster() {
       setLoading(false);
     }
   };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -118,6 +123,7 @@ function ProductMaster() {
       [name]: value,
     }));
   };
+
   const handleEdit = (product) => {
     setSelectedproductId(product.productId); // Set the selected vendor's ID
     setFormData({
@@ -130,6 +136,7 @@ function ProductMaster() {
       productRemark: product.productRemark,
     });
   };
+
   const handleDeleteProduct = async (productId) => {
     if (window.confirm("Are you sure you want to delete this record?")) {
       try {
@@ -155,9 +162,11 @@ function ProductMaster() {
       }
     }
   };
+
   const clearProduct = (e) => {
     clearRecord();
   };
+
   const clearRecord = () => {
     setFormData({
       productId: 0,
@@ -170,6 +179,15 @@ function ProductMaster() {
       productRemark: "",
     });
   };
+
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Filter records based on search query (by Product Name or Product Code)
+  const filteredRecords = products.filter((product) =>
+    product.productName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="container mx-auto p-4">
@@ -301,10 +319,12 @@ function ProductMaster() {
         </div>
       </form>
 
+       {/* Search Box */}
       {/* Response Message */}
+     
       {response && (
         <div
-          className={`mt-4 p-4 rounded-lg flex items-center space-x-2 ${
+        className={`mt-4 p-4 rounded-lg flex items-center space-x-2 ${
             response.success
               ? "bg-green-50 text-green-700"
               : "bg-red-50 text-red-700"
@@ -318,6 +338,15 @@ function ProductMaster() {
           <span>{response.message}</span>
         </div>
       )}
+
+<input
+       type="text"
+       placeholder="Search by Product Name or Product Code..."
+       value={searchQuery}
+       onChange={handleSearch}
+       className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+     />
+     
 
       {/* Product List Table */}
       <div className="container mx-auto mt-8 p-4 overflow-x-auto">
@@ -337,7 +366,8 @@ function ProductMaster() {
             </tr>
           </thead>
           <tbody>
-            {productData.map((product, index) => (
+          {filteredRecords.length > 0 ? (
+              filteredRecords.map((product, index) => (
               <tr key={index} className="border-b">
                 <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">{product.productCode}</td>
@@ -363,7 +393,11 @@ function ProductMaster() {
                   </button>
                 </td>
               </tr>
-            ))}
+              ))
+            ) : (
+              <tr><td colSpan="9" className="text-center py-4">No records found.</td></tr>)
+            }
+            
           </tbody>
         </table>
       </div>
