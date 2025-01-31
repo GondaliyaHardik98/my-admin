@@ -39,7 +39,7 @@ export default function AMCRecord() {
           Authorization: `Bearer ${token}`
         }
       });
-      console.log("AMC Records:", response.data.data);  
+      //console.log("AMC Records:", response.data.data);  
       setAmcData(response.data.data || []);
       
     } catch (error) {
