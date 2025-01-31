@@ -367,8 +367,6 @@ export default function AMCRecord() {
         doc.text("CONDITION", 105, yPosition, null, null, "center");
         doc.setTextColor(0, 0, 0);
         yPosition += 10;
-      
-        doc.setFont("times", "normal");
 
         if (selectedRule) {
           const ruleText = selectedRule.ruleText;
