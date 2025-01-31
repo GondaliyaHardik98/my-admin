@@ -4,6 +4,7 @@ import {CheckCircle2, AlertCircle} from "lucide-react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import Select from "react-select";
+import WebFont from "webfontloader";
 
 
 export default function AMCRecord() {
@@ -235,161 +236,169 @@ export default function AMCRecord() {
 
 
   const handlePrintAMCInvoice = async (amc) => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const logoWidth = 120;
-    const logoHeight = 20;
-    const logoX = (pageWidth - logoWidth) / 2;
-  
-    const logoUrl = `${window.location.origin}/logo.png`;
-  
-    const img = new Image();
-    img.src = logoUrl;
-  
-    await new Promise((resolve, reject) => {
-      img.onload = () => {
-        doc.addImage(img, "PNG", logoX, 10, logoWidth, logoHeight);
-        resolve();
-      };
-      img.onerror = (err) => reject(err);
-    });
-  
-    // Starting y-position after the logo
-    let yPosition = 10 + logoHeight + 15; // Logo height + spacing
-  
-    // Title and header
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text("CONTRACT PAPER", 105, yPosition , null, null, "center");
-    yPosition += 10;
-  
-    doc.line(20, yPosition, 200, yPosition);
-    yPosition += 10;
-  
-    doc.setFontSize(12);
-    doc.text(`TO. ${amc.customerName} `, 20, yPosition);
-    doc.text(`DATE: ${formatDate(new Date())}`, 160, yPosition);
-    yPosition += 10;
-  
-    doc.text("Contact No:-", 20, yPosition);
-    doc.text(`No:- BT/${amc.amcId}`, 160, yPosition);
-    yPosition += 10;
-  
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_URL}/amc/product-code/${amc.amcId}`
-    );
-    const productCode = response.data.data[0].productCode;
-    doc.text(`M/C No:- ${productCode}`, 20, yPosition);
-    yPosition += 10;
-  
-    const totalMonths = calculateMonths(
-      amc.maintenanceStartDate,
-      amc.maintenanceEndDate
-    );
-  
-    // Table
-    doc.autoTable({
-      startY: yPosition,
-      head: [
-        [
-          "NO",
-          "Product name",
-          "DESCRIPTION",
-          "QTY",
-          "RATE",
-          "MONTH",
-          "AMOUNT",
-        ],
-      ],
-      body: [
-        [
-          "01",
-          `${amc.productName}`,
-          "ANNUAL MAINTENANCE CONTRACT\nCHARGE FOR SCANING MACHINE",
-          "01",
-          `${amc.amcPrice}`,
-          `${totalMonths}`,
-          `${((amc.amcPrice / 12) * totalMonths).toFixed(2)}`,
-        ],
-      ],
-      theme: "grid",
-      headStyles: {
-        fillColor: [255, 255, 255],
-        textColor: [255, 0, 0],
-        halign: "center",
-        lineWidth: 0.05,
-        lineColor: [0, 0, 0],
+    const ruleResponse = await axios.get(`${process.env.REACT_APP_API_URL}/rules`);
+
+    const selectedRule = ruleResponse.data.data.find((r) => r.isSelected);
+    try {
+      
+    WebFont.load({
+      google: {
+        families: ["Noto Sans Gujarati", "Times New Roman"],
       },
-      bodyStyles: {
-        textColor: [0, 0, 0],
-        fontSize: 10,
-        lineWidth: 0.05,
-        lineColor: [0, 0, 0],
+      active: async () => {
+
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const logoWidth = 120;
+        const logoHeight = 20;
+        const logoX = (pageWidth - logoWidth) / 2;
+    
+        const logoUrl = `${window.location.origin}/logo.png`;
+    
+        const img = new Image();
+        img.src = logoUrl;
+    
+        await new Promise((resolve, reject) => {
+          img.onload = () => {
+            doc.addImage(img, "PNG", logoX, 10, logoWidth, logoHeight);
+            resolve();
+          };
+          img.onerror = (err) => reject(err);
+        });
+  
+        // Starting y-position after the logo
+        let yPosition = 10 + logoHeight + 15; // Logo height + spacing
+      
+        // Title and header
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(18);
+        doc.text("CONTRACT PAPER", 105, yPosition, null, null, "center");
+        yPosition += 10;
+      
+        doc.line(20, yPosition, 200, yPosition);
+        yPosition += 10;
+      
+        doc.setFontSize(12);
+        doc.text(`TO. ${amc.customerName} `, 20, yPosition);
+        doc.text(`DATE: ${formatDate(new Date())}`, 160, yPosition);
+        yPosition += 10;
+      
+        doc.text("Contact No:-", 20, yPosition);
+        doc.text(`No:- BT/${amc.amcId}`, 160, yPosition);
+        yPosition += 10;
+      
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/amc/product-code/${amc.amcId}`
+        );
+        const productCode = response.data.data[0].productCode;
+        doc.text(`M/C No:- ${productCode}`, 20, yPosition);
+        yPosition += 10;
+      
+        const totalMonths = calculateMonths(
+          amc.maintenanceStartDate,
+          amc.maintenanceEndDate
+        );
+      
+        // Table
+        doc.autoTable({
+          startY: yPosition,
+          head: [
+            [
+              "NO",
+              "Product name",
+              "DESCRIPTION",
+              "QTY",
+              "RATE",
+              "MONTH",
+              "AMOUNT",
+            ],
+          ],
+          body: [
+            [
+              "01",
+              `${amc.productName}`,
+              "ANNUAL MAINTENANCE CONTRACT\nCHARGE FOR SCANING MACHINE",
+              "01",
+              `${amc.amcPrice}`,
+              `${totalMonths}`,
+              `${((amc.amcPrice / 12) * totalMonths).toFixed(2)}`,
+            ],
+          ],
+          theme: "grid",
+          headStyles: {
+            fillColor: [255, 255, 255],
+            textColor: [255, 0, 0],
+            halign: "center",
+            lineWidth: 0.05,
+            lineColor: [0, 0, 0],
+          },
+          bodyStyles: {
+            textColor: [0, 0, 0],
+            fontSize: 10,
+            lineWidth: 0.05,
+            lineColor: [0, 0, 0],
+          },
+        });
+      
+        yPosition = doc.lastAutoTable.finalY + 10;
+      
+        // Additional text
+        doc.text(
+          `TOTAL ${((amc.amcPrice / 12) * totalMonths).toFixed(2)}`,
+          160,
+          yPosition
+        );
+        yPosition += 10;
+      
+        doc.setTextColor(0, 0, 255);
+        doc.text("AMC PERIOD FROM DATE:", 20, yPosition);
+        doc.setTextColor(0, 0, 0);
+        doc.text(
+          `${formatDate(amc.maintenanceStartDate)}  TO  ${formatDate(
+            amc.maintenanceEndDate
+          )}`,
+          76,
+          yPosition
+        );
+        yPosition += 20;
+      
+        doc.setFontSize(12);
+        doc.setTextColor(255, 0, 0);
+        doc.text("CONDITION", 105, yPosition, null, null, "center");
+        doc.setTextColor(0, 0, 0);
+        yPosition += 10;
+      
+        doc.setFont("times", "normal");
+
+        if (selectedRule) {
+          const ruleText = selectedRule.ruleText;
+          const marginLeft = 20;
+          const pageWidth = 150; // Maximum text width before wrapping
+          const lineHeight = 8;
+
+          let splitText = doc.splitTextToSize(ruleText, pageWidth);
+          doc.text(splitText, marginLeft, yPosition);
+        }
+        
+      
+        // Footer
+        doc.setFont("Helvetica", "normal");
+        doc.setTextColor(255, 0, 0);
+        doc.text("CUSTOMER SIGN & STAMP", 20, 280);
+        doc.text("FOR, Bharat Technology", 160, 280, null, null, "right");
+      
+        // Save PDF to Preview
+        const pdfOutput = doc.output("blob");
+        const pdfURL = URL.createObjectURL(pdfOutput);
+      
+        // Create a popup for preview
+        const previewWindow = window.open(pdfURL, "_blank");
+        previewWindow.focus();
       },
     });
-  
-    yPosition = doc.lastAutoTable.finalY + 10;
-  
-    // Additional text
-    doc.text(
-      `TOTAL ${((amc.amcPrice / 12) * totalMonths).toFixed(2)}`,
-      160,
-      yPosition
-    );
-    yPosition += 10;
-  
-    doc.setTextColor(0, 0, 255);
-    doc.text("AMC PERIOD FROM DATE:", 20, yPosition);
-    doc.setTextColor(0, 0, 0);
-    doc.text(
-      `${formatDate(amc.maintenanceStartDate)}  TO  ${formatDate(
-        amc.maintenanceEndDate
-      )}`,
-      76,
-      yPosition
-    );
-    yPosition += 20;
-  
-    doc.setFontSize(12);
-    doc.setTextColor(255, 0, 0);
-    doc.text("CONDITION", 105, yPosition, null, null, "center");
-    doc.setTextColor(0, 0, 0);
-    yPosition += 10;
-  
-    doc.setFontSize(10);
-    doc.text(
-      "1: THIS CONTRACT PAPER IS ONLY FOR MACHINE MAINTENANCE.",
-      20,
-      yPosition
-    );
-    yPosition += 10;
-    doc.text(
-      "2: ENGINEER IS NOT RESPONSIBLE FOR DAMAGE ANY PART OF MACHINE DURING REPAIRING.",
-      20,
-      yPosition
-    );
-    yPosition += 10;
-  
-    doc.setTextColor(255, 0, 0);
-    doc.text("NOTE", 20, yPosition);
-    doc.setTextColor(0, 0, 0);
-    doc.text(":- SUNDAY WE PROVIDE HALF-DAY SERVICE", 40, yPosition);
-    yPosition += 10;
-    doc.text(": SUNDAY WE ACCEPT ONLY M/C SHUT DOWN COMPLAINT", 40, yPosition);
-  
-    // Footer
-    doc.setFont("Helvetica", "normal");
-    doc.setTextColor(255, 0, 0);
-    doc.text("CUSTOMER SIGN & STAMP", 20, 280);
-    doc.text("FOR, Bharat Technology", 160, 280, null, null, "right");
-  
-    // Save PDF to Preview
-    const pdfOutput = doc.output("blob");
-    const pdfURL = URL.createObjectURL(pdfOutput);
-  
-    // Create a popup for preview
-    const previewWindow = window.open(pdfURL, "_blank");
-    previewWindow.focus();
+    } catch (error) {
+      console.error("Error fetching rule for AMC print:", error);
+    }
   };
   
 

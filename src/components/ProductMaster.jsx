@@ -194,7 +194,7 @@ function ProductMaster() {
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-6">Create New Product</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 mb-8">
         {/* Inline Fields for Product Code, Vendor, Product Name */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {/* Product Code */}
@@ -340,13 +340,13 @@ function ProductMaster() {
         </div>
       )}
 
-<input
-       type="text"
-       placeholder="Search by Product Name or Product Code..."
-       value={searchQuery}
-       onChange={handleSearch}
-       className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
-     />
+      <input
+        type="text"
+        placeholder="Search by Product Name or Product Code..."
+        value={searchQuery}
+        onChange={handleSearch}
+        className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+      />
      
 
       {/* Product List Table */}

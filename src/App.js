@@ -18,6 +18,7 @@ import SalaryMaster from "./components/SalaryMaster";
 import AMCMaster from "./components/AMCMaster";
 import LoginPage from "./components/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import RuleSettings from "./components/RuleSettings";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
@@ -47,6 +48,7 @@ const protectedRoutes = [
   { path: "/sellMaster", element: <SellMaster /> },
   { path: "/amcMaster", element: <AMCMaster /> },
   { path: "/salaryMaster", element: <SalaryMaster /> },
+  { path: "/ruleSettings", element: <RuleSettings /> },
 ];
 
 const App = () => {
