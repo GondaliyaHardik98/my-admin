@@ -239,7 +239,7 @@ export default function AMCRecord() {
     const doc = new jsPDF();
     try {
       doc.addFileToVFS("NotoSansGujarati-Regular.ttf", gujaratiFont);
-      doc.addFont("../assets/NotoSansGuarati-Regular.ttf", "Gujarati", "normal");
+      doc.addFont("../assets/NotoSansGujarati-Regular.ttf", "Gujarati", "normal");
       console.log("Loaded Font Data:", gujaratiFont);
     }catch(err){
       console.error("Error loading font:", err);

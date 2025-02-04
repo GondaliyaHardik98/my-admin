@@ -98,6 +98,9 @@ const Navbar = () => {
                 
               <li className="nav-item">
                 <button className="nav-link btn" onClick={() => navigate("/amcMaster")}>AMC</button>
+                </li>
+                <li className="nav-item">
+                <button className="nav-link btn" onClick={() => navigate("/AMCRenewal")}>AMC Renewal</button>
               </li>
               <li>
                   <button className="nav-link btn" onClick={() => navigate("/ruleSettings")}>Rule Settings</button>

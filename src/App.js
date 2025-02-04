@@ -19,6 +19,8 @@ import AMCMaster from "./components/AMCMaster";
 import LoginPage from "./components/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RuleSettings from "./components/RuleSettings";
+import AMCRenewal from "./components/AMCRenewal";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
@@ -49,6 +51,7 @@ const protectedRoutes = [
   { path: "/amcMaster", element: <AMCMaster /> },
   { path: "/salaryMaster", element: <SalaryMaster /> },
   { path: "/ruleSettings", element: <RuleSettings /> },
+  { path: "/AMCRenewal", element: <AMCRenewal /> },
 ];
 
 const App = () => {
