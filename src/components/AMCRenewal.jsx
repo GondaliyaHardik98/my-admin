@@ -80,6 +80,9 @@ export default function AMCRenewal() {
   // Handle form submission
   const handleSubmit = async e => {
     e.preventDefault();
+    const token = sessionStorage.getItem("jwtToken");
+
+
     const url = selectedAmcId
       ? `${process.env.REACT_APP_API_URL}/amc-renewal/${selectedAmcId}`
       : `${process.env.REACT_APP_API_URL}/amc-renewal`;
@@ -89,7 +92,21 @@ export default function AMCRenewal() {
       : "post";
 
     try {
-      const response = await axios({method, url, data: formData});
+      console.log("FormData:", formData);
+      const response = await axios({
+        method,
+        url,
+        data: {
+          amcId: selectedAmcId, 
+          maintenanceStartDate: formData.maintenanceStartDate,
+          maintenanceEndDate: formData.maintenanceEndDate,
+          amcPrice: formData.amcPrice,
+          amcProductName: formData.amcProductName
+        },
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
       setResponse({success: response.data.success, message: response.data.message});
       if (response.data.success) {
