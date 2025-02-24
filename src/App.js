@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation  } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import UserManagement from "./components/UserManagement";
 import EmployeeManagement from "./components/EmpDetails";
@@ -24,7 +24,21 @@ const ProtectedRoute = ({ children }) => {
 export default function App() {
     return (
         <Router>
-            <Navbar />
+              <Main />
+           
+        </Router>
+    );
+}
+
+
+const Main = () => {
+    const location = useLocation(); // Get current route
+
+    return (
+        <>
+            {/* ✅ Show Navbar only if NOT on Login Page */}
+            {location.pathname !== "/login" && <Navbar />}
+            
             <Routes>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -40,6 +54,6 @@ export default function App() {
                 <Route path="/challans" element={<ProtectedRoute><ChallanManagement /></ProtectedRoute>} />
                 <Route path="/rules" element={<ProtectedRoute><RuleSettings /></ProtectedRoute>} />
             </Routes>
-        </Router>
+        </>
     );
-}
+};
