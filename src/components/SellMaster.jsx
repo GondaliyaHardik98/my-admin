@@ -35,12 +35,8 @@ export default function SellMaster() {
   }, []);
 
   const checkRole = () => {
-    const token = sessionStorage.getItem("jwtToken");
-    if (token) {
-      const decoded = jwtDecode(token);
-      const roles = decoded.roles || [];
-      setIsSuperAdmin(roles.includes("Super Admin"));
-    }
+    const storedRole = sessionStorage.getItem("userRole"); // ✅ Get role from sessionStorage
+    setIsSuperAdmin(storedRole === "Super Admin"); // ✅ Set based on stored role
   };
 
   const fetchDropdownData = async () => {

@@ -12,7 +12,7 @@ function ProductMaster() {
   const [response, setResponse] = useState(null);
   const [productData, setProductData] = useState([]);
   const [SelectedProductId, setSelectedproductId] = useState(null);
-  const [products, setProducts] = useState([]); // State to store products
+  const [vendorData, setVendorData] = useState([]); // State to store products
   const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     productId: 0,
@@ -34,12 +34,14 @@ function ProductMaster() {
   const fetchVendor = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/productAll`
+        `${process.env.REACT_APP_API_URL}/vendor`
       ); // Replace with your API URL
       //const data = await response.json();
      
-      setProducts(response.data.data);
       console.log("data", response.data.data);
+
+
+      setVendorData(response.data.data);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
@@ -51,6 +53,8 @@ function ProductMaster() {
       const getAllData = await axios.get(
         `${process.env.REACT_APP_API_URL}/productAll`
       );
+
+      console.log("getAllProductData ", getAllData.data.data);
       setProductData(getAllData.data.data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -186,8 +190,8 @@ function ProductMaster() {
   };
 
   // Filter records based on search query (by Product Name or Product Code)
-  const filteredRecords = products.filter((product) =>
-    product.productName.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredRecords = productData.filter((product) =>
+    product.productCode.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -222,7 +226,7 @@ function ProductMaster() {
               required
             >
               <option value="">Select Vendor</option>
-              {products.map((product) => (
+              {vendorData.map((product) => (
                 <option key={product.vendorId} value={product.vendorId}>
                   {product.vendorName}{" "}
                   {/* Adjust field names according to your API response */}

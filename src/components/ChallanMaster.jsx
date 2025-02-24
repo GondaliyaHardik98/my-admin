@@ -28,9 +28,14 @@ export default function ChallanMaster() {
 
   const fetchDropdownData = async () => {
     try {
+      const token = sessionStorage.getItem("jwtToken"); // Retrieve token from sessionStorage
       const [customerRes, engineerRes, productRes] = await Promise.all([
         axios.get(`${process.env.REACT_APP_API_URL}/customer`),
-        axios.get(`${process.env.REACT_APP_API_URL}/employees`),
+        axios.get(`${process.env.REACT_APP_API_URL}/employees`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Add Authorization header
+          },
+        }),
         axios.get(`${process.env.REACT_APP_API_URL}/productAll`),
       ]);
       setCustomers(customerRes.data.data || []);

@@ -1,125 +1,94 @@
-import React, { useDebugValue } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const [userPermissions, setUserPermissions] = useState([]);
+  const [isNavOpen, setIsNavOpen] = useState(false);
+  const [modules, setModules] = useState([]);
 
-  // Decode roles from token
-  const token = sessionStorage.getItem("jwtToken");
-  let roles = [];
 
-  if (token) {
+
+  // Load user permissions from sessionStorage
+  useEffect(() => {
     try {
-      const decoded = jwtDecode(token);
-      roles = decoded.roles || [];
-      console.log("Roles: ", roles);
-    } catch (err) {
-      console.error("Error decoding token:", err);
+      const permissions = JSON.parse(sessionStorage.getItem("userPermissions") || "[]");
+      setUserPermissions(permissions);
+      fetchModules();
+    } catch (error) {
+      console.error("Error parsing user permissions:", error);
+      setUserPermissions([]);
     }
-  }
+  }, []);
+
+  // Fetch available modules dynamically
+  const fetchModules = async () => {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/modules`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data.success) {
+        console.log("Fetched modules:", response.data.modules);
+        setModules(response.data.modules);
+      }
+    } catch (error) {
+      console.error("Error fetching modules:", error);
+    }
+  };
+
+  // Handle menu toggle manually
+  const toggleNavbar = () => {
+    setIsNavOpen(!isNavOpen);
+  };
+
+  // Handle menu item clicks and close the menu
+  const handleMenuClick = (path) => {
+    navigate(path);
+    setIsNavOpen(false);
+  };
 
   // Logout handler
   const handleLogout = () => {
-    sessionStorage.removeItem("jwtToken");
+    sessionStorage.clear();
     navigate("/login");
   };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container-fluid">
-        {/* Company Logo */}
-        <a className="navbar-brand" href="/">
-          {/* <img src="/src/logo.png" alt="Company Logo" height="40" /> */}
-           BHARAT Technology 
-        </a>
+        {/* Logo */}
+        <a className="navbar-brand" href="/">BHARAT Technology</a>
 
         {/* Toggle Button for Mobile View */}
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
+        <button className="navbar-toggler" type="button" onClick={toggleNavbar} aria-expanded={isNavOpen} aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className="show navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            {/* Common Links */}
+        {/* Navbar Items */}
+        <div className={`navbar-collapse ${isNavOpen ? "show" : ""}`}>
+          <ul className="navbar-nav me-auto">
+            {/* Home Button */}
             <li className="nav-item">
-              <button className="nav-link btn" onClick={() => navigate("/")}>Home</button>
+              <button className="nav-link" onClick={() => handleMenuClick("/")}>Home</button>
             </li>
 
-            {/* Super Admin and Admin Links */}
-            {(roles.includes("Super Admin")) && (
-              <>
-                <li className="nav-item">
-                  <button className="nav-link btn" onClick={() => navigate("/customerDetails")}>Customer Management</button>
+            {/* Dynamically Render User-Specific Modules */}
+            {modules.map((module) =>
+              userPermissions.includes(module.name) && (
+                <li className="nav-item" key={module.id}>
+                  <button className="nav-link" onClick={() => handleMenuClick(module.url)}>
+                    {module.name}
+                  </button>
                 </li>
-                <li className="nav-item">
-                  <button className="nav-link btn" onClick={() => navigate("/employee")}>Employee Management</button>
-                </li>
-                <li className="nav-item">
-                  <button className="nav-link btn" onClick={() => navigate("/productMaster")}>Product Management</button>
-                </li>
-                <li className="nav-item">
-                  <button className="nav-link btn" onClick={() => navigate("/vendorMaster")}>Vendor Management</button>
-                </li>
-                <li className="nav-item">
-                <button className="nav-link btn" onClick={() => navigate("/challan")}>Challans</button>
-                </li>
-                <li className="nav-item">
-                <button className="nav-link btn" onClick={() => navigate("/sellMaster")}>Sales</button>
-                </li>
-                <li className="nav-item">
-                <button className="nav-link btn" onClick={() => navigate("/amcMaster")}>AMC</button>
-              </li>
-              </>
-            )}
-
-            {/* Sales Admin Links */}
-            {roles.includes("Sales Admin") && (
-              <>
-                 <li className="nav-item">
-                  <button className="nav-link btn" onClick={() => navigate("/customerDetails")}>Customer Management</button>
-                </li>
-                
-              <li className="nav-item">
-                <button className="nav-link btn" onClick={() => navigate("/sellMaster")}>Sales</button>
-                </li>
-                
-                <li className="nav-item">
-                  <button className="nav-link btn" onClick={() => navigate("/productMaster")}>Product Management</button>
-                </li>
-                
-              <li className="nav-item">
-                <button className="nav-link btn" onClick={() => navigate("/amcMaster")}>AMC</button>
-                </li>
-                <li className="nav-item">
-                <button className="nav-link btn" onClick={() => navigate("/AMCRenewal")}>AMC Renewal</button>
-              </li>
-              <li>
-                  <button className="nav-link btn" onClick={() => navigate("/ruleSettings")}>Rule Settings</button>
-              </li>
-              </>
-              
-              
-            )}
-
-            {/* Challan Admin Links */}
-            {roles.includes("Challan Admin") && (
-              <li className="nav-item">
-                <button className="nav-link btn" onClick={() => navigate("/challan")}>Challans</button>
-              </li>
+              ) 
             )}
           </ul>
 
-          {/* Logout */}
-          <ul className="navbar-nav ms-auto">
+          {/* Logout Button */}
+          <ul className="navbar-nav">
             <li className="nav-item">
               <button className="nav-link btn btn-danger" onClick={handleLogout}>Logout</button>
             </li>

@@ -1,99 +1,45 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate,
-  useLocation,
-} from "react-router-dom";
-import Navbar from "./components/Navbar";
-import EmployeeDetails from "./components/EmpDetails";
-import CustomerDetails from "./components/CustomerDetails";
-import VendorMaster from "./components/VendorMaster";
-import ProductMaster from "./components/ProductMaster";
-import ProductMachineMaster from "./components/ProductMachineMaster";
-import ChallanMaster from "./components/ChallanMaster";
-import SellMaster from "./components/SellMaster";
-import SalaryMaster from "./components/SalaryMaster";
-import AMCMaster from "./components/AMCMaster";
-import LoginPage from "./components/LoginPage";
-import ProtectedRoute from "./components/ProtectedRoute";
-import RuleSettings from "./components/RuleSettings";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import UserManagement from "./components/UserManagement";
+import EmployeeManagement from "./components/EmpDetails";
+import CustomerManagement from "./components/CustomerDetails";
+import SellManagement from "./components/SellMaster";
+//import PaymentModule from "./components/pa";
 import AMCRenewal from "./components/AMCRenewal";
+import AMCMaster from "./components/AMCMaster";
+import ProductManagement from "./components/ProductMaster";
+import ProductMachineManagement from "./components/ProductMachineMaster";
+import VendorManagement from "./components/VendorMaster";
+import ChallanManagement from "./components/ChallanMaster";
+import RuleSettings from "./components/RuleSettings";
+import LoginPage from "./components/LoginPage";
+import Navbar from "./components/Navbar";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
-
-// Layout Component (handles navbar visibility)
-const Layout = ({ children }) => {
-  const location = useLocation();
-  const isLoginPage = location.pathname === "/login";
-  const token = sessionStorage.getItem("jwtToken");
-
-  return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Show Navbar only if token exists and not on the login page */}
-      {token && !isLoginPage && <Navbar />}
-      <div className="p-5">{children}</div>
-    </div>
-  );
+const ProtectedRoute = ({ children }) => {
+    const token = sessionStorage.getItem("jwtToken");
+    return token ? children : <Navigate to="/login" />;
 };
 
-// Route configuration with their components
-const protectedRoutes = [
-  { path: "/employee", element: <EmployeeDetails /> },
-  { path: "/customerDetails", element: <CustomerDetails /> },
-  { path: "/vendorMaster", element: <VendorMaster /> },
-  { path: "/productMaster", element: <ProductMaster /> },
-  { path: "/productMachineMaster", element: <ProductMachineMaster /> },
-  { path: "/challanMaster", element: <ChallanMaster /> },
-  { path: "/sellMaster", element: <SellMaster /> },
-  { path: "/amcMaster", element: <AMCMaster /> },
-  { path: "/salaryMaster", element: <SalaryMaster /> },
-  { path: "/ruleSettings", element: <RuleSettings /> },
-  { path: "/AMCRenewal", element: <AMCRenewal /> },
-];
-
-const App = () => {
-  return (
-    <Router>
-      <Layout>
-        <Routes>
-          {/* Public Route */}
-          <Route path="/login" element={<LoginPage />} />
-
-          {/* Protected Routes */}
-          {protectedRoutes.map(({ path, element }) => (
-            <Route
-              key={path}
-              path={path}
-              element={<ProtectedRoute>{element}</ProtectedRoute>}
-            />
-          ))}
-
-          {/* Default route for authenticated users */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Navigate to="/employee" replace />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Catch-all route */}
-          <Route
-            path="*"
-            element={
-              <ProtectedRoute>
-                <Navigate to="/employee" replace />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </Layout>
-    </Router>
-  );
-};
-
-export default App;
+export default function App() {
+    return (
+        <Router>
+            <Navbar />
+            <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/user-management" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
+                <Route path="/employees" element={<ProtectedRoute><EmployeeManagement /></ProtectedRoute>} />
+                <Route path="/customerDetails" element={<ProtectedRoute><CustomerManagement /></ProtectedRoute>} />
+                <Route path="/sell" element={<ProtectedRoute><SellManagement /></ProtectedRoute>} />
+                <Route path="/amcRenew" element={<ProtectedRoute><AMCRenewal /></ProtectedRoute>} />
+                <Route path="/amc" element={<ProtectedRoute><AMCMaster /></ProtectedRoute>} />
+                <Route path="/products" element={<ProtectedRoute><ProductManagement /></ProtectedRoute>} />
+                <Route path="/product-machines" element={<ProtectedRoute><ProductMachineManagement /></ProtectedRoute>} />
+                <Route path="/vendors" element={<ProtectedRoute><VendorManagement /></ProtectedRoute>} />
+                <Route path="/challans" element={<ProtectedRoute><ChallanManagement /></ProtectedRoute>} />
+                <Route path="/rules" element={<ProtectedRoute><RuleSettings /></ProtectedRoute>} />
+            </Routes>
+        </Router>
+    );
+}

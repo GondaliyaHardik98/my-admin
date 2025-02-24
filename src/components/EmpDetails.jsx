@@ -70,56 +70,57 @@ export default function EmployeeForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submit data: " + formData);
+    console.log("Submit data: ", formData);
+
     const data = new FormData();
     data.append("name", formData.name);
     data.append("salary", formData.salary);
     data.append("contact_details", formData.contact_details);
     data.append("emergency_contact_1", formData.emergency_contact_1);
     data.append("emergency_contact_2", formData.emergency_contact_2);
-    if (formData.photo) {
-      data.append("photo", formData.photo);
+    if (formData.photo  && formData.photo instanceof File) {
+        data.append("photo", formData.photo);
     }
-    if (formData.id_proof) {
-      data.append("id_proof", formData.id_proof);
+    if (formData.id_proof  && formData.id_proof instanceof File) {
+        data.append("id_proof", formData.id_proof);
     }
 
-    console.log("Submitting data:");
-    for (let [key, value] of data.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+
 
     const url = selectedEmployeeId
-      ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}`
-      : `${process.env.REACT_APP_API_URL}/employees`;
-    const method = selectedEmployeeId ? "PUT" : "POST";
+        ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}`
+        : `${process.env.REACT_APP_API_URL}/employees`;
+    const method = selectedEmployeeId ? "put" : "post";
 
     console.log("URL: ", url);
+    console.log("Method: ", method);
+    console.log("FormData Entries: ", formData);
 
     try {
-      const token = sessionStorage.getItem("jwtToken"); // Retrieve token from sessionStorage
-      const res = await fetch(url, {
-        method,
-        body: data,
-        headers: {
-          Authorization: `Bearer ${token}`, // Add Authorization header
-        },
-      });
+        const token = sessionStorage.getItem("jwtToken"); // Retrieve token from sessionStorage
+        const res = await axios({
+            method: method,
+            url: url,
+            data: data,
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "multipart/form-data" // ✅ Ensure proper form submission
+            }
+        });
 
-      console.log("Res: ", res);
-      const result = await res.json();
-      console.log("Result: ", result);
-      setResponse({ success: result.success, message: result.message });
-      if (result.success) {
-        fetchEmployees();
-        clearForm();
-      }
+        console.log("Response: ", res);
+        setResponse({ success: res.data.success, message: res.data.message });
+
+        if (res.data.success) {
+            fetchEmployees();
+            clearForm();
+        }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      console.error("Error message:", error.message);
-      setResponse({ success: false, message: "Failed to save employee." });
+        console.error("Error submitting form:", error);
+        setResponse({ success: false, message: "Failed to save employee." });
     }
-  };
+};
+
 
   const clearForm = () => {
     setFormData({
@@ -146,7 +147,7 @@ export default function EmployeeForm() {
   return (
     <div className="container mx-auto  p-4">
       <h2 className="text-center mb-4">Employee Management</h2>
-      <form onSubmit={handleSubmit} className="card shadow-sm p-4 mb-5">
+      <form onSubmit={handleSubmit} encType="multipart/form-data" className="card shadow-sm p-4 mb-5">
         <h4 className="card-title mb-4">Add/Edit Employee</h4>
         <div className="row g-3 mb-3">
           <div className="col-md-6">

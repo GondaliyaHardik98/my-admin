@@ -1,53 +1,40 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
-function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+const LoginPage = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError(null);
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
+                email,
+                password,
+            });
 
-    try {
-      // Make a request to login API
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
-        email,
-        password,
-      });
+          if (response.data.success) {
+            console.log("response.data: ", response.data);
+                const { token, user } = response.data;
 
-      const { token } = response.data;
-      console.log("date: " , response.data);
-      sessionStorage.setItem("jwtToken", token); // Save token
-
-      // Decode the token to get roles
-      const decoded = jwtDecode(token); // Correctly imported function
-      console.log("Decoded token:", decoded); // Log the decoded token
-
-      const userRoles = decoded.roles;
-
-      console.log("userRoles: ", userRoles);
-
-      // Redirect based on roles
-      if (userRoles.includes("Sales Admin")) {
-        window.location.href = "/sellMaster";
-      } else if (userRoles.includes("Super Admin")) {
-        window.location.href = "/employee";
-      }
-      else if (userRoles.includes("Challan Admin")) {
-        window.location.href = "/challanMaster";
-      }
-      else {
-        setError("Access Denied. No valid role assigned.");
-      }
-    } catch (err) {
-      console.error("Error logging in:", err);
-      setError("Invalid email or password.");
-     
-    }
-  };
+                // Store token and user details in session storage
+            sessionStorage.setItem("jwtToken", token);
+            sessionStorage.setItem("userRole", response.data.user.role);
+            sessionStorage.setItem("userPermissions", JSON.stringify(user.permissions || [])); // Save permissions
+            console.log("Login successful! Redirecting...");
+                navigate("/"); // Redirect to main dashboard
+                window.location.reload(); // Refresh to update Navbar based on permissions
+            } else {
+                setError(response.data.message);
+            }
+        } catch (error) {
+          console.log("Error logging in:", error);
+            setError("Invalid email or password.");
+        }
+    };
 
   return (
     <div className="container mx-auto p-4">
@@ -83,6 +70,6 @@ function LoginPage() {
       </form>
     </div>
   );
-}
+};
 
 export default LoginPage;

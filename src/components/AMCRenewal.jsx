@@ -96,15 +96,10 @@ export default function AMCRenewal() {
       const response = await axios({
         method,
         url,
-        data: {
-          amcId: selectedAmcId, 
-          maintenanceStartDate: formData.maintenanceStartDate,
-          maintenanceEndDate: formData.maintenanceEndDate,
-          amcPrice: formData.amcPrice,
-          amcProductName: formData.amcProductName
-        },
+        data:JSON.stringify(formData),
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
         }
       });
 
