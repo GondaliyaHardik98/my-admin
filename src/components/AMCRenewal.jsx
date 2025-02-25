@@ -96,7 +96,7 @@ export default function AMCRenewal() {
       const response = await axios({
         method,
         url,
-        data:JSON.stringify(formData),
+        data: formData,
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/x-www-form-urlencoded',
