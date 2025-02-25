@@ -80,7 +80,7 @@ export default function AMCRecord() {
     // Ensure startDate is before endDate
     if (startDate > endDate) {
         console.error("Error: Start date is after End date.");
-        return "Invalid Date Range"; // Handle the error appropriately
+        return { text: "Invalid Date Range", decimal: 0 }; // Handle the error appropriately
     }
 
     // Calculate the year and month difference
@@ -93,7 +93,7 @@ export default function AMCRecord() {
     // Calculate remaining days
     const tempStart = new Date(startDate);
     tempStart.setMonth(tempStart.getMonth() + totalMonths);
-    
+
     let daysDiff = Math.floor((endDate - tempStart) / (1000 * 60 * 60 * 24));
 
     if (daysDiff < 0) {
@@ -103,8 +103,17 @@ export default function AMCRecord() {
         daysDiff = Math.floor((endDate - prevMonthDate) / (1000 * 60 * 60 * 24));
     }
 
-    console.log(`Total Duration: ${totalMonths} months ${daysDiff} days`);
-    return `${totalMonths} months ${daysDiff} days`;
+    // Convert days to fraction of a month
+    const daysInMonth = new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0).getDate(); // Get total days in the last month
+    const fractionalMonth = (daysDiff / daysInMonth).toFixed(2); // Convert days into decimal form
+    const totalDecimalMonths = (totalMonths + parseFloat(fractionalMonth)).toFixed(2);
+
+    console.log(`Total Duration: ${totalMonths} months ${daysDiff} days (Decimal: ${totalDecimalMonths})`);
+
+    return {
+        text: `${totalMonths} months ${daysDiff} days`,
+        decimal: totalDecimalMonths
+    };
 };
 
 
@@ -310,7 +319,9 @@ export default function AMCRecord() {
     doc.text(`M/C No:- ${productCode}`, 20, yPosition);
     yPosition += 10;
 
-    const totalMonths = calculateMonthsAndDays(amc.maintenanceStartDate, amc.maintenanceEndDate);
+    //const totalMonths = calculateMonthsAndDays(amc.maintenanceStartDate, amc.maintenanceEndDate);
+    const { text: totalMonthsText, decimal: totalDecimalMonths } = calculateMonthsAndDays(amc.maintenanceStartDate, amc.maintenanceEndDate);
+
 
     // Table
     doc.autoTable({
@@ -333,8 +344,8 @@ export default function AMCRecord() {
           "ANNUAL MAINTENANCE CONTRACT\nCHARGE FOR SCANING MACHINE",
           "01",
           `${amc.amcPrice}`,
-          `${totalMonths}`,
-          `${ ((amc.amcPrice / 12) * totalMonths).toFixed(2)}`
+          `${totalMonthsText}`,
+          `${ ((amc.amcPrice / 12) * totalDecimalMonths).toFixed(2)}`
         ]
       ],
       theme: "grid",
@@ -362,7 +373,7 @@ export default function AMCRecord() {
     yPosition = doc.lastAutoTable.finalY + 10;
 
     // Additional text
-    doc.text(`TOTAL ${ ((amc.amcPrice / 12) * totalMonths).toFixed(2)}`, 160, yPosition);
+    doc.text(`TOTAL ${ ((amc.amcPrice / 12) * totalDecimalMonths).toFixed(2)}`, 160, yPosition);
     yPosition += 10;
 
     doc.setTextColor(0, 0, 255);
