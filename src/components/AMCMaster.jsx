@@ -23,6 +23,11 @@ export default function AMCRecord() {
     amcProductName: "" // AMC Product Name
   });
 
+  const [expandedRow, setExpandedRow] = useState(null);
+  const [paymentAmounts, setPaymentAmounts] = useState({}); // Store entered amounts for each AMC
+
+  const [paymentHistory, setPaymentHistory] = useState({});
+  const [newPayments, setNewPayments] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -461,6 +466,60 @@ export default function AMCRecord() {
     }
   };
 
+  const fetchPaymentHistory = async (amcId) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/amc/payment-history/${amcId}`);
+      console.log("Payment History:", response.data.data);
+      return response.data.data;
+    } catch (error) {
+      console.error("Error fetching payment history:", error);
+      return [];
+    }
+  };
+
+  const togglePaymentHistory = async (amcId) => {
+    if (expandedRow === amcId) {
+      setExpandedRow(null);
+    } else {
+      const payments = await fetchPaymentHistory(amcId);
+      setAmcData((prevRecords) =>
+        prevRecords.map((record) =>
+          record.amcId === amcId ? { ...record, payments } : record
+        )
+      );
+      setExpandedRow(amcId);
+    }
+  };
+
+  const handlePaymentChange = (amcId, value) => {
+    setPaymentAmounts({ ...paymentAmounts, [amcId]: value });
+  };
+
+  const submitPayment = async (amcId) => {
+    const amountPaid = paymentAmounts[amcId];
+    if (!amountPaid || isNaN(amountPaid) || amountPaid <= 0) {
+      alert("Please enter a valid payment amount.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/amc/payment/${amcId}`,
+        { amountPaid },
+        { headers: { Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}` } }
+      );
+
+      if (response.data.success) {
+        alert("Payment recorded successfully.");
+        setPaymentAmounts({ ...paymentAmounts, [amcId]: "" });
+        togglePaymentHistory(amcId);
+        fetchAMCRecords(); // Refresh AMC data to update total paid & remaining balance
+      }
+    } catch (error) {
+      console.error("Error adding payment:", error);
+    }
+  };
+
   const handleDropDownChange = (selectedOption, action) => {
     const {name} = action; // Extract 'name' from action
     const value = selectedOption
@@ -484,6 +543,23 @@ export default function AMCRecord() {
     } catch (error) {
       console.error("Error updating AMC record:", error);
       setResponse({success: false, message: "Error updating AMC record. Please try again."});
+    }
+  };
+
+  const handlePaymentSubmit = async (amcId) => {
+    if (!newPayments[amcId]) return;
+
+    try {
+      await axios.post(`${process.env.REACT_APP_API_URL}/amc/payments`, {
+        amcId,
+        amountPaid: newPayments[amcId],
+        paymentDate: new Date().toISOString().split("T")[0],
+      });
+      
+      setNewPayments((prev) => ({ ...prev, [amcId]: "" }));
+      fetchPaymentHistory(amcId);
+    } catch (error) {
+      console.error("Error adding payment:", error);
     }
   };
 
@@ -594,6 +670,7 @@ export default function AMCRecord() {
             <th className="py-2 px-4 border-b">Sell Date</th>
             <th className="py-2 px-4 border-b">AMC Price</th>
             <th className="py-2 px-4 border-b">AMC Start Date</th>
+            <th className="py-2 px-4 border-b">Payment Status</th>
             <th className="py-2 px-4 border-b">Actions</th>
             <th className="py-2 px-4 border-b">Print</th>
           </tr>
@@ -614,6 +691,28 @@ export default function AMCRecord() {
                   {" "}
                   {new Date(amc.maintenanceStartDate).toLocaleDateString()}
                 </td>
+                <td>
+                <button className="btn btn-info btn-sm" onClick={() => fetchPaymentHistory(amc.amcId)}>
+                  View Payments
+                </button>
+                {paymentHistory[amc.amcId] && (
+                  <ul>
+                    {paymentHistory[amc.amcId].map((p, index) => (
+                      <li key={index}>₹{p.amountPaid} - {formatDate(p.paymentDate)}</li>
+                    ))}
+                  </ul>
+                )}
+                <input
+                  type="number"
+                  placeholder="Amount"
+                  value={newPayments[amc.amcId] || ""}
+                  onChange={(e) => setNewPayments((prev) => ({ ...prev, [amc.amcId]: e.target.value }))}
+                  className="form-control form-control-sm mt-1"
+                />
+                <button className="btn btn-success btn-sm mt-1" onClick={() => handlePaymentSubmit(amc.amcId)}>
+                  Add Payment
+                </button>
+              </td>
                 <td className="py-2 px-4 border-b">
                   <button onClick={() => handleEdit(amc)} className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2">
                     Edit
