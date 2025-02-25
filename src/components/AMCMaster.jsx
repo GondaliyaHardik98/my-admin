@@ -69,7 +69,7 @@ export default function AMCRecord() {
     }
   };
 
-  const calculateMonths = (s, e) => {
+  const calculateMonthsAndDays = (s, e) => {
     // Parse the input dates into proper Date objects
     const startDate = new Date(s);
     const endDate = new Date(e);
@@ -79,20 +79,34 @@ export default function AMCRecord() {
 
     // Ensure startDate is before endDate
     if (startDate > endDate) {
-      console.error("Error: Start date is after End date.");
-      return 0; // Return 0 or handle the error appropriately
+        console.error("Error: Start date is after End date.");
+        return "Invalid Date Range"; // Handle the error appropriately
     }
 
     // Calculate the year and month difference
     const yearsDiff = endDate.getFullYear() - startDate.getFullYear();
     const monthsDiff = endDate.getMonth() - startDate.getMonth();
 
-    // Calculate the total months difference
-    const totalMonths = yearsDiff * 12 + monthsDiff;
+    // Calculate total months
+    let totalMonths = yearsDiff * 12 + monthsDiff;
 
-    console.log("Total Months:", totalMonths + 1); // Include the starting month
-    return totalMonths + 1; // Add 1 to include the starting month
-  };
+    // Calculate remaining days
+    const tempStart = new Date(startDate);
+    tempStart.setMonth(tempStart.getMonth() + totalMonths);
+    
+    let daysDiff = Math.floor((endDate - tempStart) / (1000 * 60 * 60 * 24));
+
+    if (daysDiff < 0) {
+        totalMonths -= 1;
+        const prevMonthDate = new Date(tempStart);
+        prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+        daysDiff = Math.floor((endDate - prevMonthDate) / (1000 * 60 * 60 * 24));
+    }
+
+    console.log(`Total Duration: ${totalMonths} months ${daysDiff} days`);
+    return `${totalMonths} months ${daysDiff} days`;
+};
+
 
   // const handlePrintAMCInvoice = async (amc) => {
   //   const doc = new jsPDF();
@@ -296,7 +310,7 @@ export default function AMCRecord() {
     doc.text(`M/C No:- ${productCode}`, 20, yPosition);
     yPosition += 10;
 
-    const totalMonths = calculateMonths(amc.maintenanceStartDate, amc.maintenanceEndDate);
+    const totalMonths = calculateMonthsAndDays(amc.maintenanceStartDate, amc.maintenanceEndDate);
 
     // Table
     doc.autoTable({
