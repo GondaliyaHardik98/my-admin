@@ -14,6 +14,9 @@ export default function AMCRecord() {
   const [selectedAmcId, setSelectedAmcId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAmc, setSelectedAmc] = useState(null);
+  const [selectedYear, setSelectedYear] = useState("");  // Stores the selected year
+  const [availableYears, setAvailableYears] = useState([]); // Stores unique years
+
 
   const [response, setResponse] = useState(null);
   const [formData, setFormData] = useState({
@@ -47,7 +50,13 @@ export default function AMCRecord() {
         }
       });
       //console.log("AMC Records:", response.data.data);
-      setAmcData(response.data.data || []);
+      const records = response.data.data || [];
+      setAmcData(records);
+
+
+      const years = [...new Set(records.map(amc => new Date(amc.maintenanceStartDate).getFullYear()))];
+      setAvailableYears(years.sort((a, b) => b - a)); // Sort in descending order (latest first)
+
     } catch (error) {
       console.error("Error fetching AMC records:", error);
     }
@@ -410,7 +419,7 @@ export default function AMCRecord() {
     doc.setFont("Helvetica", "normal");
     doc.setTextColor(255, 0, 0);
     doc.text("CUSTOMER SIGN & STAMP", 20, 280);
-    doc.text("FOR, Bharat Technology", 160, 280, null, null, "right");
+    doc.text("FOR, BHARAT Technology", 160, 280, null, null, "right");
 
     // Save PDF to Preview
     const pdfOutput = doc.output("blob");
@@ -639,7 +648,13 @@ export default function AMCRecord() {
   };
 
   // Filtered records based on search query
-  const filteredRecords = amcRecords.filter(amc => amc.customerName.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredRecords = amcRecords.filter(amc => {
+    const amcYear = new Date(amc.maintenanceStartDate).getFullYear();
+    return (
+        amc.customerName.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        (selectedYear === "" || amcYear.toString() === selectedYear)
+    );
+});
   // Object.values(amc).some(
   //   (value) =>
   //     typeof value === "string" &&
@@ -693,7 +708,28 @@ export default function AMCRecord() {
       </div>
     </form>
 
-    <input type="text" placeholder="Search AMC Records..." value={searchQuery} onChange={handleSearch} className="w-full border border-gray-300 rounded px-3 py-2 mb-4"/> {/* AMC Table */}
+    <div className="flex gap-4 mb-4">
+    {/* Search Box */}
+    <input 
+        type="text" 
+        placeholder="Search AMC Records..." 
+        value={searchQuery} 
+        onChange={handleSearch} 
+        className="border border-gray-300 rounded px-3 py-2 w-full"
+    />
+
+    {/* Year Dropdown */}
+    <select 
+        value={selectedYear} 
+        onChange={(e) => setSelectedYear(e.target.value)} 
+        className="border border-gray-300 rounded px-3 py-2"
+    >
+        <option value="">All Years</option> 
+        {availableYears.map(year => (
+            <option key={year} value={year}>{year}</option>
+        ))}
+    </select>
+</div>
 
     <div className="overflow-x-auto">
       <table className="w-full border border-gray-300 text-left">
