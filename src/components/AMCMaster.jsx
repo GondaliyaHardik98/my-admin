@@ -496,17 +496,18 @@ export default function AMCRecord() {
 
   const fetchPaymentHistory = async (amcId) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/amc/payment-history/${amcId}`);
-      console.log("Payment History:", response.data.data);
-      setPaymentHistory(response.data.data);
-      setSelectedAmc(amcId);
-      setIsModalOpen(true);
-      return response.data.data;
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/amc/payment-history/${amcId}`);
+        console.log("Payment History:", response.data.data);
+        setPaymentHistory({ [amcId]: Array.isArray(response.data.data) ? response.data.data : [] });
+        setSelectedAmc(amcId);
+        setIsModalOpen(true);
     } catch (error) {
-      console.error("Error fetching payment history:", error);
-      return [];
+        console.error("Error fetching payment history:", error);
+        setPaymentHistory({ [amcId]: [] });
     }
-  };
+};
+
+
 
   const togglePaymentHistory = async (amcId) => {
     if (expandedRow === amcId) {
@@ -730,13 +731,6 @@ export default function AMCRecord() {
                 <button className="btn btn-info btn-sm" onClick={() => fetchPaymentHistory(amc.amcId)}>
                   View Payments
                 </button>
-                {paymentHistory[amc.amcId] && (
-                  <ul>
-                    {paymentHistory[amc.amcId].map((p, index) => (
-                      <li key={index}>₹{p.amountPaid} - {formatDate(p.paymentDate)}</li>
-                    ))}
-                  </ul>
-                )}
                 <input
                   type="number"
                   placeholder="Amount"
@@ -770,27 +764,29 @@ export default function AMCRecord() {
     </div>
 
     {/* Modal */}
-    {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+    {isModalOpen && selectedAmc && (
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h3 className="text-xl font-bold mb-4">Payment History</h3>
-            {paymentHistory.length > 0 ? (
-              <ul>
-                {paymentHistory.map((payment, index) => (
-                  <li key={index} className="border-b py-2">
-                    {new Date(payment.paymentDate).toLocaleDateString()} -  <span className="font-medium">₹{payment.amountPaid}</span> 
-                  </li>
-                ))}
-              </ul>
+            {Array.isArray(paymentHistory[selectedAmc]) && paymentHistory[selectedAmc].length > 0 ? (
+                <ul>
+                    {paymentHistory[selectedAmc].map((payment, index) => (
+                        <li key={index} className="border-b py-2">
+                            {new Date(payment.paymentDate).toLocaleDateString()} -  
+                            <span className="font-medium"> ₹{payment.amountPaid}</span> 
+                        </li>
+                    ))}
+                </ul>
             ) : (
-              <p>No payments recorded.</p>
+                <p>No payments recorded.</p>
             )}
             <button className="bg-red-500 text-white px-4 py-2 mt-4 rounded" onClick={() => setIsModalOpen(false)}>
-              Close
+                Close
             </button>
-          </div>
         </div>
-      )}
+    </div>
+)}
+
 
   </div>);
 }
