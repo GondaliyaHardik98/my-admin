@@ -13,14 +13,7 @@ export default function UserManagement() {
   const [modules, setModules] = useState([]); // ✅ Store fetched modules
 
 
-  // Define module options for permissions
-  const moduleOptions = [
-    "Employee Management",
-    "Customer Management",
-    "Sell Management",
-    "Payment Module",
-    "AMC/AMC Renewal Module"
-  ];
+
 
   useEffect(() => {
     fetchUsers();
