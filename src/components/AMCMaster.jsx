@@ -419,7 +419,7 @@ export default function AMCRecord() {
     doc.setFont("Helvetica", "normal");
     doc.setTextColor(255, 0, 0);
     doc.text("CUSTOMER SIGN & STAMP", 20, 280);
-    doc.text("FOR, BHARAT Technology", 160, 280, null, null, "right");
+    doc.text("FOR, BHARAT TECHNOLOGY", 160, 280, null, null, "right");
 
     // Save PDF to Preview
     const pdfOutput = doc.output("blob");
