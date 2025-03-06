@@ -237,8 +237,8 @@ const handlePaymentSubmit = async (amcId) => {
     doc.text(`No:- BT/${amc.amcId}`, 160, yPosition);
     yPosition += 10;
 
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/amc/product-code/${amc.amcId}`);
-    const productCode = response.data.data[0].productCode;
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/amc-renewal/product-code/${amc.amcId}`);
+    const productCode = response.data.data.length > 0 ? response.data.data[0].productCode : "N/A";
     doc.text(`M/C No:- ${productCode}`, 20, yPosition);
     yPosition += 10;
 
