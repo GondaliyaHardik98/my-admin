@@ -90,13 +90,18 @@ export default function AMCRenewal() {
     const method = selectedAmcId
       ? "put"
       : "post";
+    
+      const requestData = {
+        ...formData,
+        ...(selectedAmcId && { amcId: selectedAmcId }) // ✅ Include amcId if updating
+      };
 
     try {
       console.log("FormData:", formData);
       const response = await axios({
         method,
         url,
-        data: formData,
+        data: requestData,
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/x-www-form-urlencoded',
