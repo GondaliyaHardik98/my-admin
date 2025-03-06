@@ -242,7 +242,7 @@ const handlePaymentSubmit = async (amcId) => {
     doc.text(`M/C No:- ${productCode}`, 20, yPosition);
     yPosition += 10;
 
-    const totalMonths = calculateMonths(amc.maintenanceStartDate, amc.maintenanceEndDate);
+    const { text: totalMonthsText, decimal: totalDecimalMonths } = calculateMonthsAndDays(amc.maintenanceStartDate, amc.maintenanceEndDate);
 
     // Table
     doc.autoTable({
@@ -265,8 +265,8 @@ const handlePaymentSubmit = async (amcId) => {
           "ANNUAL MAINTENANCE CONTRACT\nCHARGE FOR SCANING MACHINE",
           "01",
           `${amc.amcPrice}`,
-          `${totalMonths}`,
-          `${ ((amc.amcPrice / 12) * totalMonths).toFixed(2)}`
+          `${totalMonthsText}`,
+          `${ ((amc.amcPrice / 12) * totalDecimalMonths).toFixed(2)}`
         ]
       ],
       theme: "grid",
@@ -294,7 +294,7 @@ const handlePaymentSubmit = async (amcId) => {
     yPosition = doc.lastAutoTable.finalY + 10;
 
     // Additional text
-    doc.text(`TOTAL ${ ((amc.amcPrice / 12) * totalMonths).toFixed(2)}`, 160, yPosition);
+    doc.text(`TOTAL ${ ((amc.amcPrice / 12) * totalDecimalMonths).toFixed(2)}`, 160, yPosition);
     yPosition += 10;
 
     doc.setTextColor(0, 0, 255);
@@ -524,4 +524,51 @@ const calculateMonths = (s, e) => {
 
   console.log("Total Months:", totalMonths + 1); // Include the starting month
   return totalMonths + 1; // Add 1 to include the starting month
+};
+
+const calculateMonthsAndDays = (s, e) => {
+  // Parse the input dates into proper Date objects
+  const startDate = new Date(s);
+  const endDate = new Date(e);
+
+  console.log("Parsed StartDate:", startDate);
+  console.log("Parsed EndDate:", endDate);
+
+  // Ensure startDate is before endDate
+  if (startDate > endDate) {
+      console.error("Error: Start date is after End date.");
+      return { text: "Invalid Date Range", decimal: 0 }; // Handle the error appropriately
+  }
+
+  // Calculate the year and month difference
+  const yearsDiff = endDate.getFullYear() - startDate.getFullYear();
+  const monthsDiff = endDate.getMonth() - startDate.getMonth();
+
+  // Calculate total months
+  let totalMonths = yearsDiff * 12 + monthsDiff;
+
+  // Calculate remaining days
+  const tempStart = new Date(startDate);
+  tempStart.setMonth(tempStart.getMonth() + totalMonths);
+
+  let daysDiff = Math.floor((endDate - tempStart) / (1000 * 60 * 60 * 24));
+
+  if (daysDiff < 0) {
+      totalMonths -= 1;
+      const prevMonthDate = new Date(tempStart);
+      prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+      daysDiff = Math.floor((endDate - prevMonthDate) / (1000 * 60 * 60 * 24));
+  }
+
+  // Convert days to fraction of a month
+  const daysInMonth = new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0).getDate(); // Get total days in the last month
+  const fractionalMonth = (daysDiff / daysInMonth).toFixed(2); // Convert days into decimal form
+  const totalDecimalMonths = (totalMonths + parseFloat(fractionalMonth)).toFixed(2);
+
+  console.log(`Total Duration: ${totalMonths} months ${daysDiff} days (Decimal: ${totalDecimalMonths})`);
+
+  return {
+      text: `${totalMonths} months ${daysDiff} days`,
+      decimal: totalDecimalMonths
+  };
 };
