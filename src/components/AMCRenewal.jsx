@@ -12,7 +12,8 @@ export default function AMCRenewal() {
   const [selectedAmcId, setSelectedAmcId] = useState(null);
   const [response, setResponse] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAmc, setSelectedAmc] = useState(null);
   const [formData, setFormData] = useState({
     customerId: "",
     productId: "",
@@ -127,6 +128,39 @@ export default function AMCRenewal() {
     });
     setSelectedAmcId(amc.amcId);
   };
+
+  const [paymentHistory, setPaymentHistory] = useState({});
+const [newPayments, setNewPayments] = useState({});
+
+// Fetch Payment History
+const fetchPaymentHistory = async (amcId) => {
+  try {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/amc-renewal/payment-history/${amcId}`);
+    setPaymentHistory({ [amcId]: response.data.data });
+    setSelectedAmc(amcId);
+    setIsModalOpen(true);
+  } catch (error) {
+    console.error("Error fetching payment history:", error);
+  }
+};
+
+// Submit Payment
+const handlePaymentSubmit = async (amcId) => {
+  if (!newPayments[amcId]) return;
+
+  try {
+    await axios.post(`${process.env.REACT_APP_API_URL}/amc-renewal/payments`, {
+      amcId,
+      amountPaid: newPayments[amcId],
+      paymentMethod: "Cash",
+    });
+
+    setNewPayments((prev) => ({ ...prev, [amcId]: "" }));
+    fetchPaymentHistory(amcId);
+  } catch (error) {
+    console.error("Error adding payment:", error);
+  }
+};
 
   // Clear form
   const clearForm = () => {
@@ -372,37 +406,54 @@ export default function AMCRenewal() {
     </form>
 
     <input type="text" placeholder="Search AMC Records..." value={searchQuery} onChange={handleSearch} className="w-full border px-3 py-2 mb-4"/>
-    <table className="w-full border text-left">
+    <div className="overflow-x-auto">
+      <table className="w-full border border-gray-300 text-left">
       <thead>
         <tr>
-          <th>No</th>
-          <th>Customer</th>
-          <th>Product</th>
-          <th>AMC Name</th>
-          <th>AMC Price</th>
-          <th>Start Date</th>
-          <th>Actions</th>
-          <th>Print</th>
+          <th  className="py-2 px-4 border-b">No</th>
+          <th  className="py-2 px-4 border-b">Customer</th>
+          <th  className="py-2 px-4 border-b">Product</th>
+          <th  className="py-2 px-4 border-b"> AMC Name</th>
+          <th  className="py-2 px-4 border-b">AMC Price</th>
+            <th  className="py-2 px-4 border-b">Start Date</th>
+            <th className="py-2 px-4 border-b">Payment Status</th>
+          <th  className="py-2 px-4 border-b">Actions</th>
+          <th  className="py-2 px-4 border-b">Print</th>
         </tr>
       </thead>
       <tbody>
         {
           filteredRecords.length > 0
             ? (filteredRecords.map((amc, index) => (<tr key={amc.amcId}>
-              <td>{index + 1}</td>
-              <td>{amc.customerName}</td>
-              <td>{amc.productName}</td>
-              <td>{amc.amcProductName}</td>
-              <td>{amc.amcPrice}</td>
-              <td>
+              <td className="py-2 px-4 border-b">{index + 1}</td>
+              <td className="py-2 px-4 border-b">{amc.customerName}</td>
+              <td className="py-2 px-4 border-b">{amc.productName}</td>
+              <td className="py-2 px-4 border-b">{amc.amcProductName}</td>
+              <td className="py-2 px-4 border-b">{amc.amcPrice}</td>
+              <td className="py-2 px-4 border-b">
                 {new Date(amc.maintenanceStartDate).toLocaleDateString()}
               </td>
               <td>
+                <button className="btn btn-info btn-sm" onClick={() => fetchPaymentHistory(amc.amcId)}>
+                  View Payments
+                </button>
+                <input
+                  type="number"
+                  placeholder="Amount"
+                  value={newPayments[amc.amcId] || ""}
+                  onChange={(e) => setNewPayments((prev) => ({ ...prev, [amc.amcId]: e.target.value }))}
+                  className="form-control form-control-sm mt-1"
+                />
+                <button className="btn btn-success btn-sm mt-1" onClick={() => handlePaymentSubmit(amc.amcId)}>
+                  Add Payment
+                </button>
+              </td>
+              <td className="py-2 px-4 border-b">
                 <button onClick={() => handleEdit(amc)} className="bg-yellow-500 text-white px-4 py-2 rounded">
                   Edit
                 </button>
                 </td>
-                <td><button onClick={() => handlePrintAMCInvoice(amc)} className="bg-green-500 text-white px-4 py-2 rounded">Print</button></td>
+                <td className="py-2 px-4 border-b"><button onClick={() => handlePrintAMCInvoice(amc)} className="bg-green-500 text-white px-4 py-2 rounded">Print</button></td>
             </tr>)))
             : (<tr>
               <td colSpan="7" className="text-center">
@@ -411,7 +462,33 @@ export default function AMCRenewal() {
             </tr>)
         }
       </tbody>
-    </table>
+      </table>
+      </div>
+
+    {isModalOpen && selectedAmc && (
+  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+      <h3 className="text-xl font-bold mb-4">Payment History</h3>
+      {Array.isArray(paymentHistory[selectedAmc]) && paymentHistory[selectedAmc].length > 0 ? (
+        <ul>
+          {paymentHistory[selectedAmc].map((payment, index) => (
+            <li key={index} className="border-b py-2">
+              {formatDate(payment.paymentDate)} -  
+              <span className="font-medium"> ₹{payment.amountPaid}</span> 
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No payments recorded.</p>
+      )}
+      <button className="bg-red-500 text-white px-4 py-2 mt-4 rounded"
+        onClick={() => setIsModalOpen(false)}>
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
   </div>);
 }
 

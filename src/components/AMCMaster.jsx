@@ -808,7 +808,7 @@ export default function AMCRecord() {
                 <ul>
                     {paymentHistory[selectedAmc].map((payment, index) => (
                         <li key={index} className="border-b py-2">
-                            {new Date(payment.paymentDate).toLocaleDateString()} -  
+                            {formatDate(payment.paymentDate)} -  
                             <span className="font-medium"> ₹{payment.amountPaid}</span> 
                         </li>
                     ))}
