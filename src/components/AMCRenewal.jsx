@@ -95,7 +95,10 @@ export default function AMCRenewal() {
       const requestData = {
         ...formData,
         ...(selectedAmcId && { amcId: selectedAmcId }) // ✅ Include amcId if updating
-      };
+    };
+    
+    console.log("method:", method);
+    console.log("url:", url);
 
     try {
       console.log("FormData:", formData);
@@ -108,6 +111,8 @@ export default function AMCRenewal() {
           'Content-Type': 'application/x-www-form-urlencoded',
         }
       });
+
+      console.log("Response:", response.data);  
 
       setResponse({success: response.data.success, message: response.data.message});
       if (response.data.success) {
@@ -123,14 +128,28 @@ export default function AMCRenewal() {
   // Handle editing an existing AMC renewal record
   const handleEdit = amc => {
     setFormData({
-      customerId: amc.customerId, productId: amc.productId, amcProductName: amc.amcProductName, amcPrice: amc.amcPrice, maintenanceStartDate: amc.maintenanceStartDate.split("T")[0],
+      customerId: amc.customerId, 
+      productId: amc.productId, 
+      amcProductName: amc.amcProductName, 
+      amcPrice: amc.amcPrice, 
+      maintenanceStartDate: amc.maintenanceStartDate.split("T")[0],
       maintenanceEndDate: amc.maintenanceEndDate.split("T")[0]
     });
     setSelectedAmcId(amc.amcId);
+   // updateAMCRenewal(amc.amcId); // Call updateAMCRenewal function
+  };
+
+  const updateAMCRenewal = async (amcId) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/amc-renewal/${amcId}`);
+      setFormData(response.data.data);
+    } catch (error) {
+      console.error("Error updating AMC renewal:", error);
+    }
   };
 
   const [paymentHistory, setPaymentHistory] = useState({});
-const [newPayments, setNewPayments] = useState({});
+  const [newPayments, setNewPayments] = useState({});
 
 // Fetch Payment History
 const fetchPaymentHistory = async (amcId) => {
