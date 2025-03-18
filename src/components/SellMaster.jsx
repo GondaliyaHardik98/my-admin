@@ -274,18 +274,42 @@ export default function SellMaster() {
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
+    setCurrentPage(1); // Reset to first page on search
   };
 
   // Filtered records based on search query
   const filteredRecords = sellData.filter((sell) =>
     sell.customerName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+    
 
     // Object.values(sell).some(
     //   (value) =>
     //     typeof value === "string" &&
     //     value.toLowerCase().includes(searchQuery.toLowerCase())
     // )
-  );
+
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+
+  // Slice records based on current page
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord);
+
+  // Handle Page Change
+  const paginate = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+
+
 
   return (
     <div className="container mx-auto p-4">
@@ -396,7 +420,25 @@ export default function SellMaster() {
               value={searchQuery}
               onChange={handleSearch}
               className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
-            />
+      />
+      
+        {/* Dropdown to Select Records Per Page */}
+        <div className="mb-4 flex justify-between items-center">
+        <label className="font-medium">Records per page:</label>
+        <select
+          value={recordsPerPage}
+          onChange={(e) => {
+            setRecordsPerPage(parseInt(e.target.value));
+            setCurrentPage(1); // Reset to first page on change
+          }}
+          className="border border-gray-300 rounded px-3 py-2"
+        >
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
       <h2 className="text-xl font-bold mt-8">Sell Records</h2>
       <div className="overflow-x-auto">
         <table className="w-full border border-gray-300 text-left">
@@ -413,8 +455,8 @@ export default function SellMaster() {
             </tr>
           </thead>
           <tbody>
-          {filteredRecords.length > 0 ? (
-              filteredRecords.map((sell, index) => (
+          {currentRecords.length > 0 ? (
+              currentRecords.map((sell, index) =>  (
               <tr key={sell.sellId} className="hover:bg-gray-50">
                  <td className="py-2 px-4 border-b">{index + 1}</td>
                 <td className="py-2 px-4 border-b">{sell.customerName}</td>
@@ -540,6 +582,44 @@ export default function SellMaster() {
           </div>
         </div>
       )}
+
+       {/* Pagination Controls */}
+       {totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-2 mt-4">
+          <button
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 border rounded ${
+              currentPage === 1 ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+          >
+            Previous
+          </button>
+
+          {[...Array(totalPages)].map((_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => paginate(index + 1)}
+              className={`px-3 py-2 border rounded ${
+                currentPage === index + 1 ? "bg-blue-600 text-white" : "bg-gray-200"
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+
+          <button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 border rounded ${
+              currentPage === totalPages ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      )}
+
           {showModal && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded shadow-lg w-3/4">
