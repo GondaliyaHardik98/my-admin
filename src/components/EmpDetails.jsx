@@ -70,22 +70,19 @@ export default function EmployeeForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submit data: ", formData);
 
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("salary", formData.salary);
-    data.append("contact_details", formData.contact_details);
-    data.append("emergency_contact_1", formData.emergency_contact_1);
-    data.append("emergency_contact_2", formData.emergency_contact_2);
-    if (formData.photo  && formData.photo instanceof File) {
-        data.append("photo", formData.photo);
-    }
-    if (formData.id_proof  && formData.id_proof instanceof File) {
-        data.append("id_proof", formData.id_proof);
-    }
-
-
+    // const data = new FormData();
+    // data.append("name", formData.name);
+    // data.append("salary", formData.salary);
+    // data.append("contact_details", formData.contact_details);
+    // data.append("emergency_contact_1", formData.emergency_contact_1);
+    // data.append("emergency_contact_2", formData.emergency_contact_2);
+    // if (formData.photo  && formData.photo instanceof File) {
+    //     data.append("photo", formData.photo);
+    // }
+    // if (formData.id_proof  && formData.id_proof instanceof File) {
+    //     data.append("id_proof", formData.id_proof);
+    // }
 
     const url = selectedEmployeeId
         ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}`
@@ -101,7 +98,16 @@ export default function EmployeeForm() {
         const res = await axios({
             method: method,
             url: url,
-            data: data,
+          data: {
+              name: formData.name,
+              salary: formData.salary,
+              contact_details: formData.contact_details,
+              emergency_contact_1: formData.emergency_contact_1,
+              emergency_contact_2: formData.emergency_contact_2,
+              photo: formData.photo? formData.photo.name : null,
+              id_proof: formData.id_proof? formData.id_proof.name : null,
+
+            },
             headers: {
                 "Authorization": `Bearer ${token}`,
                 "Content-Type": "multipart/form-data" // ✅ Ensure proper form submission
