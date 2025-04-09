@@ -46,7 +46,7 @@ export default function SellMaster() {
         axios.get(`${process.env.REACT_APP_API_URL}/customer`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get(`${process.env.REACT_APP_API_URL}/productAll`, {
+        axios.get(`${process.env.REACT_APP_API_URL}/productMachineAll`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -57,7 +57,7 @@ export default function SellMaster() {
       setCustomers(customerOptions);
       const productOptions = productRes.data.data.map((product) => ({
         value: product.productId,
-        label: product.productName,
+        label: `${product.productName} [${product.productCode}] `,
       }));
       setProducts(productOptions);
       //setCustomers(customerRes.data.data || []);

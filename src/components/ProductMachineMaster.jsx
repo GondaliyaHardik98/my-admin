@@ -9,7 +9,7 @@ function ProductMachineMaster() {
   const [response, setResponse] = useState(null);
   const [productMachineData, setProductData] = useState([]);
   const [SelectedProductId, setSelectedproductId] = useState(null);
-  const [products, setProducts] = useState([]); // State to store products
+  const [vendors, setVendors] = useState([]); // State to store products
   const [formData, setFormData] = useState({
     productId: 0,
     productMachineCode: "",
@@ -33,7 +33,7 @@ function ProductMachineMaster() {
         `${process.env.REACT_APP_API_URL}/productMachine`
       ); // Replace with your API URL
       //const data = await response.json();
-      setProducts(response.data.data);
+      setVendors(response.data.data);
       console.log(response.data.data, "data");
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -186,7 +186,7 @@ function ProductMachineMaster() {
               required
             >
               <option value="">Select Vendor</option>
-              {products.map((product) => (
+              {vendors.map((product) => (
                 <option key={product.vendorId} value={product.vendorId}>
                   {product.vendorName}{" "}
                   {/* Adjust field names according to your API response */}
@@ -241,7 +241,7 @@ function ProductMachineMaster() {
           <thead>
             <tr>
               <th className="py-2 px-4 border-b">ID</th>
-              <th className="py-2 px-4 border-b">Product Code</th>
+              <th className="py-2 px-4 border-b">Product Name</th>
               <th className="py-2 px-4 border-b">Vendor</th>
               <th className="py-2 px-4 border-b">Action</th>
             </tr>
@@ -250,7 +250,7 @@ function ProductMachineMaster() {
             {productMachineData.map((product, index) => (
               <tr key={index} className="border-b">
                 <td className="py-2 px-4">{index + 1}</td>
-                <td className="py-2 px-4">{product.productMachineCode}</td>
+                <td className="py-2 px-4">{product.productName}</td>
                 <td className="py-2 px-4">{product.vendorName}</td>
 
                 <td className="py-2 px-4 border-b">
