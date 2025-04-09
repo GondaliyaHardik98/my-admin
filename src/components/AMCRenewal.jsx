@@ -43,7 +43,7 @@ export default function AMCRenewal() {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/amc-renewal/products`);
-      setProducts(response.data.data.map(prod => ({value: prod.productId, label: prod.productName})));
+      setProducts(response.data.data.map(prod => ({ value: prod.productId, label: `${ prod.productName } - ${ prod.productCode }` })));
     } catch (error) {
       console.error("Error fetching products:", error);
     }

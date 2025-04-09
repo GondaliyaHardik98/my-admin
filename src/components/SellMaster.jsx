@@ -252,6 +252,7 @@ export default function SellMaster() {
       if (response.data.success) {
         fetchSellData();
         clearForm();
+        alert("Record save successfully");
       }
     } catch (error) {
       console.error("Error submitting sell form:", error);

@@ -91,11 +91,13 @@ function ProductMachineMaster() {
       console.log(_saveData, "saveData");
 
       if (!response.ok) {
+        alert("Failed to create ProductMachine");
         throw new Error(data.message || "Failed to create ProductMachine");
       }
 
       // setSuccess(true);
       fetchProducts();
+      alert("Record created successfully.");
       clearRecord();
     } catch (error) {
       setError(error.message);
