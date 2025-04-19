@@ -182,7 +182,7 @@ export default function DashboardCharts() {
         </div>
         <hr />
         
-        {monthlyRevenue && (
+        {/* {monthlyRevenue && (
   <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-lg mt-10">
     <h3 className="text-xl font-semibold mb-4 text-zinc-800 dark:text-black tracking-wide">
       📈 Monthly Revenue Trend
@@ -232,7 +232,7 @@ export default function DashboardCharts() {
       }}
     />
   </div>
-)}
+)} */}
 
         </>
 )}
