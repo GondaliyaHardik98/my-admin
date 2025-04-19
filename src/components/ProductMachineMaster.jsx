@@ -108,7 +108,8 @@ function ProductMachineMaster() {
       });
 
       const data = await response.json();
-      console.log(_saveData, "saveData");
+      console.log("saveData", _saveData);
+      console.log("Response:", data);
 
       if (!response.ok) {
         alert(data.message);
