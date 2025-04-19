@@ -238,7 +238,7 @@ export default function DashboardCharts() {
 )}
 
     
-<div className="bg-zinc-200 dark:bg-zinc-900 p-6 rounded-lg shadow-md mb-6">
+{/* <div className="bg-zinc-200 dark:bg-zinc-900 p-6 rounded-lg shadow-md mb-6">
   <h3 className="text-xl font-semibold mb-4 text-zinc-700 dark:text-white">🔟 Top Customers</h3>
   <ul className="space-y-2">
     {data.topCustomers.map((c, i) => (
@@ -269,7 +269,7 @@ export default function DashboardCharts() {
       </li>
     ))}
   </ul>
-</div>
+</div> */}
 
 
 
