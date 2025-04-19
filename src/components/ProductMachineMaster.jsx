@@ -137,11 +137,12 @@ function ProductMachineMaster() {
     }));
   };
   const handleEdit = (product) => {
+    console.log(product, "product");
     setSelectedproductId(product.productId); // Set the selected vendor's ID
     setFormData({
       productName: product.productName,
-      vendorId: product.vendorId,
-      categoryId: product.categoryId
+      vendorId: product.vendorId || "",
+      categoryId: product.categoryId || ""
     });
   };
   const handleDeleteProduct = async (productId) => {
