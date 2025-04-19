@@ -5,16 +5,27 @@ import {
   Line,
   BarChart,
   CartesianGrid,
-  Legend,
+  
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell
 } from "recharts";
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Tooltip,
+  Legend
+} from "chart.js";
+
+
 
 import {Box, TextField} from "@mui/material";
 import {DatePicker} from "@mui/x-date-pickers/DatePicker";
@@ -22,11 +33,23 @@ import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
+ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Tooltip, Legend);
+
+
 export default function DashboardCharts() {
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fromDate, setFromDate] = useState(dayjs().startOf("month"));
   const [toDate, setToDate] = useState(dayjs());
+  const [monthlyRevenue, setMonthlyRevenue] = useState(null);
+
+
+  const [data, setData] = useState({
+    summary: {},
+    topCustomers: [],
+    topProducts: [],
+    topChallanProducts: [],
+  });
 
   const userPermissions = JSON.parse(sessionStorage.getItem("userPermissions") || "[]");
 
@@ -49,6 +72,50 @@ export default function DashboardCharts() {
       setMetrics(r.data.data);
       setLoading(false);
     }).catch(console.error);
+
+    const fetchData = async () => {
+      const [customers, products, challans] = await Promise.all([
+        axios.get(`${process.env.REACT_APP_API_URL}/dashboard/getTopCustomers`, {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`
+          }
+        }),
+        axios.get(`${process.env.REACT_APP_API_URL}/dashboard/getTopChallanProducts`,{
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`
+          }
+        }),
+        axios.get(`${process.env.REACT_APP_API_URL}/dashboard/getTopSoldProducts`,{
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`
+          }
+        }),
+      ]);
+
+      setData({
+        topCustomers: customers.data.data,
+        topProducts: products.data.data,
+        topChallanProducts: challans.data.data,
+      });
+    };
+    fetchData();
+
+    const fetchRevenueTrend = async () => {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/dashboard/getMonthlyRevenueTrend`, {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`
+          }
+        })
+        if (res.data.success) setMonthlyRevenue(res.data.data);
+
+        console.log("Monthly Revenue Trend:", res.data.data);
+      } catch (err) {
+        console.error("Error fetching monthly revenue:", err);
+      }
+    };
+    fetchRevenueTrend();    
+    
   }, [fromDate, toDate]);
 
   if (loading) 
@@ -94,6 +161,119 @@ export default function DashboardCharts() {
         <DatePicker label="To" value={toDate} onChange={newVal => setToDate(newVal)} renderInput={params => <TextField {...params}/>}/>
       </Box>
     </LocalizationProvider>
+
+    
+    {userPermissions.includes("Payment Management") && metrics.paymentSummary &&  (
+      <>
+      <hr/>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <div className="bg-green-100 p-4 rounded shadow text-center">
+          <div className="text-sm font-semibold text-gray-600">Total Paid</div>
+          <div className="text-3xl font-bold text-green-700">₹{metrics.paymentSummary.totalPaid}</div>
+        </div>
+        <div className="bg-blue-100 p-4 rounded shadow text-center">
+          <div className="text-sm font-semibold text-gray-600">Total Due</div>
+          <div className="text-3xl font-bold text-blue-700">₹{metrics.paymentSummary.totalDue}</div>
+        </div>
+        <div className="bg-red-100 p-4 rounded shadow text-center">
+          <div className="text-sm font-semibold text-gray-600">Pending</div>
+          <div className="text-3xl font-bold text-red-700">₹{metrics.paymentSummary.pending}</div>
+        </div>
+        </div>
+        <hr />
+        
+        {monthlyRevenue && (
+  <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-lg mt-10">
+    <h3 className="text-xl font-semibold mb-4 text-zinc-800 dark:text-black tracking-wide">
+      📈 Monthly Revenue Trend
+    </h3>
+    <Line
+      data={{
+        labels: monthlyRevenue.labels,
+        datasets: [
+          {
+            label: "Revenue (₹)",
+            data: monthlyRevenue.values,
+            fill: true,
+            borderColor: "#4f46e5", // indigo
+            backgroundColor: "rgba(99, 102, 241, 0.1)",
+            pointBackgroundColor: "#4f46e5",
+            tension: 0.4
+          }
+        ]
+      }}
+      options={{
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: "#374151", // Tailwind slate-700
+              font: { weight: "bold" }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: context => `₹${context.raw?.toLocaleString()}`
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: "#6b7280" } // gray-500
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: val => `₹${val}`,
+              color: "#6b7280"
+            }
+          }
+        }
+      }}
+    />
+  </div>
+)}
+
+        </>
+)}
+
+    
+<div className="bg-zinc-200 dark:bg-zinc-900 p-6 rounded-lg shadow-md mb-6">
+  <h3 className="text-xl font-semibold mb-4 text-zinc-700 dark:text-white">🔟 Top Customers</h3>
+  <ul className="space-y-2">
+    {data.topCustomers.map((c, i) => (
+      <li key={i} className="flex justify-between border-b border-dashed pb-2">
+        <span className="text-zinc-600 dark:text-zinc-200">{c.customerName}</span>
+        <span className="font-semibold text-green-600 dark:text-green-400">₹{c.totalPaid.toLocaleString()}</span>
+      </li>
+    ))}
+  </ul>
+    </div>
+    
+    <div className="bg-blue-50 grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+  {data.topProducts.map((p, i) => (
+    <div key={i} className="bg-gradient-to-br from-indigo-200 to-indigo-400 p-4 rounded-lg shadow text-center">
+      <div className="text-white font-semibold text-lg">{p.productName}</div>
+      <div className="text-white text-sm mt-1">Sold: {p.quantitySold}</div>
+    </div>
+  ))}
+    </div>
+    
+    <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-md mb-6">
+  <h3 className="text-xl font-semibold mb-4 text-zinc-700 dark:text-white">📋 Top Challan Products</h3>
+  <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {data.topChallanProducts.map((c, i) => (
+      <li key={i} className="bg-zinc-100 dark:bg-zinc-800 p-4 rounded shadow flex justify-between">
+        <span className="text-zinc-700 dark:text-zinc-200">{c.productName}</span>
+        <span className="font-semibold text-blue-600 dark:text-blue-300">₹{c.totalChallanAmount}</span>
+      </li>
+    ))}
+  </ul>
+</div>
+
+
+
+ 
 
     {/* Summary Cards */}
     <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
