@@ -207,13 +207,13 @@ export default function SellMaster() {
   };
 
 
-  const handleEdit = (sellId, customerId, productId, sellDate) => {
+  const handleEdit = (sellId, customerId, productId, sellDate, price, remark) => {
     setFormData({
       customerId,
       productId,
       sellDate: new Date(sellDate).toISOString().split("T")[0], // Convert to yyyy-mm-dd format
-      price: "", // Keep price blank for Sell Admin
-      remark: "",
+      price: price, // Keep price blank for Sell Admin
+      remark: remark,
     });
     setSelectedSellId(sellId); // Track which sell record is being edited
   };
@@ -448,10 +448,12 @@ export default function SellMaster() {
               <th className="py-2 px-4 border-b">No</th>
               <th className="py-2 px-4 border-b">Customer</th>
               <th className="py-2 px-4 border-b">Product</th>
+              <th className="py-2 px-4 border-b">Product Category</th>
               <th className="py-2 px-4 border-b">Sell Date</th>
-              {isSuperAdmin && <th className="py-2 px-4 border-b">Price</th>}
+              {/* {isSuperAdmin && <th className="py-2 px-4 border-b">Price</th>}
               {isSuperAdmin && <th className="py-2 px-4 border-b">Paid</th>}
-              {isSuperAdmin && <th className="py-2 px-4 border-b">Remaining</th>}
+              {isSuperAdmin && <th className="py-2 px-4 border-b">Remaining</th>} */}
+              <th className="py-2 px-4 border-b">Invoice</th>
               <th className="py-2 px-4 border-b">Actions</th>
             </tr>
           </thead>
@@ -462,10 +464,11 @@ export default function SellMaster() {
                  <td className="py-2 px-4 border-b">{index + 1}</td>
                 <td className="py-2 px-4 border-b">{sell.customerName}</td>
                 <td className="py-2 px-4 border-b">{sell.productName}</td>
+                <td className="py-2 px-4 border-b">{sell.categoryName}</td>
                 <td className="py-2 px-4 border-b">
                   {new Date(sell.sellDate).toLocaleDateString()}
                 </td>
-                {isSuperAdmin && <td className="py-2 px-4 border-b">{sell.price}</td>}
+                {/* {isSuperAdmin && <td className="py-2 px-4 border-b">{sell.price}</td>}
                 {isSuperAdmin && <td className="py-2 px-4 border-b">{sell.totalPaid}</td>}
                 {isSuperAdmin && <td className="py-2 px-4 border-b">{sell.balance}</td>}
                 {isSuperAdmin && <td className="py-2 px-4 border-b">
@@ -523,7 +526,7 @@ export default function SellMaster() {
                       </button>
                     </div>
                   </div>
-                </td>}
+                </td>} */}
                 {isSuperAdmin && <td className="py-2 px-4 border-b">
                   <button
                     onClick={() => handlePrintInvoice(sell)}
@@ -534,13 +537,13 @@ export default function SellMaster() {
                 </td>}
                 <td>
                 <button
-            onClick={() =>
-              handleEdit(sell.sellId, sell.customerId, sell.productId, sell.sellDate)
-            }
-            className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full"
-          >
-            Edit Details
-          </button>
+                  onClick={() =>
+                    handleEdit(sell.sellId, sell.customerId, sell.productId, sell.sellDate, sell.price, sell.remark)
+                  }
+                  className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full"
+                >
+                  Edit Details
+                </button>
                 </td>
               </tr>
               ))

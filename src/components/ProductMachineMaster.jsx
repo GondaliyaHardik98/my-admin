@@ -19,13 +19,32 @@ function ProductMachineMaster() {
     productPrice: "",
     productQuantity: "",
     productRemark: "",
+    categoryId: ""
+
   });
+
+  const [categories, setCategories] = useState([]);
+
 
   // Fetch products from the API when component mounts
   useEffect(() => {
     fetchVendor();
+    fetchProductCategory();
     fetchProducts();
   }, []);
+
+  const fetchProductCategory = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/productCategory`
+      ); // Replace with your API URL
+      //const data = await response.json();
+      setCategories(response.data.data);
+      console.log(response.data.data, "data");
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
 
   const fetchVendor = async () => {
     try {
@@ -68,8 +87,9 @@ function ProductMachineMaster() {
       setSuccess(false);
 
       const _saveData = {
-        productMachineCode: formData.productMachineCode,
+        productName: formData.productName,
         vendorId: formData.vendorId,
+        categoryId: formData.categoryId
       };
       console.log(_saveData, "SaveData");
       const url = SelectedProductId
@@ -91,7 +111,7 @@ function ProductMachineMaster() {
       console.log(_saveData, "saveData");
 
       if (!response.ok) {
-        alert("Failed to create ProductMachine");
+        alert(data.message);
         throw new Error(data.message || "Failed to create ProductMachine");
       }
 
@@ -116,8 +136,9 @@ function ProductMachineMaster() {
   const handleEdit = (product) => {
     setSelectedproductId(product.productId); // Set the selected vendor's ID
     setFormData({
-      productMachineCode: product.productMachineCode,
+      productName: product.productName,
       vendorId: product.vendorId,
+      categoryId: formData.categoryId
     });
   };
   const handleDeleteProduct = async (productId) => {
@@ -151,8 +172,9 @@ function ProductMachineMaster() {
   const clearRecord = () => {
     setFormData({
       productId: 0,
-      productMachineCode: "",
+      productName: "",
       vendorId: "",
+      categoryId: ""
     });
   };
 
@@ -170,13 +192,29 @@ function ProductMachineMaster() {
             </label>
             <input
               type="text"
-              name="productMachineCode"
-              value={formData.productMachineCode}
+              name="productName"
+              value={formData.productName}
               onChange={handleInputChange}
               required
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
+          <div>
+          <label>Category</label>
+          <select
+            value={formData.categoryId}
+            onChange={e => setFormData(f => ({ ...f, categoryId: e.target.value }))}
+              required
+               className="w-full border border-gray-300 rounded px-3 py-2"
+          >
+            <option value="">Select Category</option>
+            {categories.map(cat => (
+              <option key={cat.categoryId} value={cat.categoryId}>
+                {cat.categoryName}
+              </option>
+            ))}
+          </select>
+        </div>
 
           {/* Vendor */}
           <div>
@@ -244,6 +282,7 @@ function ProductMachineMaster() {
             <tr>
               <th className="py-2 px-4 border-b">ID</th>
               <th className="py-2 px-4 border-b">Product Name</th>
+              <th className="py-2 px-4 border-b">Category Name</th>
               <th className="py-2 px-4 border-b">Vendor</th>
               <th className="py-2 px-4 border-b">Action</th>
             </tr>
@@ -253,6 +292,7 @@ function ProductMachineMaster() {
               <tr key={index} className="border-b">
                 <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">{product.productName}</td>
+                <td className="py-2 px-4">{product.categoryName}</td>
                 <td className="py-2 px-4">{product.vendorName}</td>
 
                 <td className="py-2 px-4 border-b">
