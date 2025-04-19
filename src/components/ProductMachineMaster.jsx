@@ -121,6 +121,8 @@ function ProductMachineMaster() {
       clearRecord();
     } catch (error) {
       setError(error.message);
+      alert("Error. " + error.message); 
+
       console.error("Error creating Prodcut Master:", error);
     } finally {
       setLoading(false);
