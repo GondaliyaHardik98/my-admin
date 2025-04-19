@@ -138,7 +138,7 @@ function ProductMachineMaster() {
     setFormData({
       productName: product.productName,
       vendorId: product.vendorId,
-      categoryId: formData.categoryId
+      categoryId: product.categoryId
     });
   };
   const handleDeleteProduct = async (productId) => {
