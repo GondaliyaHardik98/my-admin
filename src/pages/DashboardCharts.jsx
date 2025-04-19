@@ -25,11 +25,15 @@ import dayjs from "dayjs";
 export default function DashboardCharts() {
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [fromDate, setFromDate] = useState(dayjs().startOf("month"));
   const [toDate, setToDate] = useState(dayjs());
 
+  const userPermissions = JSON.parse(sessionStorage.getItem("userPermissions") || "[]");
+
   useEffect(() => {
+
+    const permissions = JSON.parse(sessionStorage.getItem("userPermissions") || "[]");
+    console.log("User permissions Dashbaord:", permissions);
     const from = fromDate.format("YYYY-MM-DD");
     const to = toDate.format("YYYY-MM-DD");
     setLoading(true);
@@ -51,6 +55,37 @@ export default function DashboardCharts() {
     return <p>Loading metrics…</p>;
   
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+  const cardConfig = [
+    {
+      permission: "Challan Management",
+      title: "Total Challans",
+      key: "totalChallans",
+      bg: "bg-blue-100",
+      text: ""
+    },
+    {
+      permission: "AMC Renewal Module",
+      title: "AMC Renewals (30d)",
+      key: "totalAMCrenewals",
+      bg: "bg-green-100",
+      text: ""
+    },
+    {
+      permission: "Sell Management",
+      title: "Machines Sold",
+      key: "salesByMachine",
+      bg: "bg-yellow-100",
+      calc: (data) => data.reduce((sum, m) => sum + m.sellCount, 0)
+    },
+    {
+      permission: "AMC Module",
+      title: "Overdue AMCs",
+      key: "overdueAMCs",
+      bg: "bg-red-100",
+      text: "text-red-700 font-bold"
+    }
+  ];
+  
 
   return (<div className="space-y-8 p-4">
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -62,118 +97,76 @@ export default function DashboardCharts() {
 
     {/* Summary Cards */}
     <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
-      <div className="p-6 bg-blue-100 rounded shadow">
-        <h3 className="text-lg font-semibold">Total Challans</h3>
-        <p className="text-3xl">{metrics.totalChallans}</p>
+        {cardConfig
+          .filter(c => userPermissions.includes(c.permission))
+          .map((card, idx) => (
+            <div key={idx} className={`p-6 ${card.bg} rounded shadow`}>
+              <h3 className="text-lg font-semibold">{card.title}</h3>
+              <p className={`text-3xl ${card.text || ""}`}>
+                {card.calc
+                  ? card.calc(metrics[card.key] || [])
+                  : metrics[card.key] ?? 0}
+              </p>
+            </div>
+          ))}
       </div>
-      <div className="p-6 bg-green-100 rounded shadow">
-        <h3 className="text-lg font-semibold">AMC Renewals (30d)</h3>
-        <p className="text-3xl">{metrics.totalAMCrenewals}</p>
-      </div>
-      <div className="p-6 bg-yellow-100 rounded shadow">
-        <h3 className="text-lg font-semibold">Machines Sold</h3>
-        <p className="text-3xl">
-          {metrics.salesByMachine.reduce((sum, m) => sum + m.sellCount, 0)}
-        </p>
-      </div>
-      <div className="p-6 bg-red-100 rounded shadow">
-        <h3 className="text-lg font-semibold">Overdue AMCs</h3>
-        <p className="text-3xl text-red-700 font-bold">
-          {metrics.overdueAMCs}
-        </p>
-      </div>
-    </div>
 
-    <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
+      {/* AMC Chart */}
+      {userPermissions.includes("AMC Renewal Module") && metrics.amcChart && (
+        <div className="bg-white p-4 rounded shadow mt-8">
+          <h3 className="text-lg font-semibold mb-3">AMC Renewals (Weekly)</h3>
+          <Line
+            data={{
+              labels: metrics.amcChart.labels,
+              datasets: [
+                {
+                  label: "Renewals",
+                  data: metrics.amcChart.data,
+                  fill: false,
+                  borderColor: "#3b82f6",
+                },
+              ],
+            }}
+          />
+        </div>
+      )}
+
+      {/* Challan Category Chart */}
+      {userPermissions.includes("Challan Management") && metrics.challanCategoryChart && (
+        <div className="bg-white p-4 rounded shadow mt-8">
+          <h3 className="text-lg font-semibold mb-3">Challans by Category</h3>
+          <Pie
+            data={{
+              labels: metrics.challanCategoryChart.labels,
+              datasets: [
+                {
+                  label: "Challans",
+                  data: metrics.challanCategoryChart.data,
+                  backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"],
+                },
+              ],
+            }}
+          />
+        </div>
+      )}
+
+      {/* Optional: Sales Bar Chart */}
+    {userPermissions.includes("Sell Management") && metrics.salesChart && (
       <div className="bg-white p-4 rounded shadow mt-8">
-        <h3 className="text-lg font-semibold mb-3">AMC Renewals (Weekly)</h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={metrics.amcTrend}>
-            <CartesianGrid strokeDasharray="3 3"/>
-            <XAxis dataKey="week"/>
-            <YAxis/>
-            <Tooltip/>
-            <Line type="monotone" dataKey="renewals" stroke="#1976d2" strokeWidth={2}/>
-          </LineChart>
-        </ResponsiveContainer>
+        <h3 className="text-lg font-semibold mb-3">Sales (Last 12 Months)</h3>
+        <Bar
+          data={{
+            labels: metrics.salesChart.labels,
+            datasets: [
+              {
+                label: "Sales",
+                data: metrics.salesChart.data,
+                backgroundColor: "#3b82f6",
+              },
+            ],
+          }}
+        />
       </div>
-      <div className="bg-white p-4 rounded shadow mt-6">
-        <h3 className="text-lg font-semibold mb-3">
-          Challans Issued (Weekly)
-        </h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={metrics.challanTrend}>
-            <CartesianGrid strokeDasharray="3 3"/>
-            <XAxis dataKey="week"/>
-            <YAxis/>
-            <Tooltip/>
-            <Line type="monotone" dataKey="challans" stroke="#f57c00" strokeWidth={2}/>
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-
-    {/* Bar Chart: Revenue by Machine */}
-    <div className="h-64 bg-white rounded shadow p-4">
-      <h4 className="font-semibold">Revenue by Machine</h4>
-      <ResponsiveContainer width="100%" height="85%">
-        <BarChart data={metrics.salesByMachine} margin={{
-            top: 20,
-            right: 20
-          }}>
-          <XAxis dataKey="productName"/>
-          <YAxis/>
-          <Tooltip/>
-          <Bar dataKey="totalRevenue" fill="#8884d8"/>
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-
-    <div className="bg-white p-4 rounded shadow mt-8">
-      <h3 className="text-lg font-semibold mb-3">Top 5 Customers</h3>
-      <table className="w-full border text-left">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="py-2 px-4">#</th>
-            <th className="py-2 px-4">Customer</th>
-            <th className="py-2 px-4">Total Spent</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            metrics.topCustomers
-              ?.length
-                ? (metrics.topCustomers.map((customer, index) => (<tr key={index} className="border-t hover:bg-gray-50">
-                  <td className="py-2 px-4">{index + 1}</td>
-                  <td className="py-2 px-4">{customer.customerName}</td>
-                  <td className="py-2 px-4">
-                    ₹ {
-                      customer.totalSpent
-                        ?.toLocaleString()
-                    }
-                  </td>
-                </tr>)))
-                : (<tr>
-                  <td colSpan="3" className="py-4 text-center text-gray-400">
-                    No customer data
-                  </td>
-                </tr>)
-          }
-        </tbody>
-      </table>
-    </div>
-
-    {/* Pie Chart: Sales Distribution */}
-    <div className="h-64 bg-white rounded shadow p-4">
-      <h4 className="font-semibold">Sales Distribution</h4>
-      <ResponsiveContainer width="100%" height="85%">
-        <PieChart>
-          <Pie data={metrics.salesByMachine} dataKey="sellCount" nameKey="productName" label="label" outerRadius={80}>
-            {metrics.salesByMachine.map((entry, idx) => (<Cell key={idx} fill={COLORS[idx % COLORS.length]}/>))}
-          </Pie>
-          <Tooltip/>
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
+    )}
   </div>);
 }

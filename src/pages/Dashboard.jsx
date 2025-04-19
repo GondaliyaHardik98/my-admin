@@ -6,16 +6,17 @@ import DashboardCharts from "./DashboardCharts";
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const [userPermissions, setUserPermissions] = useState([]);
+    
     const [userRole, setUserRole] = useState("");
     const [modules, setModules] = useState([]);
 
     useEffect(() => {
         try {
             
+            
         } catch (error) {
             console.error("Error loading session data:", error);
-            setUserPermissions([]);
+          
             setUserRole("User");
         }
     }, []);
