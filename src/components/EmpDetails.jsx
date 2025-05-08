@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+
 export default function EmployeeForm() {
   const [employees, setEmployees] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [showModal, setShowModal] = useState(false);
+  const [proofUrl, setProofUrl] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -65,24 +69,52 @@ export default function EmployeeForm() {
       emergency_contact_2: employee.emergency_contact_2,
       photo: null,
       id_proof: null,
+      currentPhoto: employee.photo, // Store current photo filename
+      currentIdProof: employee.id_proof // Store current ID proof filename
     });
+  };
+
+  const handleEmployee = async (employee) => {
+    if (window.confirm("Are you sure you want to delete this record?")) {
+      try {
+        const id = employee.id;
+        console.log(id, "delete id");
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/employees/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
+        const result = await response.json();
+        console.log(result, "delete result");
+        alert(result.message);
+        if (result.success) {
+          fetchEmployees();
+        } 
+      } catch (error) {
+        console.error("Error deleting record:", error);
+        alert("An error occurred.");
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // const data = new FormData();
-    // data.append("name", formData.name);
-    // data.append("salary", formData.salary);
-    // data.append("contact_details", formData.contact_details);
-    // data.append("emergency_contact_1", formData.emergency_contact_1);
-    // data.append("emergency_contact_2", formData.emergency_contact_2);
-    // if (formData.photo  && formData.photo instanceof File) {
-    //     data.append("photo", formData.photo);
-    // }
-    // if (formData.id_proof  && formData.id_proof instanceof File) {
-    //     data.append("id_proof", formData.id_proof);
-    // }
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("salary", formData.salary);
+    formDataToSend.append("contact_details", formData.contact_details);
+    formDataToSend.append("emergency_contact_1", formData.emergency_contact_1);
+    formDataToSend.append("emergency_contact_2", formData.emergency_contact_2);
+    
+    if (formData.photo) {
+      formDataToSend.append("photo", formData.photo);
+    }
+    if (formData.id_proof) {
+      formDataToSend.append("id_proof", formData.id_proof);
+    }
+  
 
     const url = selectedEmployeeId
         ? `${process.env.REACT_APP_API_URL}/employees/${selectedEmployeeId}`
@@ -94,24 +126,20 @@ export default function EmployeeForm() {
     console.log("FormData Entries: ", formData);
 
     try {
-        const token = sessionStorage.getItem("jwtToken"); // Retrieve token from sessionStorage
+      const token = sessionStorage.getItem("jwtToken"); // Retrieve token from sessionStorage
+      const config = {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
+        }
+      };
+      console.log("Config: ", config);
+     
         const res = await axios({
-            method: method,
-            url: url,
-          data: {
-              name: formData.name,
-              salary: formData.salary,
-              contact_details: formData.contact_details,
-              emergency_contact_1: formData.emergency_contact_1,
-              emergency_contact_2: formData.emergency_contact_2,
-              photo: formData.photo? formData.photo.name : null,
-              id_proof: formData.id_proof? formData.id_proof.name : null,
-
-            },
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "multipart/form-data" // ✅ Ensure proper form submission
-            }
+            method,
+            url,
+            data: formDataToSend,
+            headers: config.headers,
         });
 
         console.log("Response: ", res);
@@ -216,6 +244,17 @@ export default function EmployeeForm() {
         <div className="row g-3 mb-4">
           <div className="col-md-6">
             <label className="form-label">Photo</label>
+            {formData.currentPhoto && (
+      <div className="mb-2">
+        <img 
+          src={`${process.env.REACT_APP_API_URL}/uploads/Employee/Photos/${formData.currentPhoto}`}
+          alt="Current" 
+          style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+          className="me-2"
+        />
+        <span>Current: {formData.currentPhoto}</span>
+      </div>
+    )}
             <input
               type="file"
               name="photo"
@@ -225,6 +264,21 @@ export default function EmployeeForm() {
           </div>
           <div className="col-md-6">
             <label className="form-label">ID Proof</label>
+            {formData.currentIdProof && (
+      <div className="mb-2">
+         <button
+    className="btn btn-link p-0"
+    onClick={() => {
+      setProofUrl(`${process.env.REACT_APP_API_URL}/uploads/Employee/ID_Proofs/${formData.currentIdProof}`);
+      setShowModal(true);
+      console.log("ID Proof URL: ", `${process.env.REACT_APP_API_URL}/uploads/Employee/ID_Proofs/${formData.currentIdProof}`);
+    }}
+  >
+          View Current
+        </button>
+        <span>Current: {formData.currentIdProof}</span>
+      </div>
+    )}
             <input
               type="file"
               name="id_proof"
@@ -256,6 +310,32 @@ export default function EmployeeForm() {
           {response.message}
         </div>
       )}
+
+{showModal && (
+    <div className="modal show d-block" tabIndex="-1" role="dialog" onClick={() => setShowModal(false)}>
+      <div className="modal-dialog modal-xl" role="document" onClick={(e) => e.stopPropagation()} style={{ width: "400px", maxWidth: "100%" }}>
+        <div className="modal-content" style={{ height: "400px" }}>
+          <div className="modal-header">
+            <h5 className="modal-title">ID Proof Preview</h5>
+            <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+          </div>
+          <div className="modal-body text-center">
+            {proofUrl?.toLowerCase().endsWith(".pdf") ? (
+              <iframe
+                src={proofUrl}
+                title="PDF Preview"
+                width="100%"
+                height="600px"
+                frameBorder="0"
+              ></iframe>
+            ) : (
+              <img src={proofUrl} alt="ID Proof" className="img-fluid" />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
 
 <input
        type="text"
@@ -289,7 +369,7 @@ export default function EmployeeForm() {
                 <td>
                   {employee.photo ? (
                     <img
-                      src={employee.photo}
+                      src={`${process.env.REACT_APP_API_URL}/uploads/Employee/Photos/${employee.photo}`}
                       alt={employee.name}
                       className="rounded-circle"
                       style={{ width: "50px", height: "50px", objectFit: "cover" }}
@@ -304,13 +384,20 @@ export default function EmployeeForm() {
                 <td>{employee.emergency_contact_1}</td>
                 <td>{employee.emergency_contact_2 || "N/A"}</td>
                 <td>
-                  {employee.id_proof ? (
-                    <a href={employee.id_proof} target="_blank" rel="noreferrer">
-                      View
-                    </a>
-                  ) : (
-                    "N/A"
-                  )}
+                {employee.id_proof ? (
+  <button
+    className="btn btn-link p-0"
+    onClick={() => {
+      setProofUrl(`${process.env.REACT_APP_API_URL}/uploads/Employee/ID_Proofs/${employee.id_proof}`);
+      setShowModal(true);
+      console.log("ID Proof URL: ", `${process.env.REACT_APP_API_URL}/uploads/Employee/ID_Proofs/${employee.id_proof}`);
+    }}
+  >
+    View
+  </button>
+) : (
+  "N/A"
+)}
                 </td>
                 <td>
                   <button
@@ -321,15 +408,7 @@ export default function EmployeeForm() {
                   </button>
                   <button
                     className="btn btn-sm btn-danger"
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          "Are you sure you want to delete this employee?"
-                        )
-                      ) {
-                        // Add delete logic here
-                      }
-                    }}
+                    onClick={() => handleEmployee(employee)}
                   >
                     Delete
                   </button>
@@ -342,5 +421,12 @@ export default function EmployeeForm() {
         </table>
       </div>
     </div>
+  
+  
+
+  
+    
   );
+
+  
 }
