@@ -3,6 +3,7 @@ import axios from "axios";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import Select from "react-select";
 
 export default function ChallanMaster() {
   const [customers, setCustomers] = useState([]);
@@ -38,10 +39,25 @@ export default function ChallanMaster() {
         }),
         axios.get(`${process.env.REACT_APP_API_URL}/productAll`),
       ]);
-      setCustomers(customerRes.data.data || []);
-      console.log("Fetched Engineers:", engineerRes.data.data);
-      setEngineers(engineerRes.data.data || []);
-      setProducts(productRes.data.data || []);
+      const customerOptions = customerRes.data.data.map((customer) => ({
+        value: customer.customerId,
+        label: customer.name,
+      }));
+     // console.log("customerData:", customerOptions);
+      setCustomers(customerOptions);
+      const engineerData = engineerRes.data.data.map((engineer) => ({
+        value: engineer.id,
+        label: engineer.name,
+      }));
+//console.log("engineerData:", engineerRes.data.data);  
+   //   console.log("Engineers:", engineerData);
+      setEngineers(engineerData);
+      const productOptions = productRes.data.data.map((product) => ({
+        value: product.productId,
+        label: product.productName,
+      }));
+   //   console.log("productData:", productOptions);
+      setProducts(productOptions);
     } catch (error) {
       console.error("Error fetching dropdown data:", error);
     }
@@ -272,6 +288,15 @@ export default function ChallanMaster() {
     }
   };
 
+  const handleDropDownChange = (selectedOption, action) => {
+    console.log("Selected Option:", selectedOption);
+    console.log("Action:", action);
+    const { name } = action; // Extract 'name' from action
+    const value = selectedOption ? selectedOption.value : ""; // Get value from selected option
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-6">Challan Master</h2>
@@ -280,37 +305,41 @@ export default function ChallanMaster() {
         <div className="grid grid-cols-4 gap-4">
           <div>
             <label className="block font-medium">Customer</label>
-            <select
+            <Select
               name="customerId"
-              value={formData.customerId}
-              onChange={handleInputChange}
+              value={
+                formData.customerId
+                  ? customers.find((customer) => customer.value === formData.customerId)
+                  : null
+              }
+              options={customers}
+              onChange={(selectedOption) =>
+                handleDropDownChange(selectedOption, { name: "customerId" })
+              }
               className="w-full border border-gray-300 rounded px-3 py-2"
               required
-            >
-              <option value="">Select Customer</option>
-              {customers.map((customer) => (
-                <option key={customer.customerId} value={customer.customerId}>
-                  {customer.name}
-                </option>
-              ))}
-            </select>
+              placeholder="Select a customer..."
+              isClearable
+           />
           </div>
           <div>
             <label className="block font-medium">Engineer</label>
-            <select
+            <Select
               name="engineerId"
-              value={formData.engineerId}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              value={
+                formData.engineerId
+                  ? engineers.find((engineer) => engineer.value === formData.engineerId)
+                  : null
+              }
               required
-            >
-              <option value="">Select Engineer</option>
-              {engineers.map((engineer) => (
-                <option key={engineer.id} value={engineer.id}>
-                  {engineer.name}
-                </option>
-              ))}
-            </select>
+              options={engineers}
+              onChange={(selectedOption) =>
+                handleDropDownChange(selectedOption, { name: "engineerId" })
+              }
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              placeholder="Select a Engineer..."
+              isClearable
+            />
           </div>
           <div>
             <label className="block font-medium">Date</label>
@@ -346,21 +375,22 @@ export default function ChallanMaster() {
           <div key={index} className="grid grid-cols-4 gap-4 items-center mb-4">
             <div>
               <label className="block font-medium">Product</label>
-              <select
-                value={product.productId}
-                onChange={(e) =>
-                  handleProductChange(index, "productId", e.target.value)
-                }
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                required
-              >
-                <option value="">Select Product</option>
-                {products.map((p) => (
-                  <option key={p.productId} value={p.productId}>
-                    {p.productName}
-                  </option>
-                ))}
-              </select>
+              <Select
+              name="productId"
+              value={
+                formData.productId
+                  ? products.find((product) => product.value === formData.productId)
+                  : null
+              }
+              required
+              options={products}
+              onChange={(selectedOption) =>
+                handleDropDownChange(selectedOption, { name: "productId" })
+              }
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              placeholder="Select a Product..."
+              isClearable
+            />
             </div>
             <div>
               <label className="block font-medium">Price</label>

@@ -17,6 +17,7 @@ import LoginPage from "./components/LoginPage";
 import Navbar from "./components/Navbar";
 import ProductCategory from "./components/ProductCategory";
 import PaymentMaster from "./components/PaymentMaster"; 
+import SalaryMaster from "./components/SalaryMaster"; 
 
 
 const ProtectedRoute = ({ children }) => {
@@ -58,6 +59,7 @@ const Main = () => {
                 <Route path="/rules" element={<ProtectedRoute><RuleSettings /></ProtectedRoute>} />
                 <Route path="/product-categories" element={<ProtectedRoute><ProductCategory /></ProtectedRoute>}/>
                 <Route path="/payment-management" element={<ProtectedRoute><PaymentMaster /></ProtectedRoute>}/>
+                <Route path="/SalaryMaster" element={<ProtectedRoute><SalaryMaster /></ProtectedRoute>}/>
             </Routes>
         </>
     );
