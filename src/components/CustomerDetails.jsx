@@ -18,6 +18,9 @@ const CustomerDetails = () => {
     remark: ""
   });
 
+  const userModules = JSON.parse(sessionStorage.getItem("userPermissions") || "[]");
+  const hasPaymentAccess = userModules.includes("Payment Management");
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const [ledgerData, setLedgerData] = useState([]);
@@ -295,7 +298,7 @@ const CustomerDetails = () => {
             <th className="py-2 px-4 border-b">Address</th>
             <th className="py-2 px-4 border-b">Remark</th>
             <th className="py-2 px-4 border-b">Actions</th>
-            <th className="py-2 px-4 border-b">Ledger</th>
+            {hasPaymentAccess && <th className="py-2 px-4 border-b">Ledger</th>}
           </tr>
         </thead>
         <tbody>
@@ -317,11 +320,11 @@ const CustomerDetails = () => {
                     Delete
                   </button>
                 </td>
-                <td className="py-2 px-4 border-b">
+                {hasPaymentAccess && <td className="py-2 px-4 border-b">
                   <button onClick={() => fetchLedger(customer.customerId)} className="text-indigo-600 hover:text-indigo-800 mr-2">
                     Ledger
                   </button>
-                </td>
+                </td>}
               </tr>)))
               : (<tr>
                 <td colSpan="7" className="py-2 px-4 text-center">
