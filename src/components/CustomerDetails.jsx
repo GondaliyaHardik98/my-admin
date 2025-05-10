@@ -258,6 +258,7 @@ const CustomerDetails = () => {
   <tr>
     <td className="py-2 px-4 border-t">Total</td>
     <td className="py-2 px-4 border-t"></td>
+    <td className="py-2 px-4 border-t"></td>
     <td className="py-2 px-4 border-t text-right text-emerald-700">
       ₹{totalDebit.toLocaleString()}
     </td>
