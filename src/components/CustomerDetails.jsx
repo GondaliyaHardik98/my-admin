@@ -268,7 +268,7 @@ const CustomerDetails = () => {
   </tr>
   <tr>
     <td className="py-2 px-4 font-bold" colSpan={2}>Closing Balance ({balanceSide})</td>
-    <td className="py-2 px-4 text-right font-bold text-indigo-800" colSpan={2}>
+    <td className="py-2 px-4 text-right font-bold text-indigo-800" colSpan={3}>
       ₹{Math.abs(closingBalance).toLocaleString()}
     </td>
   </tr>
