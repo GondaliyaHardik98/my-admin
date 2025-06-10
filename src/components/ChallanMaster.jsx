@@ -82,18 +82,11 @@ export default function ChallanMaster() {
     }));
   };
 
-  const handleProductChange = (index, field, value) => {
-    const updatedProducts = [...formData.products]; // Clone the products array
-    updatedProducts[index] = {
-      ...updatedProducts[index],
-      [field]: value, // Update the specific field
-    };
-  
-    setFormData((prev) => ({
-      ...prev,
-      products: updatedProducts, // Update the form data with the modified products array
-    }));
-  };
+ const handleProductChange = (index, field, value) => {
+  const updatedProducts = [...formData.products];
+  updatedProducts[index][field] = value;
+  setFormData((prev) => ({ ...prev, products: updatedProducts }));
+};
 
   const addProductRow = () => {
     setFormData((prev) => ({
@@ -378,14 +371,15 @@ export default function ChallanMaster() {
               <Select
               name="productId"
               value={
-                formData.productId
-                  ? products.find((product) => product.value === formData.productId)
+                product.productId
+                  ? products.find((p) => p.value === product.productId)
                   : null
               }
               required
               options={products}
               onChange={(selectedOption) =>
-                handleDropDownChange(selectedOption, { name: "productId" })
+                //handleDropDownChange(selectedOption, { name: "productId" })
+                handleProductChange(index, "productId", selectedOption?.value || "")
               }
               className="w-full border border-gray-300 rounded px-3 py-2"
               placeholder="Select a Product..."
