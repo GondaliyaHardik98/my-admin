@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 
@@ -8,6 +8,9 @@ export default function EmployeeForm() {
 
   const [showModal, setShowModal] = useState(false);
   const [proofUrl, setProofUrl] = useState(null);
+
+  const photoRef = useRef(null);
+  const idProofRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -167,6 +170,9 @@ export default function EmployeeForm() {
       id_proof: null,
     });
     setSelectedEmployeeId(null);
+
+    if (photoRef.current) photoRef.current.value = "";
+    if (idProofRef.current) idProofRef.current.value = "";
   };
 
   const handleSearch = (event) => {
@@ -258,6 +264,7 @@ export default function EmployeeForm() {
             <input
               type="file"
               name="photo"
+              ref={photoRef}
               onChange={handleFileChange}
               className="form-control"
             />
@@ -282,6 +289,7 @@ export default function EmployeeForm() {
             <input
               type="file"
               name="id_proof"
+              ref={idProofRef}
               onChange={handleFileChange}
               className="form-control"
             />
