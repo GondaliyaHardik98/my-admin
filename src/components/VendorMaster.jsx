@@ -229,8 +229,9 @@ export default function VendorMaster() {
           </button>
           {/* Submit Button */}
           <button
-            type="submit"
+            type="button"
             //disabled={loading}
+            onClick={clearRecord}
             className="w-32 bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
           >
             Clear
