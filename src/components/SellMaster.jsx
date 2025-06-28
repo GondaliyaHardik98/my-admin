@@ -309,6 +309,22 @@ export default function SellMaster() {
     }
   };
 
+  const handleDelete = async (id) => {
+  if (!window.confirm("Are you sure you want to delete this record?")) return;
+
+  try {
+    const token = sessionStorage.getItem("jwtToken");
+    const res = await axios.delete(`${process.env.REACT_APP_API_URL}/sell/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    alert(res.data.message);
+    fetchSellData(); // or fetchAMCs or fetchRenewals
+  } catch (err) {
+    alert(err.response?.data?.message || "Error deleting");
+  }
+};
+
+
 
 
 
@@ -455,6 +471,8 @@ export default function SellMaster() {
               {isSuperAdmin && <th className="py-2 px-4 border-b">Remaining</th>} */}
               <th className="py-2 px-4 border-b">Invoice</th>
               <th className="py-2 px-4 border-b">Actions</th>
+              <th className="py-2 px-4 border-b">Delete</th>
+
             </tr>
           </thead>
           <tbody>
@@ -544,7 +562,16 @@ export default function SellMaster() {
                 >
                   Edit Details
                 </button>
-                </td>
+                  </td>
+                  <td>
+                    <button
+  onClick={() => handleDelete(sell.sellId)}
+  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+>
+  Delete
+</button>
+
+                  </td>
               </tr>
               ))
             ) :

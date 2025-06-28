@@ -17,6 +17,7 @@ export default function AMCRecord() {
   const [selectedYear, setSelectedYear] = useState("");  // Stores the selected year
   const [availableYears, setAvailableYears] = useState([]); // Stores unique years
 
+  const [editingPayment, setEditingPayment] = useState(null);
 
   const [response, setResponse] = useState(null);
   const [formData, setFormData] = useState({
@@ -661,6 +662,53 @@ export default function AMCRecord() {
   //     value.toLowerCase().includes(searchQuery.toLowerCase())
   // ));
 
+
+  const handleDelete = async (id) => {
+  if (!window.confirm("Are you sure you want to delete this record?")) return;
+
+  try {
+    const token = sessionStorage.getItem("jwtToken");
+    const res = await axios.delete(`${process.env.REACT_APP_API_URL}/amc/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    alert(res.data.message);
+    fetchAMCRecords(); // or fetchAMCs or fetchRenewals
+  } catch (err) {
+    alert(err.response?.data?.message || "Error deleting");
+  }
+  };
+  
+
+  const updatePayment = async (paymentId) => {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      await axios.put(`${process.env.REACT_APP_API_URL}/amc/payment/${paymentId}`, editingPayment, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert("Payment updated.");
+      setEditingPayment(null);
+      fetchPaymentHistory(selectedAmc);
+    } catch (error) {
+      alert("Error updating payment.");
+    }
+  };
+
+  const deletePayment = async (paymentId) => {
+    if (!window.confirm("Delete this payment?")) return;
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      await axios.delete(`${process.env.REACT_APP_API_URL}/amc/payment/${paymentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert("Payment deleted.");
+      fetchPaymentHistory(selectedAmc);
+    } catch (error) {
+      alert("Error deleting payment.");
+    }
+  };
+
+
+
   return (<div className="container mx-auto p-4">
     <h2 className="text-2xl font-bold mb-6">AMC Master</h2>
 
@@ -745,6 +793,8 @@ export default function AMCRecord() {
             <th className="py-2 px-4 border-b">Payment Status</th>
             <th className="py-2 px-4 border-b">Actions</th>
             <th className="py-2 px-4 border-b">Print</th>
+            <th className="py-2 px-4 border-b">Delete</th>
+
           </tr>
         </thead>
         <tbody>
@@ -788,6 +838,15 @@ export default function AMCRecord() {
                     Print
                   </button>
                 </td>
+                <td>
+                  <button
+                    onClick={() => handleDelete(amc.amcId)}
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+
+                </td>
               </tr>)))
               : (<tr>
                 <td colSpan="9" className="py-2 px-4 border-b text-center">
@@ -801,27 +860,68 @@ export default function AMCRecord() {
 
     {/* Modal */}
     {isModalOpen && selectedAmc && (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
-        <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-xl font-bold mb-4">Payment History</h3>
-            {Array.isArray(paymentHistory[selectedAmc]) && paymentHistory[selectedAmc].length > 0 ? (
-                <ul>
-                    {paymentHistory[selectedAmc].map((payment, index) => (
-                        <li key={index} className="border-b py-2">
-                            {formatDate(payment.paymentDate)} -  
-                            <span className="font-medium"> ₹{payment.amountPaid}</span> 
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>No payments recorded.</p>
-            )}
-            <button className="bg-red-500 text-white px-4 py-2 mt-4 rounded" onClick={() => setIsModalOpen(false)}>
-                Close
-            </button>
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
+          <h3 className="text-xl font-bold mb-4">Payment History</h3>
+
+          {Array.isArray(paymentHistory[selectedAmc]) && paymentHistory[selectedAmc].length > 0 ? (
+            <ul>
+              {paymentHistory[selectedAmc].map((payment) => (
+                <li key={payment.paymentId} className="border-b py-2 flex flex-col gap-2">
+                  {editingPayment?.paymentId === payment.paymentId ? (
+                    <>
+                      <input
+                        type="number"
+                        value={editingPayment.amountPaid}
+                        onChange={(e) => setEditingPayment({ ...editingPayment, amountPaid: e.target.value })}
+                        className="border px-2 py-1 rounded"
+                      />
+                      <input
+                        type="text"
+                        value={editingPayment.paymentMethod || ""}
+                        onChange={(e) => setEditingPayment({ ...editingPayment, paymentMethod: e.target.value })}
+                        className="border px-2 py-1 rounded"
+                      />
+                      <input
+                        type="text"
+                        value={editingPayment.remark || ""}
+                        onChange={(e) => setEditingPayment({ ...editingPayment, remark: e.target.value })}
+                        className="border px-2 py-1 rounded"
+                      />
+                      <div className="flex gap-2">
+                        <button onClick={() => updatePayment(payment.paymentId)} className="bg-green-500 text-white px-2 py-1 rounded">Save</button>
+                        <button onClick={() => setEditingPayment(null)} className="bg-gray-400 text-white px-2 py-1 rounded">Cancel</button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <span>{formatDate(payment.paymentDate)} - ₹{payment.amountPaid}</span>
+                      <div className="flex gap-2">
+                        <button onClick={() => setEditingPayment(payment)} className="text-yellow-600 hover:underline">Edit</button>
+                        <button onClick={() => deletePayment(payment.paymentId)} className="text-red-600 hover:underline">Delete</button>
+                      </div>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No payments recorded.</p>
+          )}
+
+          <button
+            className="bg-red-500 text-white px-4 py-2 mt-4 rounded"
+            onClick={() => {
+              setIsModalOpen(false);
+              setEditingPayment(null);
+            }}
+          >
+            Close
+          </button>
         </div>
-    </div>
-)}
+      </div>
+  )}
+
 
 
   </div>);

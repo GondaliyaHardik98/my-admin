@@ -1,321 +1,221 @@
+// pages/SalaryMaster.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
 
-function SalaryMaster() {
-  const [salaryData, setSalaryData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [response, setResponse] = useState(null);
-  const [SelectedSalaryId, setSelectedSalaryId] = useState(null);
-  const [employeeData, setEmployeeData] = useState([]);
+const SalaryMaster = () => {
+  const [employees, setEmployees] = useState([]);
   const [formData, setFormData] = useState({
-    salaryId: 0,
-    engineerId: 0,
-    salary: 0,
-    salaryDate: "",
-    salaryMonth: "",
-    salaryRemark: "",
+    employeeId: "",
+    month_year: "",
+    basic_salary: "",
+    advance_withdrawal: "",
+    emi_deduction: "",
+    net_paid: "",
+    payment_date: "",
+    remark: ""
   });
+  const [ledger, setLedger] = useState([]);
+  const [summary, setSummary] = useState([]);
 
   useEffect(() => {
-    populateData();
-    fetchSalary();
+    GetEmployeeList();
+
   }, []);
 
-  const fetchSalary = async () => {
-    try {
-      const getAllData = await axios.get(
-        `${process.env.REACT_APP_API_URL}/salary`
-      );
-      setSalaryData(getAllData.data.data);
-      console.log(getAllData.data.data, "getAllData");
-    } catch (error) {
-      console.error("Error fetching Salary:", error);
+  const GetEmployeeList = async () => {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/employees/list`);
+    if (res.data.success) {
+      setEmployees(res.data.data);
     }
+    
+  }
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const populateData = async () => {
-    try {
-      const employeeData = await axios.get(
-        `${process.env.REACT_APP_API_URL}/challanEmployee`
-      );
-      setEmployeeData(employeeData.data.data);
-      console.log(employeeData.data.data, "employeeData");
-    } catch (error) {
-      console.error("Error fetching", error);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    SaveRecord();
-  };
+    const salary = parseFloat(formData.basic_salary || 0);
+    const advance = parseFloat(formData.advance_withdrawal || 0);
+    const emi = parseFloat(formData.emi_deduction || 0);
+    const netPaid = salary - advance - emi;
+    const dataToSend = { ...formData, net_paid: netPaid };
 
-  const SaveRecord = async () => {
-    setLoading(true);
-    setResponse(null);
-
-    try {
-      const _saveData = {
-        engineerId: formData.engineerId,
-        salary: formData.salary,
-        salaryDate: formData.salaryDate,
-        salaryMonth: formData.salaryMonth,
-        salaryRemark: formData.salaryRemark,
-      };
-      console.log(_saveData, "savdata");
-      const isEdit = !!SelectedSalaryId;
-
-      const apiUrl = isEdit
-        ? `${process.env.REACT_APP_API_URL}/salary/${SelectedSalaryId}` // Edit endpoint with ID
-        : `${process.env.REACT_APP_API_URL}/salary`; // Create endpoint
-      const method = isEdit ? "PUT" : "POST";
-
-      const response = await fetch(apiUrl, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(_saveData),
-      });
-
-      const data = await response.json();
-
-      setResponse({
-        success: data.success,
-        message: data.message,
-      });
-
-      if (data.success) {
-        // Clear form on success
-        clearRecord();
-        fetchSalary();
-      }
-    } catch (error) {
-      setResponse({
-        success: false,
-        message: "Error submitting form. Please try again.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const clearRecord = () => {
+    const res = await axios.post(`${process.env.REACT_APP_API_URL}/salary/pay`, dataToSend);
+    alert(res.data.message);
+    fetchLedger(dataToSend.employeeId);
+    fetchSummary(dataToSend.employeeId);
     setFormData({
-      salaryId: 0,
-      engineerId: 0,
-      salary: 0,
-      salaryDate: "",
-      salaryMonth: "",
-      salaryRemark: "",
+      employeeId: "",
+      month_year: "",
+      basic_salary: "",
+      advance_withdrawal: "",
+      emi_deduction: "",
+      net_paid: "",
+      payment_date: "",
+      remark: ""
     });
-  };
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toISOString().split("T")[0];
-  };
-  const handleEdit = (entry) => {
-    setSelectedSalaryId(entry.salaryId); // Set the selected vendor's ID
 
-    setFormData({
-      engineerId: entry.engineerId,
-      salary: entry.salary,
-      salaryDate: formatDate(entry.salaryDate),
-      salaryMonth: entry.salaryMonth,
-      salaryRemark: entry.salaryRemark,
-    });
+    // Reset form data
+    setLedger([]);
+    setSummary([]);
+    document.querySelector("form").reset();
   };
-  const handleDeleteEmployee = async (id) => {
-    if (window.confirm("Are you sure you want to delete this record?")) {
-      try {
-        console.log(id, "delete id");
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/salary/${id}`,
-          {
-            method: "DELETE",
-          }
-        );
-        const result = await response.json();
 
-        if (result.success) {
-          // Remove the deleted customer from the state
-          //setCustomers(customers.filter((customer) => customer.id !== id));
-          fetchSalary();
-          clearRecord();
-          alert("Record deleted successfully.");
-        } else {
-          alert("Failed to delete record.");
-        }
-      } catch (error) {
-        console.error("Error deleting record:", error);
-        alert("An error occurred.");
-      }
-    }
+  const fetchLedger = async (id) => {
+    let url = `${process.env.REACT_APP_API_URL}/salary/ledger/${id}`;
+    console.log(url);
+    const res = await axios.get(url);
+
+    setLedger(res.data.data);
   };
+
+  const fetchSummary = async (id) => {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/salary/summary/${id}`);
+    setSummary(res.data.data);
+  };
+
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-6">SalaryMaster</h2>
-      <form onSubmit={handleSubmit} className="space-y-4 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Engineer ID */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Engineer ID
-            </label>
+    <div className="container py-4">
+      <h2 className="mb-4">Salary Management</h2>
+
+      {/* Salary Form */}
+      <form className="card p-4 mb-4 shadow" onSubmit={handleSubmit}>
+        <div className="row mb-3">
+          <div className="col-md-4">
+            <label>Employee</label>
             <select
-              name="engineerId"
-              value={formData.engineerId}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              className="form-select"
+              name="employeeId"
+              onChange={(e) => {
+                handleChange(e);
+                fetchLedger(e.target.value);
+                fetchSummary(e.target.value);
+              }}
               required
             >
-              <option value="">Select employee</option>
-              {employeeData.map((empData) => (
-                <option key={empData.engineerId} value={empData.engineerId}>
-                  {empData.name}
-                </option>
+              <option value="">Select</option>
+              {employees.map(emp => (
+                <option key={emp.id} value={emp.id}>{emp.name}</option>
               ))}
             </select>
           </div>
-
-          {/* Salary */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Salary</label>
+          <div className="col-md-4">
+            <label>Month-Year</label>
             <input
-              type="number"
-              name="salary"
-              value={formData.salary}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              type="month"
+              name="month_year"
+              className="form-control"
+              onChange={handleChange}
               required
             />
           </div>
-
-          {/* Salary Date */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Salary Date
-            </label>
+          <div className="col-md-4">
+            <label>Payment Date</label>
             <input
               type="date"
-              name="salaryDate"
-              value={formData.salaryDate}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              name="payment_date"
+              className="form-control"
+              onChange={handleChange}
               required
             />
           </div>
-          {/* Month */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Month</label>
+        </div>
+
+        <div className="row mb-3">
+          <div className="col-md-3">
+            <label>Basic Salary</label>
+            <input
+              type="number"
+              name="basic_salary"
+              className="form-control"
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="col-md-3">
+            <label>Advance</label>
+            <input
+              type="number"
+              name="advance_withdrawal"
+              className="form-control"
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-3">
+            <label>EMI Deduction</label>
+            <input
+              type="number"
+              name="emi_deduction"
+              className="form-control"
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-3">
+            <label>Remark</label>
             <input
               type="text"
-              name="salaryMonth"
-              value={formData.salaryMonth}
-              onChange={handleInputChange}
-              placeholder="e.g., January"
-              className="w-full border border-gray-300 rounded px-3 py-2"
-              required
+              name="remark"
+              className="form-control"
+              onChange={handleChange}
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Remark */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Remark</label>
-            <textarea
-              rows={2}
-              type="text"
-              name="salaryRemark"
-              value={formData.salaryRemark}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-center space-x-4 mt-4">
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            className="w-36 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
-          >
-            Save
-          </button>
-          <button
-            type="button"
-            onClick={clearRecord}
-            className="w-32 bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
-          >
-            Clear
-          </button>
-        </div>
+        <button type="submit" className="btn btn-primary">Submit Salary</button>
       </form>
-      {response && (
-        <div
-          className={`mt-4 p-4 rounded-lg flex items-center space-x-2 ${
-            response.success
-              ? "bg-green-50 text-green-700"
-              : "bg-red-50 text-red-700"
-          }`}
-        >
-          {response.success ? (
-            <CheckCircle2 className="w-5 h-5" />
-          ) : (
-            <AlertCircle className="w-5 h-5" />
-          )}
-          <span>{response.message}</span>
-        </div>
-      )}
-      {/* Responsive Data Table */}
-      <div className="container mx-auto mt-8 p-4 overflow-x-auto">
-        <table className="w-full border border-gray-300 text-left">
+
+      {/* Summary Table */}
+      <div className="card p-3 shadow mb-4">
+        <h5 className="mb-3">Monthly Salary Summary</h5>
+        <table className="table table-bordered">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="py-2 px-4 border-b">ID</th>
-              <th className="py-2 px-4 border-b">Engineer ID</th>
-              <th className="py-2 px-4 border-b">Salary</th>
-              <th className="py-2 px-4 border-b">Salary Date</th>
-              <th className="py-2 px-4 border-b">Month</th>
-              <th className="py-2 px-4 border-b">Remark</th>
-              <th className="py-2 px-4 border-b">Actions</th>
+            <tr>
+              <th>Month</th>
+              <th>Basic</th>
+              <th>Advance</th>
+              <th>EMI</th>
+              <th>Net Paid</th>
+              <th>Date</th>
+              <th>Remark</th>
             </tr>
           </thead>
           <tbody>
-            {salaryData.map((entry, index) => (
-              <tr key={index} className="border-b">
-                <td className="py-2 px-4">{index + 1}</td>
-                <td className="py-2 px-4">{entry.engineerName}</td>
-                <td className="py-2 px-4">{entry.salary}</td>
-                <td className="py-2 px-4">{formatDate(entry.salaryDate)}</td>
-                <td className="py-2 px-4">{entry.salaryMonth}</td>
-                <td className="py-2 px-4">{entry.salaryRemark}</td>
+            {summary.map((s, idx) => (
+              <tr key={idx}>
+                <td>{s.month_year}</td>
+                <td>₹{s.basic_salary}</td>
+                <td>₹{s.advance_withdrawal}</td>
+                <td>₹{s.emi_deduction}</td>
+                <td>₹{s.net_paid}</td>
+                <td>{s.payment_date}</td>
+                <td>{s.remark}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-                <td className="py-2 px-4 border-b">
-                  <button
-                    onClick={() => handleEdit(entry)}
-                    className="text-blue-500 hover:text-blue-700 mr-2"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteEmployee(entry.salaryId)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    Delete
-                  </button>
-                </td>
+      {/* Ledger Table */}
+      <div className="card p-3 shadow">
+        <h5 className="mb-3">Salary Ledger</h5>
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Remark</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ledger.map((l, idx) => (
+              <tr key={idx}>
+                <td>{new Date(l.date).toLocaleDateString()}</td>
+                <td>{l.type}</td>
+                <td>₹{l.amount}</td>
+                <td>{l.remark}</td>
               </tr>
             ))}
           </tbody>
@@ -323,6 +223,6 @@ function SalaryMaster() {
       </div>
     </div>
   );
-}
+};
 
 export default SalaryMaster;
