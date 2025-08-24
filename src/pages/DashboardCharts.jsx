@@ -56,7 +56,7 @@ export default function DashboardCharts() {
   useEffect(() => {
 
     const permissions = JSON.parse(sessionStorage.getItem("userPermissions") || "[]");
-    console.log("User permissions Dashbaord:", permissions);
+    //console.log("User permissions Dashbaord:", permissions);
     const from = fromDate.format("YYYY-MM-DD");
     const to = toDate.format("YYYY-MM-DD");
     setLoading(true);

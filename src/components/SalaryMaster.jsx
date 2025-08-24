@@ -16,6 +16,8 @@ const SalaryMaster = () => {
   });
   const [ledger, setLedger] = useState([]);
   const [summary, setSummary] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+
 
   useEffect(() => {
     GetEmployeeList();
@@ -42,7 +44,14 @@ const SalaryMaster = () => {
     const netPaid = salary - advance - emi;
     const dataToSend = { ...formData, net_paid: netPaid };
 
-    const res = await axios.post(`${process.env.REACT_APP_API_URL}/salary/pay`, dataToSend);
+    const url = editingId
+      ? `${process.env.REACT_APP_API_URL}/salary/${editingId}`
+      : `${process.env.REACT_APP_API_URL}/salary/pay`;
+
+    const method = editingId ? "put" : "post";
+
+    const res = await axios({ method, url, data: dataToSend });
+
     alert(res.data.message);
     fetchLedger(dataToSend.employeeId);
     fetchSummary(dataToSend.employeeId);
@@ -62,6 +71,29 @@ const SalaryMaster = () => {
     setSummary([]);
     document.querySelector("form").reset();
   };
+
+  const handleEdit = (row, index) => {
+  setFormData({
+    employeeId: row.employeeId,
+    month_year: row.month_year,
+    basic_salary: row.basic_salary,
+    advance_withdrawal: row.advance_withdrawal,
+    emi_deduction: row.emi_deduction,
+    payment_date: row.payment_date,
+    remark: row.remark
+  });
+  setEditingId(row.id);
+};
+
+const handleDelete = async (id) => {
+  if (!window.confirm("Are you sure you want to delete this salary entry?")) return;
+
+  const res = await axios.delete(`${process.env.REACT_APP_API_URL}/salary/${id}`);
+  alert(res.data.message);
+  fetchLedger(formData.employeeId);
+  fetchSummary(formData.employeeId);
+};
+
 
   const fetchLedger = async (id) => {
     let url = `${process.env.REACT_APP_API_URL}/salary/ledger/${id}`;
@@ -88,6 +120,7 @@ const SalaryMaster = () => {
             <select
               className="form-select"
               name="employeeId"
+              value={formData.employeeId}
               onChange={(e) => {
                 handleChange(e);
                 fetchLedger(e.target.value);
@@ -108,6 +141,7 @@ const SalaryMaster = () => {
               name="month_year"
               className="form-control"
               onChange={handleChange}
+              value={formData.month_year}
               required
             />
           </div>
@@ -116,6 +150,7 @@ const SalaryMaster = () => {
             <input
               type="date"
               name="payment_date"
+              value={formData.payment_date}
               className="form-control"
               onChange={handleChange}
               required
@@ -129,6 +164,7 @@ const SalaryMaster = () => {
             <input
               type="number"
               name="basic_salary"
+              value={formData.basic_salary}
               className="form-control"
               onChange={handleChange}
               required
@@ -138,6 +174,7 @@ const SalaryMaster = () => {
             <label>Advance</label>
             <input
               type="number"
+              value={formData.advance_withdrawal}
               name="advance_withdrawal"
               className="form-control"
               onChange={handleChange}
@@ -148,6 +185,7 @@ const SalaryMaster = () => {
             <input
               type="number"
               name="emi_deduction"
+              value={formData.emi_deduction}
               className="form-control"
               onChange={handleChange}
             />
@@ -158,6 +196,7 @@ const SalaryMaster = () => {
               type="text"
               name="remark"
               className="form-control"
+              value={formData.remark}
               onChange={handleChange}
             />
           </div>
@@ -179,6 +218,7 @@ const SalaryMaster = () => {
               <th>Net Paid</th>
               <th>Date</th>
               <th>Remark</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -191,6 +231,10 @@ const SalaryMaster = () => {
                 <td>₹{s.net_paid}</td>
                 <td>{s.payment_date}</td>
                 <td>{s.remark}</td>
+                <td>
+                  <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(s, idx)}>Edit</button>
+                  <button className="btn btn-sm btn-danger" onClick={() => handleDelete(s.id)}>Delete</button>
+                </td>
               </tr>
             ))}
           </tbody>

@@ -19,6 +19,10 @@ import ProductCategory from "./components/ProductCategory";
 import PaymentMaster from "./components/PaymentMaster"; 
 import SalaryMaster from "./components/SalaryMaster"; 
 
+import PartyManagement from "./components/PartyManagement";
+import WorkerManagement from "./components/WorkerManagement";
+import JangadManagement from "./components/JangadManagement";
+
 
 const ProtectedRoute = ({ children }) => {
     const token = sessionStorage.getItem("jwtToken");
@@ -59,7 +63,10 @@ const Main = () => {
                 <Route path="/rules" element={<ProtectedRoute><RuleSettings /></ProtectedRoute>} />
                 <Route path="/product-categories" element={<ProtectedRoute><ProductCategory /></ProtectedRoute>}/>
                 <Route path="/payment-management" element={<ProtectedRoute><PaymentMaster /></ProtectedRoute>}/>
-                <Route path="/SalaryMaster" element={<ProtectedRoute><SalaryMaster /></ProtectedRoute>}/>
+                <Route path="/SalaryMaster" element={<ProtectedRoute><SalaryMaster /></ProtectedRoute>} />
+                <Route path="/party"  element={<ProtectedRoute><PartyManagement /></ProtectedRoute>} />
+                <Route path="/worker" element={<ProtectedRoute><WorkerManagement /></ProtectedRoute>} />
+                <Route path="/jangad" element={<ProtectedRoute><JangadManagement /></ProtectedRoute>} />
             </Routes>
         </>
     );
